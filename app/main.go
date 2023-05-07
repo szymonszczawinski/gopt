@@ -5,6 +5,8 @@ import (
 	"core/dummy"
 	"core/http"
 	"core/messenger"
+	"time"
+
 	// "core/queue"
 	"core/service"
 	// "fmt"
@@ -17,6 +19,7 @@ import (
 )
 
 func main() {
+	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	log.Println("Hello JOSI")
 	// start()
 	message := "string message"
@@ -24,7 +27,7 @@ func main() {
 }
 
 func tryJob(message string) {
-	ctx, cancel := context.WithCancel(context.Background())
+	baseContext, cancel := context.WithCancel(context.Background())
 
 	sigCh := make(chan os.Signal, 1)
 	defer close(sigCh)
@@ -35,8 +38,17 @@ func tryJob(message string) {
 		<-sigCh
 		cancel()
 	}()
-	dummYservice := dummy.NewDummyService(ctx)
+	eg, ctx := errgroup.WithContext(baseContext)
+
+	dummYservice := dummy.NewDummyService(eg, ctx)
 	dummYservice.VoidMethod("szymon")
+	dummYservice.VoidMethod("szymon")
+	time.Sleep(time.Second)
+	dummYservice.VoidMethod("szymon")
+	dummYservice.VoidMethod("szymon")
+	if err := eg.Wait(); err == nil {
+		log.Println("Successfully fetched all URLs.")
+	}
 	// jq := queue.NeqJobQueue()
 	// jq.Start(ctx)
 	// j := queue.Job{Execute: func() { fmt.Println(message) }}

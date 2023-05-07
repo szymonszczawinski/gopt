@@ -3,7 +3,9 @@ package queue
 import (
 	"context"
 	"log"
-	"sync"
+	// "sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type Job struct {
@@ -15,7 +17,7 @@ type IJobQueue interface {
 }
 
 type JobQueue struct {
-	wg   sync.WaitGroup
+	// wg   sync.WaitGroup
 	jobs chan *Job
 }
 
@@ -26,15 +28,33 @@ func NeqJobQueue() *JobQueue {
 
 func (jq *JobQueue) Wait() {
 	log.Println("JobQueue::Wait")
-	jq.wg.Wait()
+	// jq.wg.Wait()
 }
 
 // Start starts a dispatcher.
 // This dispatcher will stops when it receive a value from `ctx.Done`.
-func (jq *JobQueue) Start(ctx context.Context) {
+func (jq *JobQueue) Start(g *errgroup.Group, ctx context.Context) {
 	log.Println("JobQueue::Start")
-	jq.wg.Add(1)
-	go jq.loop(ctx)
+	g.Go(func() error {
+	Loop:
+		for {
+			log.Println("JobQueue::Start::Wait for Job")
+			select {
+			case <-ctx.Done():
+				log.Println("JobQueue::Start::Finish")
+				// wg.Done()
+				break Loop
+
+			case job := <-jq.jobs:
+
+				log.Println("JobQueue::Start::Do Job")
+				job.Execute()
+
+			}
+		}
+		log.Println("Done")
+		return nil
+	})
 }
 
 // Add enqueues a job into the queue.
@@ -46,24 +66,16 @@ func (jq *JobQueue) Add(job *Job) {
 }
 
 func (jq *JobQueue) Stop() {
-	jq.wg.Done()
+	// jq.wg.Done()
 }
 
 func (jq *JobQueue) loop(ctx context.Context) {
-Loop:
-	for {
-		log.Println("Wait for Job")
-		select {
-		case <-ctx.Done():
-			log.Println("Finish")
-			break Loop
-		case job := <-jq.jobs:
-			func(job *Job) {
-				log.Println("Do Job")
-				job.Execute()
-			}(job)
-		}
-	}
+	// wg := sync.WaitGroup{}
+	// wg.Add(1)
+	// go func() {
+	// }()
+	// log.Println("JobQueue::loop::Wait")
+	// wg.Wait()
 	log.Println("End")
-	jq.Stop()
+	// jq.Stop()
 }

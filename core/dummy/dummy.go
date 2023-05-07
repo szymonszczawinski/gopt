@@ -5,6 +5,8 @@ import (
 	"core/queue"
 	"fmt"
 	"log"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type IService interface {
@@ -20,10 +22,10 @@ func (s *dummyService) VoidMethod(message string) {
 	s.looper.Add(&queue.Job{Execute: func() { fmt.Println("Hello ", message) }})
 }
 
-func NewDummyService(ctx context.Context) *dummyService {
+func NewDummyService(eg *errgroup.Group, ctx context.Context) *dummyService {
 	instance := new(dummyService)
 	instance.looper = *queue.NeqJobQueue()
-	instance.looper.Start(ctx)
+	instance.looper.Start(eg, ctx)
 	// instance.looper.Wait()
 	return instance
 }
