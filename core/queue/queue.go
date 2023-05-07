@@ -1,0 +1,69 @@
+package queue
+
+import (
+	"context"
+	"log"
+	"sync"
+)
+
+type Job struct {
+	Execute func()
+}
+
+type IJobQueue interface {
+	Wait()
+}
+
+type JobQueue struct {
+	wg   sync.WaitGroup
+	jobs chan *Job
+}
+
+func NeqJobQueue() *JobQueue {
+	log.Println("NewJobQueue")
+	return &JobQueue{jobs: make(chan *Job)}
+}
+
+func (jq *JobQueue) Wait() {
+	log.Println("JobQueue::Wait")
+	jq.wg.Wait()
+}
+
+// Start starts a dispatcher.
+// This dispatcher will stops when it receive a value from `ctx.Done`.
+func (jq *JobQueue) Start(ctx context.Context) {
+	log.Println("JobQueue::Start")
+	jq.wg.Add(1)
+	go jq.loop(ctx)
+}
+
+// Add enqueues a job into the queue.
+// If the number of enqueued jobs has already reached to the maximum size,
+// this will block until the other job has finish and the queue has space to accept a new job.
+func (jq *JobQueue) Add(job *Job) {
+	log.Println("JobQueue::Add")
+	jq.jobs <- job
+}
+
+func (jq *JobQueue) Stop() {
+	jq.wg.Done()
+}
+
+func (jq *JobQueue) loop(ctx context.Context) {
+Loop:
+	for {
+		log.Println("Wait for Job")
+		select {
+		case <-ctx.Done():
+			log.Println("Finish")
+			break Loop
+		case job := <-jq.jobs:
+			func(job *Job) {
+				log.Println("Do Job")
+				job.Execute()
+			}(job)
+		}
+	}
+	log.Println("End")
+	jq.Stop()
+}
