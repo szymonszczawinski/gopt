@@ -17,13 +17,13 @@ type IJobQueue interface {
 }
 
 type JobQueue struct {
-	// wg   sync.WaitGroup
+	g    *errgroup.Group
 	jobs chan *Job
 }
 
-func NeqJobQueue() *JobQueue {
+func NeqJobQueue(g *errgroup.Group) *JobQueue {
 	log.Println("NewJobQueue")
-	return &JobQueue{jobs: make(chan *Job)}
+	return &JobQueue{jobs: make(chan *Job), g: g}
 }
 
 func (jq *JobQueue) Wait() {
@@ -33,9 +33,9 @@ func (jq *JobQueue) Wait() {
 
 // Start starts a dispatcher.
 // This dispatcher will stops when it receive a value from `ctx.Done`.
-func (jq *JobQueue) Start(g *errgroup.Group, ctx context.Context) {
+func (jq *JobQueue) Start(ctx context.Context) {
 	log.Println("JobQueue::Start")
-	g.Go(func() error {
+	jq.g.Go(func() error {
 	Loop:
 		for {
 			log.Println("JobQueue::Start::Wait for Job")
@@ -62,7 +62,12 @@ func (jq *JobQueue) Start(g *errgroup.Group, ctx context.Context) {
 // this will block until the other job has finish and the queue has space to accept a new job.
 func (jq *JobQueue) Add(job *Job) {
 	log.Println("JobQueue::Add")
-	jq.jobs <- job
+	jq.g.Go(func() error {
+
+		jq.jobs <- job
+		return nil
+	})
+	log.Println("JobQueue::Added")
 }
 
 func (jq *JobQueue) Stop() {
