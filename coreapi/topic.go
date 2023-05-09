@@ -1,4 +1,4 @@
-package messenger
+package coreapi
 
 var (
 	HELLO Topic = Topic{"hello"}

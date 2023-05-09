@@ -3,6 +3,7 @@ package http
 import (
 	"core/messenger"
 	"core/service"
+	"coreapi"
 	"fmt"
 	"log"
 )
@@ -17,7 +18,7 @@ func NewHttpService() *httpService {
 	if err == nil {
 		impl, ok := res.(messenger.IMessengerHandlerRegistry)
 		if ok {
-			impl.AddHandler(messenger.HELLO, serviceInstance)
+			impl.AddHandler(coreapi.HELLO, serviceInstance)
 		} else {
 			log.Println("Incorrect type", impl)
 		}
@@ -28,9 +29,9 @@ func NewHttpService() *httpService {
 	return serviceInstance
 }
 
-func (s *httpService) OnPublish(t messenger.Topic, m messenger.Message, l messenger.PublishListener) {
+func (s *httpService) OnPublish(t coreapi.Topic, m coreapi.Message, l coreapi.PublishListener) {
 	log.Println(fmt.Sprintf("Message: %v published on topic: %v", m, t))
 }
-func (s *httpService) OnSubscribe(t messenger.Topic, listener messenger.SubscribeListener) {
+func (s *httpService) OnSubscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
 	log.Println(fmt.Sprintf("Subscribe request on topic: %v", t))
 }

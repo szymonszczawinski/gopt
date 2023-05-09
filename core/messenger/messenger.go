@@ -1,6 +1,9 @@
 package messenger
 
-import "log"
+import (
+	"coreapi"
+	"log"
+)
 
 // "fmt"
 
@@ -9,42 +12,31 @@ const (
 	IMMESSENGER_HANDLER_REGISTRY = "IMessengerHalndlerRegistry"
 )
 
-type Message any
-type Feedback any
-
-type PublishListener interface {
-	OnSuccess(t Topic, f Feedback)
-	OnFailure(t Topic, f Feedback)
-}
-
-type SubscribeListener interface {
-	OnMessage(t Topic, m Message)
-}
 type IMessengerHandler interface {
-	OnPublish(t Topic, m Message, listener PublishListener)
-	OnSubscribe(t Topic, listener SubscribeListener)
+	OnPublish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener)
+	OnSubscribe(t coreapi.Topic, listener coreapi.SubscribeListener)
 }
 type IMessengerHandlerRegistry interface {
-	AddHandler(t Topic, handler IMessengerHandler)
+	AddHandler(t coreapi.Topic, handler IMessengerHandler)
 	RemoveHandler(handler IMessengerHandler)
 }
 type IMessenger interface {
-	Publish(t Topic, m Message, listener PublishListener)
-	Subscribe(t Topic, listener SubscribeListener)
+	Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener)
+	Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener)
 }
 
 type messengerService struct {
-	handlers map[Topic][]IMessengerHandler
+	handlers map[coreapi.Topic][]IMessengerHandler
 }
 
 func NewMessenger() *messengerService {
 	log.Println("New Messenger Service")
 	messenger := new(messengerService)
-	messenger.handlers = make(map[Topic][]IMessengerHandler)
+	messenger.handlers = make(map[coreapi.Topic][]IMessengerHandler)
 	return messenger
 }
 
-func (s *messengerService) Publish(t Topic, m Message, listener PublishListener) {
+func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener) {
 	log.Println("Publish on topic:", t)
 	go func() {
 		log.Println("Publish::GO::handlers: ", s.handlers)
@@ -59,10 +51,10 @@ func (s *messengerService) Publish(t Topic, m Message, listener PublishListener)
 	}()
 }
 
-func (s *messengerService) Subscribe(t Topic, listener SubscribeListener) {
+func (s *messengerService) Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
 
 }
-func (s *messengerService) AddHandler(t Topic, handler IMessengerHandler) {
+func (s *messengerService) AddHandler(t coreapi.Topic, handler IMessengerHandler) {
 	log.Println("AddHandler")
 	handlers, ok := s.handlers[t]
 	if ok {

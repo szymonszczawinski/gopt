@@ -5,6 +5,7 @@ import (
 	"core/dummy"
 	"core/http"
 	"core/messenger"
+	"coreapi"
 	"fmt"
 	"plugin"
 	"time"
@@ -117,7 +118,7 @@ func start2() {
 		serviceManager.AddService(messenger.IMESSENGER, messengerService)
 		serviceManager.AddService(messenger.IMMESSENGER_HANDLER_REGISTRY, messengerService)
 		http.NewHttpService()
-		messengerService.Publish(messenger.HELLO, "Szymon", nil)
+		messengerService.Publish(coreapi.HELLO, "Szymon", nil)
 		return nil
 	})
 	if err := eg.Wait(); err != nil {
