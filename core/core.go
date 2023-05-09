@@ -44,7 +44,7 @@ func startServices() {
 func startModSerice(serviceName string, serviceLocation string) {
 	plug, err := plugin.Open(serviceLocation)
 	if err != nil {
-		log.Println("Could not load: ", serviceName)
+		log.Println("Could not load: ", serviceName, "Error: ", err)
 	} else {
 		createMethod, err := plug.Lookup("New")
 		if err != nil {
