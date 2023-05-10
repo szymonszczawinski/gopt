@@ -1,0 +1,8 @@
+{
+  "services": [
+    {
+      "name": "RPC",
+      "path": "rpc/rpc.so"
+    }
+  ]
+}

@@ -15,7 +15,7 @@ func New() any {
 	return instance
 }
 
-func (s *rpc) RunService() {
+func (s *rpc) StartService() {
 	log.Println("RPC:RUN")
 	s.broker.Publish(coreapi.HELLO, coreapi.Message("Hello"), nil)
 }

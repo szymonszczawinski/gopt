@@ -1,24 +1,20 @@
 package core
 
 import (
-	"context"
 	"core/dummy"
 	"core/http"
 	"core/messenger"
-	"coreapi"
-	"fmt"
-	"plugin"
-	"time"
-
-	// "time"
-
-	// "core/queue"
 	"core/service"
-	// "fmt"
+	"coreapi"
+
+	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
+	"plugin"
 	"syscall"
+	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -45,25 +41,25 @@ func startModSerice(serviceName string, serviceLocation string) {
 	plug, err := plugin.Open(serviceLocation)
 	if err != nil {
 		log.Println("Could not load: ", serviceName, "Error: ", err)
-	} else {
-		createMethod, err := plug.Lookup("New")
-		if err != nil {
-			log.Println("Could not get New from: ", serviceName)
-		} else {
-			createFunction, isCreateFunction := createMethod.(func() any)
-			if !isCreateFunction {
-				log.Println(fmt.Sprintf("Not ceate function %T", createMethod))
-			} else {
-				instance := createFunction()
-				serviceInstance, isInstance := instance.(service.IService)
-				if !isInstance {
-					log.Println("Instance is not IModService")
-				} else {
-					serviceInstance.RunService()
-				}
-			}
-		}
+		return
 	}
+	createMethod, err := plug.Lookup(service.NEW_FUNCTION)
+	if err != nil {
+		log.Println("Could not get New from: ", serviceName)
+		return
+	}
+	createFunction, isCreateFunction := createMethod.(func() any)
+	if !isCreateFunction {
+		log.Println(fmt.Sprintf("Not ceate function %T", createMethod))
+		return
+	}
+	instance := createFunction()
+	serviceInstance, isInstance := instance.(service.IService)
+	if !isInstance {
+		log.Println("Instance is not IModService")
+		return
+	}
+	serviceInstance.StartService()
 
 }
 
