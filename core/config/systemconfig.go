@@ -9,6 +9,9 @@ import (
 
 const ROOT_DIR string = ".."
 const CONFIG_DIR string = ROOT_DIR + "/config"
+const RUN_MODE string = "-runmode"
+const RUN_MODE_DEV string = "dev"
+const RUN_MODE_PLUG string = "plug"
 
 var configuredServices ServiceConfigItems
 

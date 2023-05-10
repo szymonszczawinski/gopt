@@ -14,16 +14,20 @@ type httpService struct{}
 
 func NewHttpService() *httpService {
 	serviceInstance := new(httpService)
-	res, err := service.GetServiceManager().GetService(messenger.IMMESSENGER_HANDLER_REGISTRY)
+	sm, err := service.GetServiceManager()
 	if err == nil {
-		impl, ok := res.(messenger.IMessengerHandlerRegistry)
-		if ok {
-			impl.AddHandler(coreapi.HELLO, serviceInstance)
+
+		res, err := sm.GetService(messenger.IMMESSENGER_HANDLER_REGISTRY)
+		if err == nil {
+			impl, ok := res.(messenger.IMessengerHandlerRegistry)
+			if ok {
+				impl.AddHandler(coreapi.HELLO, serviceInstance)
+			} else {
+				log.Println("Incorrect type", impl)
+			}
 		} else {
-			log.Println("Incorrect type", impl)
+			log.Println("Could not find service: ", messenger.IMMESSENGER_HANDLER_REGISTRY)
 		}
-	} else {
-		log.Println("Could not find service: ", messenger.IMMESSENGER_HANDLER_REGISTRY)
 	}
 	log.Println("New Http Service")
 	return serviceInstance

@@ -1,10 +1,14 @@
 package service
 
 import (
+	"context"
+	"coreapi/queue"
 	"errors"
 	"fmt"
 	"log"
 	"sync"
+
+	"golang.org/x/sync/errgroup"
 )
 
 var singleInstance *serviceManager
@@ -17,6 +21,7 @@ type IServceManager interface {
 }
 type serviceManager struct {
 	services map[ServiceType]any
+	looper   queue.JobQueue
 }
 
 func (s *serviceManager) GetService(serviceType ServiceType) (any, error) {
@@ -36,25 +41,18 @@ func (s *serviceManager) AddService(serviceType ServiceType, service any) error 
 	log.Println("Service added: ", serviceType)
 	return nil
 }
-func newServiceManager() *serviceManager {
-	serviceManager := new(serviceManager)
-	serviceManager.services = map[ServiceType]any{}
-	return serviceManager
+func NewServiceManager(eg *errgroup.Group, ctx context.Context) *serviceManager {
+	instance := new(serviceManager)
+	instance.services = map[ServiceType]any{}
+	instance.looper = *queue.NeqJobQueue("serviceManager", eg)
+	instance.looper.Start(ctx)
+	singleInstance = instance
+	return instance
 }
 
-func GetServiceManager() *serviceManager {
+func GetServiceManager() (*serviceManager, error) {
 	if singleInstance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-		if singleInstance == nil {
-			log.Println("Creating single instance now.")
-			singleInstance = newServiceManager()
-		} else {
-			log.Println("Single instance already created.")
-		}
-	} else {
-		log.Println("Single instance already created.")
+		return nil, errors.New("No Service Manager created")
 	}
-
-	return singleInstance
+	return singleInstance, nil
 }

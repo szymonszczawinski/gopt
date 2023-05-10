@@ -2,7 +2,7 @@ package dummy
 
 import (
 	"context"
-	"core/queue"
+	"coreapi/queue"
 	"fmt"
 	"log"
 	"time"
@@ -29,7 +29,7 @@ func (s *dummyService) VoidMethod(message string) {
 
 func NewDummyService(eg *errgroup.Group, ctx context.Context) *dummyService {
 	instance := new(dummyService)
-	instance.looper = *queue.NeqJobQueue(eg)
+	instance.looper = *queue.NeqJobQueue("dummy", eg)
 	instance.looper.Start(ctx)
 	// instance.looper.Wait()
 	return instance
