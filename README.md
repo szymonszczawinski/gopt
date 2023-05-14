@@ -3,7 +3,7 @@
 ## Goal
 
 Goal of this project is to learn Go language.
-Project will have 4 main parts:
+Project will have 6+ main parts:
 - app module - that will be main executable
 - core module - that will have all core functionality: configuration management, servises, connectors ( http/websocket/zmq )
 - coreapi module - interfaces
