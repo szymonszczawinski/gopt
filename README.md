@@ -1,4 +1,4 @@
-# josi
+# gosi
 
 
 
@@ -15,14 +15,14 @@ Already a pro? Just edit this README.md and make it your own. Want to make it ea
 
 ```
 cd existing_repo
-git remote add origin https://gitlab.com/szymonszczawinski/josi.git
+git remote add origin https://gitlab.com/szymonszczawinski/gosi.git
 git branch -M main
 git push -uf origin main
 ```
 
 ## Integrate with your tools
 
-- [ ] [Set up project integrations](https://gitlab.com/szymonszczawinski/josi/-/settings/integrations)
+- [ ] [Set up project integrations](https://gitlab.com/szymonszczawinski/gosi/-/settings/integrations)
 
 ## Collaborate with your team
 
