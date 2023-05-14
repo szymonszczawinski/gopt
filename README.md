@@ -1,6 +1,15 @@
 # gosi
 
+## Goal
 
+Goal of this project is to learn Go language.
+Project will have 4 main parts:
+- app module - that will be main executable
+- core module - that will have all core functionality: configuration management, servises, connectors ( http/websocket/zmq )
+- coreapi module - interfaces
+- model module - proto based models
+- mod/xxx modules - copmpile time / plugin modules for particular functionalities
+- client module - to use / simulate usage scenarios
 
 ## Getting started
 
