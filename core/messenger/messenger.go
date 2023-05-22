@@ -1,8 +1,13 @@
 package messenger
 
 import (
-	"coreapi"
+	"context"
+	"gosi/core/service"
+	"gosi/coreapi"
+	"gosi/coreapi/queue"
 	"log"
+
+	"golang.org/x/sync/errgroup"
 )
 
 // "fmt"
@@ -26,14 +31,25 @@ type IMessenger interface {
 }
 
 type messengerService struct {
+	ctx      context.Context
+	looper   queue.JobQueue
 	handlers map[coreapi.Topic][]IMessengerHandler
 }
 
-func NewMessenger() *messengerService {
+func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerService {
 	log.Println("New Messenger Service")
 	messenger := new(messengerService)
+	messenger.ctx = ctx
+	messenger.looper = *queue.NeqJobQueue("messengerService", eg)
 	messenger.handlers = make(map[coreapi.Topic][]IMessengerHandler)
+	sm, _ := service.GetServiceManager()
+	sm.RegisterService(IMMESSENGER_HANDLER_REGISTRY, messenger)
 	return messenger
+}
+
+func (s *messengerService) StartService() {
+	log.Println("Starting", IMESSENGER)
+	s.looper.Start(s.ctx)
 }
 
 func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener) {

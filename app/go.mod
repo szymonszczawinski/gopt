@@ -1,3 +1,3 @@
-module app
+module gosi/app
 
 go 1.20

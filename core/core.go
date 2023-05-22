@@ -1,11 +1,13 @@
 package core
 
 import (
-	"core/config"
-	"core/dummy"
-	"core/service"
+	"gosi/core/config"
+	"gosi/core/dummy"
+	"gosi/core/http"
+	"gosi/core/messenger"
+	"gosi/core/service"
 
-	"rpc"
+	"gosi/rpc"
 
 	"context"
 	"fmt"
@@ -27,9 +29,8 @@ func Start(cla map[string]any) {
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
 	service.NewServiceManager(mainGroup, groupContext)
-	dummy.NewDummyService(mainGroup, groupContext)
-
-	// startServices(mainGroup, groupContext)
+	//some simple comment
+	startServices(mainGroup, groupContext)
 	// time.Sleep(time.Second * 5)
 	if err := mainGroup.Wait(); err == nil {
 		log.Println("FINISH CORE")
@@ -39,11 +40,26 @@ func Start(cla map[string]any) {
 }
 
 func startServices(eg *errgroup.Group, ctx context.Context) {
+	log.Println("START CORE :: START SERVICES")
 
 	startCoreServices(eg, ctx)
 	// startModServices(eg, ctx)
 }
 func startCoreServices(eg *errgroup.Group, ctx context.Context) {
+	log.Println("START CORE :: START CORE SERVICES")
+	sm, _ := service.GetServiceManager()
+
+	log.Println("Starting MESSENGER SERVICE")
+	messengerService := messenger.NewMessengerService(eg, ctx)
+	sm.StartService(messenger.IMESSENGER, messengerService)
+
+	log.Println("Starting HTTP SERVER SERVICE")
+	httpServerService := http.NewHttpServerService(eg, ctx)
+	sm.StartService(http.IHTTP_SERVER_SERVICE, httpServerService)
+
+	log.Println("Starting HTTP CLIENT SERVICE")
+	httpClientService := http.NewHttpClientService(eg, ctx)
+	sm.StartService(http.IHTTP_CLIENT_SERVICE, httpClientService)
 
 }
 func startModServices(eg *errgroup.Group, ctx context.Context) {
@@ -58,7 +74,7 @@ func createModService(serviceName string, serviceLocation string, eg *errgroup.G
 		return createPluginService(serviceLocation, serviceName)
 	} else {
 		if serviceName == "RPC" {
-			instance := rpc.New(eg, ctx)
+			instance := rpc.NewRpcService(eg, ctx)
 			serviceInstance, isInstance := instance.(service.IService)
 			if !isInstance {
 				log.Println("Instance is not IModService")

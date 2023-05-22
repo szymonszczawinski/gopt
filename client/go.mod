@@ -1,11 +1,8 @@
-module gosi/core
+module gosi/client
 
 go 1.20
 
-require (
-	github.com/gin-gonic/gin v1.9.0
-	golang.org/x/sync v0.2.0
-)
+require github.com/gin-gonic/gin v1.9.0
 
 require (
 	github.com/bytedance/sonic v1.8.0 // indirect

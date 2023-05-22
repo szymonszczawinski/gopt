@@ -9,4 +9,5 @@ type ServiceConfigItems struct {
 type ServiceConfigItem struct {
 	Name string `json:"name"`
 	Path string `json:"path"`
+	IsPlugin bool `json:"isplugin"`
 }
