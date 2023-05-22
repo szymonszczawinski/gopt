@@ -2,7 +2,9 @@ go 1.20
 
 use (
 	./app
+	./client
 	./core
 	./coreapi
 	./mod/rpc
+	./model
 )

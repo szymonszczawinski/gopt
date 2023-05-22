@@ -2,8 +2,8 @@ package dummy
 
 import (
 	"context"
-	"coreapi/queue"
 	"fmt"
+	"gosi/coreapi/queue"
 	"log"
 	"time"
 

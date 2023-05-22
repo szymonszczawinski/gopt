@@ -1,8 +1,9 @@
 package main
 
 import (
-	"core"
-	"core/config"
+	// "gosi/core"
+	"gosi/core"
+	"gosi/core/config"
 	"log"
 	"os"
 )
@@ -12,6 +13,7 @@ func main() {
 	log.Println("JOSI :: START")
 	cla := parseCLA(os.Args)
 	core.Start(cla)
+
 	log.Println("JOSI :: FINISH")
 }
 

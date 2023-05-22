@@ -3,8 +3,14 @@
 ## Goal
 
 Goal of this project is to learn Go language.
-Project will have 6+ main parts:
-- app module - that will be main executable
+Domain of the project will be JIRA-like system.
+Sysyem will contain 'Projects'.
+Each Project can  contain 0+ number of Items.
+Items can be of different types (TBD).
+It will be possible to define different lifecycles for different types of items.
+Different types of items can have  0+ Items as children.
+There will be different  types of relations between Items on the same level, or parent-child relation.
+Project will have 6+ main parts: app module - that will be main executable
 - core module - that will have all core functionality: configuration management, servises, connectors ( http/websocket/zmq )
 - coreapi module - interfaces
 - model module - proto based models

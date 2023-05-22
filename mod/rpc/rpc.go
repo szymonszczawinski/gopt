@@ -2,7 +2,7 @@ package rpc
 
 import (
 	"context"
-	"coreapi"
+	"gosi/coreapi"
 	// "coreapi/queue"
 	"log"
 
@@ -15,7 +15,7 @@ type rpc struct {
 	ctx context.Context
 }
 
-func New(eg *errgroup.Group, ctx context.Context) any {
+func NewRpcService(eg *errgroup.Group, ctx context.Context) any {
 	instance := new(rpc)
 	instance.broker = coreapi.NewBroker()
 	// instance.looper = *queue.NeqJobQueue(eg)

@@ -1,8 +1,14 @@
 {
   "services": [
     {
-      "name": "RPC",
-      "path": "rpc/rpc.so"
+        "name": "RPC",
+        "path": "rpc/rpc.so",
+        "plugin":true
+    },
+    {
+        "name":"messenger",
+        "path":"",
+        "isplugin":false
     }
   ]
 }

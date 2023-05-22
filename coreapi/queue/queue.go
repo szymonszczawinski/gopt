@@ -24,7 +24,7 @@ type JobQueue struct {
 }
 
 func NeqJobQueue(name string, g *errgroup.Group) *JobQueue {
-	log.Println("NewJobQueue")
+	log.Println("NewJobQueue::", name)
 	return &JobQueue{jobs: make(chan *Job), g: g, name: name}
 }
 
