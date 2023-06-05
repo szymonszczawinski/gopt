@@ -15,7 +15,7 @@ type IDummyService interface {
 }
 
 type dummyService struct {
-	looper queue.JobQueue
+	looper queue.IJobQueue
 }
 
 func (s *dummyService) VoidMethod(message string) {
@@ -29,7 +29,7 @@ func (s *dummyService) VoidMethod(message string) {
 
 func NewDummyService(eg *errgroup.Group, ctx context.Context) *dummyService {
 	instance := new(dummyService)
-	instance.looper = *queue.NeqJobQueue("dummy", eg)
+	instance.looper = queue.NeqJobQueue("dummy", eg)
 	instance.looper.Start(ctx)
 	// instance.looper.Wait()
 	return instance

@@ -1,0 +1,24 @@
+syntax = "proto3";
+option go_package = ".;issues";
+package model;
+message LifecycleStateDTO {
+    int32 id = 1;
+    string name = 2;
+    }
+message LifecycleStateTransitionDTO {
+    repeated LifecycleStateDTO states = 1;
+    }
+message LifecycleDTO {
+    int64 id = 1;
+    string name = 2;
+    LifecycleStateDTO startState = 3;
+    map<int32, LifecycleStateTransitionDTO> states = 4;
+    }
+
+message IssueDTO {
+    int64 id = 1;
+    string name = 2;
+    string description = 3;
+    LifecycleStateDTO state = 4;
+    int64 lifecycleId = 5;
+    }

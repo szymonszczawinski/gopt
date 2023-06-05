@@ -10,8 +10,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// "fmt"
-
 const (
 	IMESSENGER                   = "IMessenger"
 	IMMESSENGER_HANDLER_REGISTRY = "IMessengerHalndlerRegistry"
@@ -32,7 +30,7 @@ type IMessenger interface {
 
 type messengerService struct {
 	ctx      context.Context
-	looper   queue.JobQueue
+	looper   queue.IJobQueue
 	handlers map[coreapi.Topic][]IMessengerHandler
 }
 
@@ -40,7 +38,7 @@ func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerServ
 	log.Println("New Messenger Service")
 	messenger := new(messengerService)
 	messenger.ctx = ctx
-	messenger.looper = *queue.NeqJobQueue("messengerService", eg)
+	messenger.looper = queue.NeqJobQueue("messengerService", eg)
 	messenger.handlers = make(map[coreapi.Topic][]IMessengerHandler)
 	sm, _ := service.GetServiceManager()
 	sm.RegisterService(IMMESSENGER_HANDLER_REGISTRY, messenger)
@@ -68,7 +66,7 @@ func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener 
 }
 
 func (s *messengerService) Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
-
+	log.Println("Subscribe on topic", t)
 }
 func (s *messengerService) AddHandler(t coreapi.Topic, handler IMessengerHandler) {
 	log.Println("AddHandler")
