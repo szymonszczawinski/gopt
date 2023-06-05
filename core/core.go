@@ -2,7 +2,6 @@ package core
 
 import (
 	"gosi/core/config"
-	"gosi/core/dummy"
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/service"
@@ -124,51 +123,4 @@ func registerShutdownHook(cancel context.CancelFunc) chan os.Signal {
 
 	return sigCh
 
-}
-
-func tryJob(message string) {
-	baseContext, cancel := context.WithCancel(context.Background())
-
-	sigCh := make(chan os.Signal, 1)
-	defer close(sigCh)
-
-	signal.Notify(sigCh, syscall.SIGHUP, syscall.SIGQUIT, syscall.SIGINT)
-	go func() {
-		// wait until receiving the signal
-		<-sigCh
-		cancel()
-	}()
-	eg, ctx := errgroup.WithContext(baseContext)
-
-	dummy.NewDummyService(eg, ctx)
-	// dummYservice.VoidMethod("szymon")
-	// dummYservice.VoidMethod("szymon")
-	// dummYservice.VoidMethod("szymon")
-	// dummYservice.VoidMethod("szymon")
-	if err := eg.Wait(); err == nil {
-		log.Println("Successfully fetched all URLs.")
-	}
-	// jq := queue.NeqJobQueue()
-	// jq.Start(ctx)
-	// j := queue.Job{Execute: func() { fmt.Println(message) }}
-	// jq.Add(&j)
-	// jq.Wait()
-}
-
-func start2() {
-	// eg, _ := errgroup.WithContext(context.Background())
-	// eg.Go(func() error {
-	//
-	// 	serviceManager := service.GetServiceManager()
-	// 	messengerService := messenger.NewMessenger()
-	// 	serviceManager.AddService(messenger.IMESSENGER, messengerService)
-	// 	serviceManager.AddService(messenger.IMMESSENGER_HANDLER_REGISTRY, messengerService)
-	// 	http.NewHttpService()
-	// 	messengerService.Publish(coreapi.HELLO, "Szymon", nil)
-	// 	return nil
-	// })
-	// if err := eg.Wait(); err != nil {
-	// 	log.Fatal("Error", err)
-	// }
-	// log.Println("Completed successfully!")
 }

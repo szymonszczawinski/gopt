@@ -10,11 +10,11 @@ import (
 
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.Println("JOSI :: START")
+	log.Println("GOSI :: START")
 	cla := parseCLA(os.Args)
 	core.Start(cla)
 
-	log.Println("JOSI :: FINISH")
+	log.Println("GOSI :: FINISH")
 }
 
 func parseCLA(args []string) map[string]any {

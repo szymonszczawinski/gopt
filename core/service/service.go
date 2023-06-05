@@ -16,7 +16,7 @@ var lock = &sync.Mutex{}
 
 type serviceManager struct {
 	services map[ServiceType]any
-	looper   queue.JobQueue
+	looper   queue.IJobQueue
 }
 
 // Get Service of given serviceType or return error if service is not registerred
@@ -49,7 +49,7 @@ func (s *serviceManager) RegisterService(serviceType ServiceType, service IServi
 func NewServiceManager(eg *errgroup.Group, ctx context.Context) *serviceManager {
 	instance := new(serviceManager)
 	instance.services = map[ServiceType]any{}
-	instance.looper = *queue.NeqJobQueue("serviceManager", eg)
+	instance.looper = queue.NeqJobQueue("serviceManager", eg)
 	instance.looper.Start(ctx)
 	singleInstance = instance
 	return instance

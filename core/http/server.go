@@ -14,7 +14,7 @@ const (
 )
 
 type httpServerService struct {
-	looper queue.JobQueue
+	looper queue.IJobQueue
 	ctx    context.Context
 	server http.HttpServer
 }
@@ -22,7 +22,7 @@ type httpServerService struct {
 func NewHttpServerService(eg *errgroup.Group, ctx context.Context) *httpServerService {
 	instance := new(httpServerService)
 	instance.ctx = ctx
-	instance.looper = *queue.NeqJobQueue("httpServerService", eg)
+	instance.looper = queue.NeqJobQueue("httpServerService", eg)
 	instance.server = *http.NewHttpServer(ctx, eg, 8081)
 	return instance
 }

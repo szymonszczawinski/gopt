@@ -17,14 +17,14 @@ const (
 )
 
 type httpClientService struct {
-	looper queue.JobQueue
+	looper queue.IJobQueue
 	ctx    context.Context
 }
 
 func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientService {
 	serviceInstance := new(httpClientService)
 	serviceInstance.ctx = ctx
-	serviceInstance.looper = *queue.NeqJobQueue("httpClientService", eg)
+	serviceInstance.looper = queue.NeqJobQueue("httpClientService", eg)
 	sm, err := service.GetServiceManager()
 	if err == nil {
 
