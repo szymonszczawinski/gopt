@@ -6,4 +6,5 @@ import (
 
 type IStorage interface {
 	GetProjects() []issues.Project
+	GetProject(projectId int64) (*issues.Project, error)
 }

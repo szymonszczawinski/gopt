@@ -15,6 +15,7 @@ const (
 
 type IStorageService interface {
 	GetProjects() []issues.Project
+	GetProject(projectId int64) (*issues.Project, error)
 }
 
 type storageService struct {
@@ -44,4 +45,22 @@ func (s storageService) GetProjects() []issues.Project {
 	}})
 
 	return <-resultChan
+}
+func (s storageService) GetProject(projectId int64) (*issues.Project, error) {
+	resultChan := make(chan issues.Project)
+	errChan := make(chan error)
+	s.looper.Add(&queue.Job{Execute: func() {
+		project, err := s.storage.GetProject(projectId)
+		if err != nil {
+			errChan <- err
+		} else {
+			resultChan <- *project
+		}
+	}})
+	select {
+	case err := <-errChan:
+		return nil, err
+	case res := <-resultChan:
+		return &res, nil
+	}
 }
