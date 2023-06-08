@@ -4,7 +4,11 @@ import (
 	"gosi/core/config"
 	"gosi/core/http"
 	"gosi/core/messenger"
+
+	// "gosi/core/http"
+	// "gosi/core/messenger"
 	"gosi/core/service"
+	"gosi/core/storage"
 
 	"gosi/rpc"
 
@@ -51,6 +55,10 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 	log.Println("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
 	sm.StartService(messenger.IMESSENGER, messengerService)
+
+	log.Println("Starting STORAGE SERVICE")
+	storageService := storage.NewStorageService(eg, ctx)
+	sm.StartService(storage.ISTORAGESERVICE, storageService)
 
 	log.Println("Starting HTTP SERVER SERVICE")
 	httpServerService := http.NewHttpServerService(eg, ctx)
