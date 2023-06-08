@@ -1,11 +1,11 @@
 package issues
 
 type Issue struct {
-	id           int64
-	name         string
-	description  string
-	currentState LifecycleState
-	lifecycle    Lifecycle
+	Id           int64          `json:"id"`
+	Name         string         `json:"name"`
+	Description  string         `json:"description"`
+	CurrentState LifecycleState `json:"state"`
+	Lifecycle    Lifecycle      `json:"lifecycle"`
 }
 
 type Project struct {
@@ -15,11 +15,11 @@ type Project struct {
 func NewProject(id int64, name string, lifecycle Lifecycle) *Project {
 	project := Project{
 		Issue: Issue{
-			id:           id,
-			name:         name,
-			description:  "",
-			currentState: lifecycle.startState,
-			lifecycle:    lifecycle,
+			Id:           id,
+			Name:         name,
+			Description:  "",
+			CurrentState: lifecycle.startState,
+			Lifecycle:    lifecycle,
 		},
 	}
 	return &project

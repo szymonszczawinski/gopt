@@ -39,16 +39,16 @@ func (jq *jobQueue) Start(ctx context.Context) {
 	jq.g.Go(func() error {
 	Loop:
 		for {
-			log.Println("JobQueue", jq.name, "::Start::Wait for Job")
+			log.Println("JobQueue", jq.name, "::Wait for Job")
 			select {
 			case <-ctx.Done():
-				log.Println("JobQueue", jq.name, "::Start::Finish")
+				log.Println("JobQueue", jq.name, "::Finish")
 				// wg.Done()
 				break Loop
 
 			case job := <-jq.jobs:
 
-				log.Println("JobQueue", jq.name, "::Start::Do Job")
+				log.Println("JobQueue", jq.name, "::Do Job")
 				job.Execute()
 
 			}

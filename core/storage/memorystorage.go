@@ -2,21 +2,21 @@ package storage
 
 import "gosi/issues"
 
-var instance *storage
+var instance *memoryStorage
 
-type storage struct {
+type memoryStorage struct {
 	lifecycleStates map[int]issues.LifecycleState
 	lifecycles      map[int]issues.Lifecycle
 	projects        []issues.Project
 }
 
-func (s *storage) initStorage() {
+func (s *memoryStorage) initStorage() {
 	s.initLifecycleStates()
 	s.initLifecycles()
 	s.initProjects()
 }
 
-func (s *storage) initLifecycleStates() {
+func (s *memoryStorage) initLifecycleStates() {
 	s.lifecycleStates = make(map[int]issues.LifecycleState)
 	s.lifecycleStates[1] = issues.NewLifecycleState(1, issues.LIFECYCLE_STATE_DRAFT)
 	s.lifecycleStates[2] = issues.NewLifecycleState(2, issues.LIFECYCLE_STATE_NEW)
@@ -33,7 +33,7 @@ func (s *storage) initLifecycleStates() {
 	s.lifecycleStates[13] = issues.NewLifecycleState(13, issues.LIFECYCLE_STATE_RETEST)
 }
 
-func (s *storage) initLifecycles() {
+func (s *memoryStorage) initLifecycles() {
 	s.lifecycles = make(map[int]issues.Lifecycle)
 	s.lifecycles[1] = issues.NewLifeCycleBuilder(1, "Project", s.lifecycleStates[1]).
 		AddTransition(s.lifecycleStates[1], s.lifecycleStates[3]).AddTransition(s.lifecycleStates[3], s.lifecycleStates[4]).
@@ -41,19 +41,19 @@ func (s *storage) initLifecycles() {
 		AddTransition(s.lifecycleStates[8], s.lifecycleStates[9]).AddTransition(s.lifecycleStates[9], s.lifecycleStates[11]).
 		Build()
 }
-func (s *storage) initProjects() {
+func (s *memoryStorage) initProjects() {
 	s.projects = make([]issues.Project, 0)
 	s.projects = append(s.projects, *issues.NewProject(1, "Project A", s.lifecycles[1]))
 
 }
 
-func (s *storage) GetProjects() []issues.Project {
+func (s *memoryStorage) GetProjects() []issues.Project {
 	return s.projects
 }
 
 func GetStorage() IStorage {
 	if instance == nil {
-		instance = new(storage)
+		instance = new(memoryStorage)
 		instance.initStorage()
 	}
 	return instance

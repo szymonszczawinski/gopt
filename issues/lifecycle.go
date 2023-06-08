@@ -16,21 +16,21 @@ const (
 )
 
 type LifecycleState struct {
-	id   int
-	name string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func NewLifecycleState(id int, name string) LifecycleState {
 	state := LifecycleState{
-		id:   id,
-		name: name,
+		Id:   id,
+		Name: name,
 	}
 	return state
 }
 
 type Lifecycle struct {
-	id          int
-	name        string
+	Id          int    `json:"id"`
+	Name        string `json:"name"`
 	startState  LifecycleState
 	transitions map[LifecycleState][]LifecycleState
 }
@@ -64,8 +64,8 @@ func (lcb *LifecycleBuilder) AddTransition(from LifecycleState, to LifecycleStat
 
 func (lcb LifecycleBuilder) Build() Lifecycle {
 	lifecycle := Lifecycle{
-		id:          lcb.id,
-		name:        lcb.name,
+		Id:          lcb.id,
+		Name:        lcb.name,
 		startState:  lcb.startState,
 		transitions: lcb.transitions,
 	}

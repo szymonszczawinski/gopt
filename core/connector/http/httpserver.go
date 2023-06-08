@@ -32,8 +32,9 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int) *Ht
 	return instance
 }
 func configureRoutes(router *gin.Engine) {
-	router.GET("/gosi", controllers.Root(router))
-	router.GET("/gosi/hello", controllers.Hello)
+	rootRoute := router.Group("/gosi")
+	controllers.AddProjectsRoutes(rootRoute)
+	rootRoute.GET("/hello", controllers.Hello)
 
 }
 func (s *HttpServer) Start() {
