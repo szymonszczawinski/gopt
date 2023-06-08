@@ -1,6 +1,10 @@
 package storage
 
-import "gosi/issues"
+import (
+	"errors"
+	"fmt"
+	"gosi/issues"
+)
 
 var instance *memoryStorage
 
@@ -47,8 +51,17 @@ func (s *memoryStorage) initProjects() {
 
 }
 
-func (s *memoryStorage) GetProjects() []issues.Project {
+func (s memoryStorage) GetProjects() []issues.Project {
 	return s.projects
+}
+
+func (s memoryStorage) GetProject(projectId int64) (*issues.Project, error) {
+	for _, project := range s.projects {
+		if project.Id == projectId {
+			return &project, nil
+		}
+	}
+	return nil, errors.New(fmt.Sprintf("Project with ID: %v not found", projectId))
 }
 
 func GetStorage() IStorage {
