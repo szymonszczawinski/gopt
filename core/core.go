@@ -1,16 +1,14 @@
 package core
 
 import (
-	"gosi/core/config"
 	"gosi/core/http"
 	"gosi/core/messenger"
+	"gosi/core/storage/sqlite"
 
-	// "gosi/core/http"
-	// "gosi/core/messenger"
 	"gosi/core/service"
 	"gosi/core/storage"
-
-	"gosi/rpc"
+	iservice "gosi/coreapi/service"
+	istorage "gosi/coreapi/storage"
 
 	"context"
 	"fmt"
@@ -48,6 +46,7 @@ func startServices(eg *errgroup.Group, ctx context.Context) {
 	startCoreServices(eg, ctx)
 	// startModServices(eg, ctx)
 }
+
 func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 	log.Println("START CORE :: START CORE SERVICES")
 	sm, _ := service.GetServiceManager()
@@ -57,8 +56,8 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 	sm.StartService(messenger.IMESSENGER, messengerService)
 
 	log.Println("Starting STORAGE SERVICE")
-	storageService := storage.NewStorageService(eg, ctx)
-	sm.StartService(storage.ISTORAGESERVICE, storageService)
+	storageService := storage.NewStorageService(eg, ctx, sqlite.GetSqliteRepository())
+	sm.StartService(istorage.ISTORAGESERVICE, storageService)
 
 	log.Println("Starting HTTP SERVER SERVICE")
 	httpServerService := http.NewHttpServerService(eg, ctx)
@@ -76,31 +75,17 @@ func startModServices(eg *errgroup.Group, ctx context.Context) {
 	}
 
 }
-func createModService(serviceName string, serviceLocation string, eg *errgroup.Group, ctx context.Context) service.IService {
-	if systemStartParameters[config.RUN_MODE] == config.RUN_MODE_PLUG {
-		return createPluginService(serviceLocation, serviceName)
-	} else {
-		if serviceName == "RPC" {
-			instance := rpc.NewRpcService(eg, ctx)
-			serviceInstance, isInstance := instance.(service.IService)
-			if !isInstance {
-				log.Println("Instance is not IModService")
-				return nil
-			}
-			return serviceInstance
-		}
-	}
+func createModService(serviceName string, serviceLocation string, eg *errgroup.Group, ctx context.Context) iservice.IService {
 	return nil
-
 }
 
-func createPluginService(serviceLocation string, serviceName string) service.IService {
+func createPluginService(serviceLocation string, serviceName string) iservice.IService {
 	plug, err := plugin.Open(serviceLocation)
 	if err != nil {
 		log.Println("Could not load: ", serviceName, "Error: ", err)
 		return nil
 	}
-	createMethod, err := plug.Lookup(service.NEW_FUNCTION)
+	createMethod, err := plug.Lookup(iservice.NEW_FUNCTION)
 	if err != nil {
 		log.Println("Could not get New from: ", serviceName)
 		return nil
@@ -111,7 +96,7 @@ func createPluginService(serviceLocation string, serviceName string) service.ISe
 		return nil
 	}
 	instance := createFunction()
-	serviceInstance, isInstance := instance.(service.IService)
+	serviceInstance, isInstance := instance.(iservice.IService)
 	if !isInstance {
 		log.Println("Instance is not IModService")
 		return nil

@@ -11,7 +11,6 @@ type Job struct {
 }
 
 type IJobQueue interface {
-	Wait()
 	Start(context.Context)
 	Add(*Job)
 }
@@ -27,29 +26,27 @@ func NeqJobQueue(name string, g *errgroup.Group) IJobQueue {
 	return &jobQueue{jobs: make(chan *Job), g: g, name: name}
 }
 
-func (jq *jobQueue) Wait() {
-	log.Println("JobQueue", jq.name, "::Wait")
-	// jq.wg.Wait()
-}
-
 // Start starts a dispatcher.
 // This dispatcher will stops when it receive a value from `ctx.Done`.
 func (jq *jobQueue) Start(ctx context.Context) {
 	log.Println("JobQueue", jq.name, "::Start")
 	jq.g.Go(func() error {
+		defer close(jq.jobs)
 	Loop:
 		for {
 			log.Println("JobQueue", jq.name, "::Wait for Job")
 			select {
 			case <-ctx.Done():
 				log.Println("JobQueue", jq.name, "::Finish")
-				// wg.Done()
 				break Loop
 
 			case job := <-jq.jobs:
 
 				log.Println("JobQueue", jq.name, "::Do Job")
-				job.Execute()
+				jq.g.Go(func() error {
+					job.Execute()
+					return nil
+				})
 
 			}
 		}
