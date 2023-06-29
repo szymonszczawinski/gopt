@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"gosi/core/connector/http"
 	"gosi/coreapi/queue"
 	"log"
 
@@ -16,14 +15,14 @@ const (
 type httpServerService struct {
 	looper queue.IJobQueue
 	ctx    context.Context
-	server http.HttpServer
+	server HttpServer
 }
 
 func NewHttpServerService(eg *errgroup.Group, ctx context.Context) *httpServerService {
 	instance := new(httpServerService)
 	instance.ctx = ctx
 	instance.looper = queue.NeqJobQueue("httpServerService", eg)
-	instance.server = *http.NewHttpServer(ctx, eg, 8081)
+	instance.server = *NewHttpServer(ctx, eg, 8081)
 	return instance
 }
 

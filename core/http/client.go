@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"gosi/core/messenger"
 	"gosi/core/service"
-	"gosi/coreapi"
+	imessenger "gosi/coreapi/messenger"
 	"gosi/coreapi/queue"
 	"log"
 
@@ -32,7 +32,7 @@ func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientSe
 		if err == nil {
 			impl, ok := res.(messenger.IMessengerHandlerRegistry)
 			if ok {
-				impl.AddHandler(coreapi.HELLO, serviceInstance)
+				impl.AddHandler(imessenger.HELLO, serviceInstance)
 			} else {
 				log.Println("Incorrect type", impl)
 			}
@@ -48,9 +48,9 @@ func (s *httpClientService) StartService() {
 	s.looper.Start(s.ctx)
 }
 
-func (s *httpClientService) OnPublish(t coreapi.Topic, m coreapi.Message, l coreapi.PublishListener) {
+func (s *httpClientService) OnPublish(t imessenger.Topic, m imessenger.Message, l imessenger.PublishListener) {
 	log.Println(fmt.Sprintf("Message: %v published on topic: %v", m, t))
 }
-func (s *httpClientService) OnSubscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
+func (s *httpClientService) OnSubscribe(t imessenger.Topic, listener imessenger.SubscribeListener) {
 	log.Println(fmt.Sprintf("Subscribe request on topic: %v", t))
 }

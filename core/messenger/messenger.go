@@ -3,7 +3,7 @@ package messenger
 import (
 	"context"
 	"gosi/core/service"
-	"gosi/coreapi"
+	imessenger "gosi/coreapi/messenger"
 	"gosi/coreapi/queue"
 	"log"
 
@@ -16,22 +16,18 @@ const (
 )
 
 type IMessengerHandler interface {
-	OnPublish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener)
-	OnSubscribe(t coreapi.Topic, listener coreapi.SubscribeListener)
+	OnPublish(t imessenger.Topic, m imessenger.Message, listener imessenger.PublishListener)
+	OnSubscribe(t imessenger.Topic, listener imessenger.SubscribeListener)
 }
 type IMessengerHandlerRegistry interface {
-	AddHandler(t coreapi.Topic, handler IMessengerHandler)
+	AddHandler(t imessenger.Topic, handler IMessengerHandler)
 	RemoveHandler(handler IMessengerHandler)
-}
-type IMessenger interface {
-	Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener)
-	Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener)
 }
 
 type messengerService struct {
 	ctx      context.Context
 	looper   queue.IJobQueue
-	handlers map[coreapi.Topic][]IMessengerHandler
+	handlers map[imessenger.Topic][]IMessengerHandler
 }
 
 func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerService {
@@ -39,7 +35,7 @@ func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerServ
 	messenger := new(messengerService)
 	messenger.ctx = ctx
 	messenger.looper = queue.NeqJobQueue("messengerService", eg)
-	messenger.handlers = make(map[coreapi.Topic][]IMessengerHandler)
+	messenger.handlers = map[imessenger.Topic][]IMessengerHandler{}
 	sm, _ := service.GetServiceManager()
 	sm.RegisterService(IMMESSENGER_HANDLER_REGISTRY, messenger)
 	return messenger
@@ -50,7 +46,7 @@ func (s *messengerService) StartService() {
 	s.looper.Start(s.ctx)
 }
 
-func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener) {
+func (s *messengerService) Publish(t imessenger.Topic, m imessenger.Message, listener imessenger.PublishListener) {
 	log.Println("Publish on topic:", t)
 	go func() {
 		log.Println("Publish::GO::handlers: ", s.handlers)
@@ -65,10 +61,10 @@ func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener 
 	}()
 }
 
-func (s *messengerService) Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
+func (s *messengerService) Subscribe(t imessenger.Topic, listener imessenger.SubscribeListener) {
 	log.Println("Subscribe on topic", t)
 }
-func (s *messengerService) AddHandler(t coreapi.Topic, handler IMessengerHandler) {
+func (s *messengerService) AddHandler(t imessenger.Topic, handler IMessengerHandler) {
 	log.Println("AddHandler")
 	handlers, ok := s.handlers[t]
 	if ok {

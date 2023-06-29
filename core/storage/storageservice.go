@@ -3,64 +3,74 @@ package storage
 import (
 	"context"
 	"gosi/coreapi/queue"
-	"gosi/issues"
+	"gosi/coreapi/storage"
+	"gosi/issues/domain"
 	"log"
 
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	ISTORAGESERVICE = "IStorageService"
-)
-
-type IStorageService interface {
-	GetProjects() []issues.Project
-	GetProject(projectId int64) (*issues.Project, error)
-}
-
 type storageService struct {
-	ctx     context.Context
-	looper  queue.IJobQueue
-	storage IStorage
+	ctx        context.Context
+	looper     queue.IJobQueue
+	repository storage.IRepository
 }
 
-func NewStorageService(eg *errgroup.Group, ctx context.Context) *storageService {
+func NewStorageService(eg *errgroup.Group, ctx context.Context, repository storage.IRepository) *storageService {
 	log.Println("New Storage Service")
 	instance := new(storageService)
 	instance.ctx = ctx
 	instance.looper = queue.NeqJobQueue("storageService", eg)
-	instance.storage = GetStorage()
+	instance.repository = repository
 	return instance
 }
-func (s *storageService) StartService() {
-	log.Println("Starting", ISTORAGESERVICE)
-	s.looper.Start(s.ctx)
+func (self *storageService) StartService() {
+	log.Println("Starting", storage.ISTORAGESERVICE)
+	self.looper.Start(self.ctx)
 }
 
-func (s storageService) GetProjects() []issues.Project {
-	resultChan := make(chan []issues.Project)
-	s.looper.Add(&queue.Job{Execute: func() {
-		log.Println("New Job :: getProjetcs")
-		resultChan <- s.storage.GetProjects()
-	}})
-
-	return <-resultChan
-}
-func (s storageService) GetProject(projectId int64) (*issues.Project, error) {
-	resultChan := make(chan issues.Project)
+func (self storageService) CreateProject(project domain.Project) (domain.Project, error) {
 	errChan := make(chan error)
-	s.looper.Add(&queue.Job{Execute: func() {
-		project, err := s.storage.GetProject(projectId)
+	resChan := make(chan domain.Project)
+
+	defer close(errChan)
+	defer close(resChan)
+	self.looper.Add(&queue.Job{Execute: func() {
+		stored, err := self.repository.StoreProject(project)
 		if err != nil {
 			errChan <- err
 		} else {
-			resultChan <- *project
+			resChan <- stored
 		}
+
 	}})
 	select {
 	case err := <-errChan:
-		return nil, err
-	case res := <-resultChan:
-		return &res, nil
+		return domain.Project{}, err
+	case stored := <-resChan:
+		return stored, nil
 	}
+
+}
+func (self storageService) CreateComment(comment domain.Comment) (domain.Comment, error) {
+	errChan := make(chan error)
+	resChan := make(chan domain.Comment)
+	defer close(errChan)
+	defer close(resChan)
+	self.looper.Add(&queue.Job{Execute: func() {
+		stored, err := self.repository.StoreComment(comment)
+		if err != nil {
+			errChan <- err
+		} else {
+			resChan <- stored
+		}
+
+	}})
+	select {
+	case err := <-errChan:
+		return domain.Comment{}, err
+	case stored := <-resChan:
+		return stored, nil
+	}
+
 }
