@@ -11,7 +11,7 @@ import (
 
 var projectService service.ProjectService
 
-func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, pagesRootRoute *gin.RouterGroup) {
+func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup) {
 	projectService = service.NewProjectService()
 
 	apiRoute := apiRootRoute.Group("/projects")
@@ -19,6 +19,13 @@ func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, pagesRootRoute *gin.Router
 	apiRoute.GET("/:issueId", getProject)
 	apiRoute.POST("/add", addProject)
 	apiRoute.POST("/:issueId/addComment", addProjectComment)
+
+	projectsRoute := rootRoute.Group("/projects")
+	projectsRoute.GET("/", func(c *gin.Context) {
+		c.HTML(http.StatusOK, "projects/index.html", gin.H{
+			"title": "PROJECTS",
+		})
+	})
 }
 
 func getProjects(c *gin.Context) {

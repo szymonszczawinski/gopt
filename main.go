@@ -12,10 +12,12 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"golang.org/x/sync/errgroup"
 )
 
 func main() {
+	godotenv.Load()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	log.Println("GOSI :: START")
 	cla := parseCLA(os.Args)

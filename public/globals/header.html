@@ -1,0 +1,13 @@
+{{ define "globals/header.html" }}
+<header>
+    <!-- Include the Tailwind JS file -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <div class="bg-gray-800 text-white p-4">
+        {{ .title }}
+	    <p> 
+	        <a href="/gosi" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Home</a>
+	        <a href="/gosi/projects" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">Projects</a>
+        </p>
+    </div>
+</header>
+{{ end }}

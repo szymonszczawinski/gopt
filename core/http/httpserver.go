@@ -30,7 +30,7 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int) *Ht
 	}
 	instance.ctx = context
 	instance.group = group
-	instance.engine.LoadHTMLGlob("public/*")
+	instance.engine.LoadHTMLGlob("public/**/*.html")
 	configureRoutes(instance.engine)
 	return instance
 }
