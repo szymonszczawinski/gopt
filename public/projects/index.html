@@ -1,7 +1,10 @@
 {{ define "projects/index.html" }}
 {{ template "globals/header.html" .}}
-<p>
-    PROJECTS
+<div>
+    {{range  .data}}
+        <li>Name: {{ $.name}} : {{ . }}</li>
+    {{end}}
+</div>
 </p>
 {{ template "globals/footer.html" .}}
 {{end}}
