@@ -3,7 +3,8 @@ package core
 import (
 	"gosi/core/http"
 	"gosi/core/messenger"
-	"gosi/core/storage/sqlite"
+	"gosi/core/storage/bun"
+	imessenger "gosi/coreapi/messenger"
 
 	"gosi/core/service"
 	"gosi/core/storage"
@@ -53,10 +54,14 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 
 	log.Println("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
-	sm.StartService(messenger.IMESSENGER, messengerService)
+	sm.StartService(imessenger.IMESSENGER, messengerService)
+
+	log.Println("Starting REPOSITORY")
+	repository := bun.NewRepository(eg, ctx)
+	sm.StartService(istorage.IREPOSITORY, repository)
 
 	log.Println("Starting STORAGE SERVICE")
-	storageService := storage.NewStorageService(eg, ctx, sqlite.GetSqliteRepository())
+	storageService := storage.NewStorageService(eg, ctx, repository)
 	sm.StartService(istorage.ISTORAGESERVICE, storageService)
 
 	log.Println("Starting HTTP SERVER SERVICE")

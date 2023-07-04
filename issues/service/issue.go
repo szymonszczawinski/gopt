@@ -15,8 +15,8 @@ type ProjectService struct {
 	repository     storage.IRepository
 }
 
-func (s ProjectService) GetProjects() []dto.ProjectListItem {
-	projects := s.repository.GetProjects()
+func (self ProjectService) GetProjects() []dto.ProjectListItem {
+	projects := self.repository.GetProjects()
 	projectList := make([]dto.ProjectListItem, 0)
 	for _, project := range projects {
 		projectList = append(projectList, dto.NewProjectListItem(project))
@@ -24,22 +24,22 @@ func (s ProjectService) GetProjects() []dto.ProjectListItem {
 	return projectList
 }
 
-func (s ProjectService) GetProject(projectId string) (dto.ProjectDetails, error) {
-	project, err := s.repository.GetProject(projectId)
+func (self ProjectService) GetProject(projectId string) (dto.ProjectDetails, error) {
+	project, err := self.repository.GetProject(projectId)
 	if err != nil {
 		return dto.ProjectDetails{}, err
 	}
 	return dto.NewProjectDetails(project), nil
 
 }
-func (s ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectDetails, error) {
-	projectLifecycle, err := s.repository.GetLifecycle(domain.TProject)
+func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectDetails, error) {
+	projectLifecycle, err := self.repository.GetLifecycle(domain.TProject)
 	if err != nil {
 		log.Println(err.Error())
 		return dto.ProjectDetails{}, err
 	}
 	project := domain.NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
-	stored, err := s.storageService.CreateProject(project)
+	stored, err := self.storageService.CreateProject(project)
 	if err != nil {
 		log.Println("Could not create Project")
 		log.Println(err.Error())
@@ -66,7 +66,7 @@ func NewProjectService() ProjectService {
 	instance := new(ProjectService)
 	storageService, _ := getStorageService()
 	instance.storageService = storageService
-	instance.repository = sqlite.GetSqliteRepository()
+	instance.repository = sqlite.NewSqliteRepository()
 	return *instance
 }
 

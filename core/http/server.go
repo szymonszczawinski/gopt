@@ -23,6 +23,7 @@ func NewHttpServerService(eg *errgroup.Group, ctx context.Context) *httpServerSe
 	instance.ctx = ctx
 	instance.looper = queue.NeqJobQueue("httpServerService", eg)
 	instance.server = *NewHttpServer(ctx, eg, 8081)
+
 	return instance
 }
 

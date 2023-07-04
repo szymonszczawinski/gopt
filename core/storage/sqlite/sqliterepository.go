@@ -4,48 +4,45 @@ import (
 	"database/sql"
 	"gosi/core/storage/dao"
 	"gosi/core/storage/sql/query"
+	"gosi/coreapi/storage"
 	"gosi/issues/domain"
 	"log"
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
-	// "time"
-	// "github.com/mattn/go-sqlite3"
 )
 
 const file string = "gosi.db"
 
-var instance sqliteRepository
-
 type sqliteRepository struct {
 	database        *sql.DB
-	created         bool
 	mux             *sync.RWMutex
 	lifecycleStates map[int]domain.LifecycleState
 	lifecycles      map[int]domain.Lifecycle
 }
 
-func GetSqliteRepository() *sqliteRepository {
-	log.Println("GetSqliteRepository")
-	if !instance.created {
-		log.Println("create NEW")
-		instance = sqliteRepository{
-			lifecycleStates: make(map[int]domain.LifecycleState),
-			lifecycles:      make(map[int]domain.Lifecycle),
-		}
-		db, errOpenDB := sql.Open("sqlite3", file)
-		if errOpenDB != nil {
-			log.Println(errOpenDB.Error())
-		} else {
-			instance.database = db
-			instance.created = true
-			instance.mux = &sync.RWMutex{}
-			// initaliseDatabase(instance.database)
-		}
-		instance.loadDictionaryData()
+func NewSqliteRepository() *sqliteRepository {
+	instance := sqliteRepository{
+		lifecycleStates: make(map[int]domain.LifecycleState),
+		lifecycles:      make(map[int]domain.Lifecycle),
 	}
 
 	return &instance
+
+}
+
+func (self *sqliteRepository) StartService() {
+	log.Println("Starting", storage.IREPOSITORY)
+	db, errOpenDB := sql.Open("sqlite3", file)
+	if errOpenDB != nil {
+		log.Println(errOpenDB.Error())
+	} else {
+		self.database = db
+		self.mux = &sync.RWMutex{}
+		// initaliseDatabase(instance.database)
+	}
+	self.loadDictionaryData()
+
 }
 
 func (self sqliteRepository) Close() {

@@ -3,13 +3,12 @@ package memory
 import (
 	"errors"
 	"fmt"
+	"gosi/coreapi/storage"
 	"gosi/issues/domain"
 	"log"
 
 	"golang.org/x/exp/maps"
 )
-
-var instance memoryRepository
 
 type idsRepository struct {
 	projectId int
@@ -30,7 +29,6 @@ func (self *idsRepository) getNextCommentId() int {
 }
 
 type memoryRepository struct {
-	created bool
 	idsRepository
 	lifecycleStates map[int]domain.LifecycleState
 	lifecycles      map[int]domain.Lifecycle
@@ -81,17 +79,18 @@ func (s *memoryRepository) initProjects() {
 
 }
 
-func GetMemoryRepository() *memoryRepository {
-	if !instance.created {
-		instance = memoryRepository{
-			idsRepository: idsRepository{},
-		}
-		instance.initStorage()
-		instance.created = true
+func NewMemoryRepository() storage.IRepository {
+	instance := memoryRepository{
+		idsRepository: idsRepository{},
 	}
 
 	return &instance
 
+}
+
+func (self *memoryRepository) StartService() {
+	log.Println("Starting", storage.IREPOSITORY)
+	self.initStorage()
 }
 
 func (s memoryRepository) GetProjects() []domain.Project {

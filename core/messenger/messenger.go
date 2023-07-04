@@ -11,7 +11,6 @@ import (
 )
 
 const (
-	IMESSENGER                   = "IMessenger"
 	IMMESSENGER_HANDLER_REGISTRY = "IMessengerHalndlerRegistry"
 )
 
@@ -42,7 +41,7 @@ func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerServ
 }
 
 func (s *messengerService) StartService() {
-	log.Println("Starting", IMESSENGER)
+	log.Println("Starting", imessenger.IMESSENGER)
 	s.looper.Start(s.ctx)
 }
 
