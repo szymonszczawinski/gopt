@@ -42,19 +42,19 @@ func (self ProjectService) GetProject(projectId string) (dto.ProjectDetails, err
 	return dto.NewProjectDetails(project), nil
 
 }
-func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectDetails, error) {
+func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error) {
 	projectLifecycle, err := self.repository.GetLifecycle(domain.TProject)
 	if err != nil {
 		self.logger.Error(err.Error())
-		return dto.ProjectDetails{}, err
+		return dto.ProjectListItem{}, err
 	}
 	project := domain.NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
 	stored, err := self.storageService.CreateProject(project)
 	if err != nil {
 		self.logger.Error("Could not create Project", err.Error())
-		return dto.ProjectDetails{}, err
+		return dto.ProjectListItem{}, err
 	}
-	return dto.NewProjectDetails(stored), nil
+	return dto.NewProjectListItem(stored), nil
 }
 
 func (self ProjectService) AddComment(newComment dto.AddCommentCommand) (domain.Comment, error) {

@@ -26,7 +26,7 @@ func getProject(c *gin.Context) {
 
 }
 
-func addProject(c *gin.Context) {
+func addProjectAPI(c *gin.Context) {
 	var newProject dto.CreateProjectCommand
 
 	if err := c.BindJSON(&newProject); err != nil {

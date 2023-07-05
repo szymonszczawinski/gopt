@@ -94,6 +94,7 @@ func (self *bunRepository) GetLifecycle(issueType domain.IssueType) (domain.Life
 	return domain.Lifecycle{}, nil
 }
 func (self *bunRepository) StoreProject(project domain.Project) (domain.Project, error) {
+
 	return domain.Project{}, nil
 }
 func (self *bunRepository) GetComments() []domain.Comment {
