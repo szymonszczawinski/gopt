@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"gosi/core/logger"
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
 	"gosi/coreapi/storage"
@@ -13,12 +14,14 @@ import (
 type ProjectService struct {
 	storageService storage.IStorageService
 	repository     storage.IRepository
+	logger         logger.Log
 }
 
 func NewProjectService() *ProjectService {
 	instance := new(ProjectService)
 	instance.storageService, _ = getStorageService()
 	instance.repository, _ = getRepository()
+	instance.logger = logger.NewLogger()
 	return instance
 }
 
@@ -26,7 +29,6 @@ func (self ProjectService) GetProjects() []dto.ProjectListItem {
 	projects := self.repository.GetProjects()
 	projectList := make([]dto.ProjectListItem, 0)
 	for _, project := range projects {
-		log.Println("Project::", project)
 		projectList = append(projectList, dto.NewProjectListItem(project))
 	}
 	return projectList
@@ -43,14 +45,13 @@ func (self ProjectService) GetProject(projectId string) (dto.ProjectDetails, err
 func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectDetails, error) {
 	projectLifecycle, err := self.repository.GetLifecycle(domain.TProject)
 	if err != nil {
-		log.Println(err.Error())
+		self.logger.Error(err.Error())
 		return dto.ProjectDetails{}, err
 	}
 	project := domain.NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
 	stored, err := self.storageService.CreateProject(project)
 	if err != nil {
-		log.Println("Could not create Project")
-		log.Println(err.Error())
+		self.logger.Error("Could not create Project", err.Error())
 		return dto.ProjectDetails{}, err
 	}
 	return dto.NewProjectDetails(stored), nil
@@ -74,12 +75,12 @@ func getStorageService() (storage.IStorageService, error) {
 
 	serviceManager, err := service.GetServiceManager()
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 		return nil, err
 	}
 	service, err := serviceManager.GetService(iservice.ServiceTypeIStorageService)
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 		return nil, err
 	}
 	storageService, ok := service.(storage.IStorageService)
@@ -92,12 +93,12 @@ func getRepository() (storage.IRepository, error) {
 
 	serviceManager, err := service.GetServiceManager()
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 		return nil, err
 	}
 	service, err := serviceManager.GetService(iservice.ServiceTypeIRepository)
 	if err != nil {
-		log.Println(err.Error())
+		log.Fatal(err.Error())
 		return nil, err
 	}
 	repository, ok := service.(storage.IRepository)

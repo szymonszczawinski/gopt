@@ -6,6 +6,10 @@ import (
 	"time"
 )
 
+const (
+	DDMMYYYYhhmmss = "2006-01-02 15:04:05"
+)
+
 type ProjectListItem struct {
 	Id       int    `json:"id"`
 	IssueId  string `json:"issueId"`
@@ -46,8 +50,8 @@ func NewProjectListItem(project domain.Project) ProjectListItem {
 		State:    project.GetLifecycleState().GetValue(),
 		Assignee: "",
 		Reporter: "",
-		Created:  project.GetCreationTime().String(),
-		Updated:  project.GetLastUpdateTime().String(),
+		Created:  project.GetCreationTime().Format(DDMMYYYYhhmmss),
+		Updated:  project.GetLastUpdateTime().Format(DDMMYYYYhhmmss),
 	}
 }
 func NewProjectDetails(project domain.Project) ProjectDetails {
