@@ -71,6 +71,52 @@ type Project struct {
 	Issue
 }
 
+func NewProject(projectKey string, name string, lifecycle Lifecycle) Project {
+	project := Project{
+		Issue: Issue{
+			Entity: Entity{},
+			TimeTracked: TimeTracked{
+				created: time.Now(),
+				updated: time.Now(),
+			},
+			itemKey:      projectKey + "-1",
+			itemNumber:   1,
+			name:         name,
+			description:  "",
+			currentState: lifecycle.startState,
+			lifecycle:    lifecycle,
+			issueType:    TProject,
+			comments:     []Comment{},
+		},
+	}
+	return project
+}
+
+func NewProjectFromRepo(id int, created time.Time, updated time.Time, itemKey string, itemNumber int, name string,
+	description string, state LifecycleState, lifecycle Lifecycle) Project {
+	project := Project{
+		Issue: Issue{
+			Entity: Entity{
+				id: id,
+			},
+			TimeTracked: TimeTracked{
+				created: created,
+				updated: updated,
+			},
+			itemKey:      itemKey,
+			itemNumber:   itemNumber,
+			name:         name,
+			description:  description,
+			issueType:    TProject,
+			currentState: state,
+			lifecycle:    lifecycle,
+			comments:     []Comment{},
+			relations:    []Relation{},
+		},
+	}
+	return project
+}
+
 func (self Project) String() string {
 	return fmt.Sprintf("Project[id:%v; key:%v; name:%v; state:%v\n comments:%v]",
 		self.GetId(), self.GetItemKey(), self.GetName(), self.currentState, self.comments)
@@ -96,49 +142,4 @@ type Relation struct {
 	relationType RelationType
 	fromIssue    Issue
 	toIssue      Issue
-}
-
-func NewProject(projectKey string, name string, lifecycle Lifecycle) Project {
-	project := Project{
-		Issue: Issue{
-			Entity: Entity{},
-			TimeTracked: TimeTracked{
-				created: time.Now(),
-				updated: time.Now(),
-			},
-			itemKey:      projectKey + "-1",
-			itemNumber:   1,
-			name:         name,
-			description:  "",
-			currentState: lifecycle.startState,
-			lifecycle:    lifecycle,
-			issueType:    TProject,
-			comments:     []Comment{},
-		},
-	}
-	return project
-}
-func NewProjectFromRepo(id int, created time.Time, updated time.Time, itemKey string, itemNumber int, name string,
-	description string, state LifecycleState, lifecycle Lifecycle) Project {
-	project := Project{
-		Issue: Issue{
-			Entity: Entity{
-				id: id,
-			},
-			TimeTracked: TimeTracked{
-				created: created,
-				updated: updated,
-			},
-			itemKey:      itemKey,
-			itemNumber:   itemNumber,
-			name:         name,
-			description:  description,
-			issueType:    TProject,
-			currentState: state,
-			lifecycle:    lifecycle,
-			comments:     []Comment{},
-			relations:    []Relation{},
-		},
-	}
-	return project
 }

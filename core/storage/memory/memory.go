@@ -3,6 +3,7 @@ package memory
 import (
 	"errors"
 	"fmt"
+	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"gosi/issues/domain"
 	"log"
@@ -89,7 +90,7 @@ func NewMemoryRepository() storage.IRepository {
 }
 
 func (self *memoryRepository) StartService() {
-	log.Println("Starting", storage.IREPOSITORY)
+	log.Println("Starting", service.ServiceTypeIRepository)
 	self.initStorage()
 }
 

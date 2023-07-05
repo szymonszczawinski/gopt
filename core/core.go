@@ -4,12 +4,10 @@ import (
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/storage/bun"
-	imessenger "gosi/coreapi/messenger"
 
 	"gosi/core/service"
 	"gosi/core/storage"
 	iservice "gosi/coreapi/service"
-	istorage "gosi/coreapi/storage"
 
 	"context"
 	"fmt"
@@ -45,7 +43,6 @@ func startServices(eg *errgroup.Group, ctx context.Context) {
 	log.Println("START CORE :: START SERVICES")
 
 	startCoreServices(eg, ctx)
-	// startModServices(eg, ctx)
 }
 
 func startCoreServices(eg *errgroup.Group, ctx context.Context) {
@@ -54,34 +51,24 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 
 	log.Println("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
-	sm.StartService(imessenger.IMESSENGER, messengerService)
+	sm.StartService(iservice.ServiceTypeIMessenger, messengerService)
 
 	log.Println("Starting REPOSITORY")
 	repository := bun.NewRepository(eg, ctx)
-	sm.StartService(istorage.IREPOSITORY, repository)
+	sm.StartService(iservice.ServiceTypeIRepository, repository)
 
 	log.Println("Starting STORAGE SERVICE")
 	storageService := storage.NewStorageService(eg, ctx, repository)
-	sm.StartService(istorage.ISTORAGESERVICE, storageService)
+	sm.StartService(iservice.ServiceTypeIStorageService, storageService)
 
 	log.Println("Starting HTTP SERVER SERVICE")
 	httpServerService := http.NewHttpServerService(eg, ctx)
-	sm.StartService(http.IHTTP_SERVER_SERVICE, httpServerService)
+	sm.StartService(iservice.ServiceTypeIHttpServerService, httpServerService)
 
 	log.Println("Starting HTTP CLIENT SERVICE")
 	httpClientService := http.NewHttpClientService(eg, ctx)
-	sm.StartService(http.IHTTP_CLIENT_SERVICE, httpClientService)
+	sm.StartService(iservice.ServiceTypeIHttpClientService, httpClientService)
 
-}
-func startModServices(eg *errgroup.Group, ctx context.Context) {
-	service := createModService("RPC", "../mod/rpc/rpc.so", eg, ctx)
-	if service != nil {
-		service.StartService()
-	}
-
-}
-func createModService(serviceName string, serviceLocation string, eg *errgroup.Group, ctx context.Context) iservice.IService {
-	return nil
 }
 
 func createPluginService(serviceLocation string, serviceName string) iservice.IService {

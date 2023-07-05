@@ -3,7 +3,7 @@ package service
 import (
 	"errors"
 	"gosi/core/service"
-	"gosi/core/storage/sqlite"
+	iservice "gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"gosi/issues/domain"
 	"gosi/issues/dto"
@@ -15,10 +15,18 @@ type ProjectService struct {
 	repository     storage.IRepository
 }
 
+func NewProjectService() *ProjectService {
+	instance := new(ProjectService)
+	instance.storageService, _ = getStorageService()
+	instance.repository, _ = getRepository()
+	return instance
+}
+
 func (self ProjectService) GetProjects() []dto.ProjectListItem {
 	projects := self.repository.GetProjects()
 	projectList := make([]dto.ProjectListItem, 0)
 	for _, project := range projects {
+		log.Println("Project::", project)
 		projectList = append(projectList, dto.NewProjectListItem(project))
 	}
 	return projectList
@@ -62,14 +70,6 @@ func (self ProjectService) AddComment(newComment dto.AddCommentCommand) (domain.
 
 }
 
-func NewProjectService() ProjectService {
-	instance := new(ProjectService)
-	storageService, _ := getStorageService()
-	instance.storageService = storageService
-	instance.repository = sqlite.NewSqliteRepository()
-	return *instance
-}
-
 func getStorageService() (storage.IStorageService, error) {
 
 	serviceManager, err := service.GetServiceManager()
@@ -77,7 +77,7 @@ func getStorageService() (storage.IStorageService, error) {
 		log.Println(err.Error())
 		return nil, err
 	}
-	service, err := serviceManager.GetService(storage.ISTORAGESERVICE)
+	service, err := serviceManager.GetService(iservice.ServiceTypeIStorageService)
 	if err != nil {
 		log.Println(err.Error())
 		return nil, err
@@ -87,4 +87,22 @@ func getStorageService() (storage.IStorageService, error) {
 		return nil, errors.New("StorageService has incorrect type")
 	}
 	return storageService, nil
+}
+func getRepository() (storage.IRepository, error) {
+
+	serviceManager, err := service.GetServiceManager()
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	service, err := serviceManager.GetService(iservice.ServiceTypeIRepository)
+	if err != nil {
+		log.Println(err.Error())
+		return nil, err
+	}
+	repository, ok := service.(storage.IRepository)
+	if !ok {
+		return nil, errors.New("Repository has incorrect type")
+	}
+	return repository, nil
 }

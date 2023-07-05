@@ -4,15 +4,14 @@ import (
 	"database/sql"
 	"gosi/core/storage/dao"
 	"gosi/core/storage/sql/query"
-	"gosi/coreapi/storage"
+	"gosi/coreapi/service"
 	"gosi/issues/domain"
 	"log"
+	"os"
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 )
-
-const file string = "gosi.db"
 
 type sqliteRepository struct {
 	database        *sql.DB
@@ -32,8 +31,9 @@ func NewSqliteRepository() *sqliteRepository {
 }
 
 func (self *sqliteRepository) StartService() {
-	log.Println("Starting", storage.IREPOSITORY)
-	db, errOpenDB := sql.Open("sqlite3", file)
+	log.Println("Starting", service.ServiceTypeIRepository)
+	dbfile := os.Getenv("DATABASE_FILE_NAME")
+	db, errOpenDB := sql.Open("sqlite3", dbfile)
 	if errOpenDB != nil {
 		log.Println(errOpenDB.Error())
 	} else {
@@ -47,47 +47,6 @@ func (self *sqliteRepository) StartService() {
 
 func (self sqliteRepository) Close() {
 	self.database.Close()
-}
-
-func (self *sqliteRepository) loadDictionaryData() {
-	self.loadLifecycles()
-}
-
-func (self *sqliteRepository) loadLifecycles() {
-	rows, err := self.database.Query(`SELECT id, name FROM lifecyclestate;`)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	for rows.Next() {
-		var id int
-		var name string
-		err = rows.Scan(&id, &name)
-		if err != nil {
-			log.Println("ERROR::", err.Error())
-		}
-		self.lifecycleStates[id] = domain.NewLifecycleState(id, name)
-	}
-	rows.Close()
-	log.Println("LIFECYCLE STATES LOADED: ", len(self.lifecycleStates))
-	rows, err = self.database.Query(`SELECT id, name, startstateid FROM lifecycle;`)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for rows.Next() {
-		var id int
-		var name string
-		var startStateId int
-		rows.Scan(&id, &name, &startStateId)
-		if err != nil {
-			log.Println("ERROR::", err.Error())
-		}
-
-		self.lifecycles[id] = domain.NewLifeCycleBuilder(id, name, self.lifecycleStates[startStateId]).Build()
-	}
-	rows.Close()
-	log.Println("LIFECYCLES LOADED: ", len(self.lifecycles))
-
 }
 
 func (self *sqliteRepository) GetProjects() []domain.Project {
@@ -131,4 +90,45 @@ func (self *sqliteRepository) GetComments() []domain.Comment {
 }
 func (self *sqliteRepository) StoreComment(comment domain.Comment) (domain.Comment, error) {
 	return domain.Comment{}, nil
+}
+
+func (self *sqliteRepository) loadDictionaryData() {
+	self.loadLifecycles()
+}
+
+func (self *sqliteRepository) loadLifecycles() {
+	rows, err := self.database.Query(query.LIFECYCLE_STATE_SELECT_ALL)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var id int
+		var name string
+		err = rows.Scan(&id, &name)
+		if err != nil {
+			log.Println("ERROR::", err.Error())
+		}
+		self.lifecycleStates[id] = domain.NewLifecycleState(id, name)
+	}
+	rows.Close()
+	log.Println("LIFECYCLE STATES LOADED: ", len(self.lifecycleStates))
+	rows, err = self.database.Query(query.LIFECYCLE_SELECT_ALL)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for rows.Next() {
+		var id int
+		var name string
+		var startStateId int
+		rows.Scan(&id, &name, &startStateId)
+		if err != nil {
+			log.Println("ERROR::", err.Error())
+		}
+
+		self.lifecycles[id] = domain.NewLifeCycleBuilder(id, name, self.lifecycleStates[startStateId]).Build()
+	}
+	rows.Close()
+	log.Println("LIFECYCLES LOADED: ", len(self.lifecycles))
+
 }

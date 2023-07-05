@@ -1,9 +1,28 @@
 {{ define "projects/index.html" }}
 {{ template "globals/header.html" .}}
 <div>
-    {{range  .data}}
-        <li>Name: {{ $.name}} : {{ . }}</li>
+    <table>
+  <tr>
+    <th>ID</th>
+    <th>Name</th>
+    <th>State</th>
+    <th>Assignee</th>
+    <th>Reporter</th>
+    <th>Created</th>
+    <th>Updated</th>
+  </tr>
+        {{range  .data}}
+  <tr>
+            <td>{{.IssueId}}</td>
+            <td>{{.Name}}</td>
+            <td>{{.State}}</td>
+            <td>{{.Assignee}}</td>
+            <td>{{.Reporter}}</td>
+            <td>{{.Created}}</td>
+            <td>{{.Updated}}</td>
+  </tr>
     {{end}}
+    </table>
 </div>
 </p>
 {{ template "globals/footer.html" .}}

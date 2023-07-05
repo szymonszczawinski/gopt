@@ -43,7 +43,7 @@ func NewProjectListItem(project domain.Project) ProjectListItem {
 		IssueId:  project.GetItemKey() + "-" + strconv.Itoa(project.GetItemNumber()),
 		Name:     project.GetName(),
 		Type:     project.GetIssueType().String(),
-		State:    "",
+		State:    project.GetLifecycleState().GetValue(),
 		Assignee: "",
 		Reporter: "",
 		Created:  project.GetCreationTime().String(),

@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var projectService service.ProjectService
+var projectService *service.ProjectService
 
 func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup) {
 	projectService = service.NewProjectService()

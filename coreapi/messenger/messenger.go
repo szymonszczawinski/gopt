@@ -1,7 +1,5 @@
 package messenger
 
-const IMESSENGER = "IMessenger"
-
 type Message any
 type Feedback any
 

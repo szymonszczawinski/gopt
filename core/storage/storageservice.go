@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"gosi/coreapi/queue"
+	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"gosi/issues/domain"
 	"log"
@@ -25,7 +26,7 @@ func NewStorageService(eg *errgroup.Group, ctx context.Context, repository stora
 	return instance
 }
 func (self *storageService) StartService() {
-	log.Println("Starting", storage.ISTORAGESERVICE)
+	log.Println("Starting", service.ServiceTypeIStorageService)
 	self.looper.Start(self.ctx)
 }
 

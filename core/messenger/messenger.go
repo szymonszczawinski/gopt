@@ -5,6 +5,7 @@ import (
 	"gosi/core/service"
 	imessenger "gosi/coreapi/messenger"
 	"gosi/coreapi/queue"
+	iservice "gosi/coreapi/service"
 	"log"
 
 	"golang.org/x/sync/errgroup"
@@ -41,7 +42,7 @@ func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerServ
 }
 
 func (s *messengerService) StartService() {
-	log.Println("Starting", imessenger.IMESSENGER)
+	log.Println("Starting", iservice.ServiceTypeIMessenger)
 	s.looper.Start(s.ctx)
 }
 

@@ -3,13 +3,10 @@ package http
 import (
 	"context"
 	"gosi/coreapi/queue"
+	"gosi/coreapi/service"
 	"log"
 
 	"golang.org/x/sync/errgroup"
-)
-
-const (
-	IHTTP_SERVER_SERVICE = "IHttpServerService"
 )
 
 type httpServerService struct {
@@ -28,7 +25,7 @@ func NewHttpServerService(eg *errgroup.Group, ctx context.Context) *httpServerSe
 }
 
 func (s *httpServerService) StartService() {
-	log.Println("Starting", IHTTP_SERVER_SERVICE)
+	log.Println("Starting", service.ServiceTypeIHttpServerService)
 	s.looper.Start(s.ctx)
 	s.server.Start()
 }
