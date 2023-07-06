@@ -3,6 +3,7 @@ package bun
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"gosi/core/storage/dao"
 	"gosi/coreapi/service"
 	"gosi/issues/domain"
@@ -95,7 +96,7 @@ func (self *bunRepository) GetLifecycle(issueType domain.IssueType) (domain.Life
 }
 func (self *bunRepository) StoreProject(project domain.Project) (domain.Project, error) {
 
-	return domain.Project{}, nil
+	return domain.Project{}, errors.New("NOT IMPLEMENTED")
 }
 func (self *bunRepository) GetComments() []domain.Comment {
 	return nil

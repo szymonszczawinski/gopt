@@ -31,6 +31,7 @@ func (self ProjectService) GetProjects() []dto.ProjectListItem {
 	for _, project := range projects {
 		projectList = append(projectList, dto.NewProjectListItem(project))
 	}
+	self.logger.Info(projectList)
 	return projectList
 }
 
