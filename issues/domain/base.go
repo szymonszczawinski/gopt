@@ -2,6 +2,10 @@ package domain
 
 import "time"
 
+type Named interface {
+	GetName() string
+}
+
 type Entity struct {
 	id int
 }

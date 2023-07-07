@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"gosi/core/storage/dao"
 	"gosi/coreapi/service"
 	"gosi/issues/domain"
@@ -13,6 +14,8 @@ import (
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/extra/bundebug"
+
 	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"golang.org/x/sync/errgroup"
 )
@@ -51,6 +54,10 @@ func (self *bunRepository) StartService() {
 		log.Fatal(errOpenDB.Error())
 	} else {
 		self.db = bun.NewDB(db, sqlitedialect.New())
+		self.db.AddQueryHook(bundebug.NewQueryHook(
+			bundebug.WithVerbose(true),
+			bundebug.FromEnv("BUNDEBUG"),
+		))
 	}
 	log.Println("Starting", service.ServiceTypeIRepository)
 	self.loadDictionaryData()
@@ -64,8 +71,8 @@ func (self *bunRepository) GetProjects() []domain.Project {
 	defer self.lockDb.RUnlock()
 	rows, err := self.db.NewSelect().
 		ColumnExpr("id").ColumnExpr("created").ColumnExpr("updated").ColumnExpr("name").
-		ColumnExpr("itemkey").ColumnExpr("itemnumber").ColumnExpr("description").
-		ColumnExpr("stateid").ColumnExpr("lifecycleid").ColumnExpr("createdbyid").
+		ColumnExpr("item_key").ColumnExpr("item_number").ColumnExpr("description").
+		ColumnExpr("state_id").ColumnExpr("lifecycle_id").ColumnExpr("created_by_id").
 		TableExpr("project").
 		Rows(self.ctx)
 	if err != nil {
@@ -92,12 +99,35 @@ func (self bunRepository) GetProject(projectId string) (domain.Project, error) {
 	return domain.Project{}, nil
 }
 func (self *bunRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
-	return domain.Lifecycle{}, nil
+	for _, lc := range self.dictionary.lifecycles {
+		if lc.GetName() == string(issueType) {
+			return lc, nil
+		}
+	}
+	return domain.Lifecycle{}, errors.New(fmt.Sprintf("Could not find Lifecycle for: %v", string(issueType)))
 }
 func (self *bunRepository) StoreProject(project domain.Project) (domain.Project, error) {
-
-	return domain.Project{}, errors.New("NOT IMPLEMENTED")
+	self.lockDb.Lock()
+	self.lockDb.Unlock()
+	dao := &dao.ProjectRow{
+		Name:        project.GetName(),
+		ItemKey:     project.GetItemKey(),
+		ItemNumber:  project.GetItemNumber(),
+		Description: project.GetDescription(),
+		StateId:     project.GetState().GetId(),
+		LifecycleId: project.GetLifecycle().GetId(),
+		CreatedById: 0,
+	}
+	res, err := self.db.NewInsert().Model(dao).Returning("id").Exec(self.ctx)
+	if err != nil {
+		log.Println("ERROR when insert project", err.Error())
+		return domain.Project{}, err
+	}
+	id, err := res.LastInsertId()
+	log.Println("RES :: ", id, " :: ", err)
+	return domain.Project{}, nil
 }
+
 func (self *bunRepository) GetComments() []domain.Comment {
 	return nil
 }
@@ -139,11 +169,11 @@ func (self *bunRepository) loadLifecycles() {
 		}
 	}
 	rows.Close()
+	log.Println("LIFECYCLE STATES LOADED: ", len(self.dictionary.lifecycleStates))
 	rows, err = self.db.NewSelect().
-		ColumnExpr("id").ColumnExpr("name").ColumnExpr("startstateid").
+		ColumnExpr("id").ColumnExpr("name").ColumnExpr("start_state_id").
 		TableExpr("lifecycle").
 		Rows(self.ctx)
-	log.Println("LIFECYCLE STATES LOADED: ", len(self.dictionary.lifecycleStates))
 	if err != nil {
 		log.Fatal(err)
 	}

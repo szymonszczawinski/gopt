@@ -2,7 +2,6 @@ package service
 
 import (
 	"errors"
-	"gosi/core/logger"
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
 	"gosi/coreapi/storage"
@@ -14,14 +13,12 @@ import (
 type ProjectService struct {
 	storageService storage.IStorageService
 	repository     storage.IRepository
-	logger         logger.Log
 }
 
 func NewProjectService() *ProjectService {
 	instance := new(ProjectService)
 	instance.storageService, _ = getStorageService()
 	instance.repository, _ = getRepository()
-	instance.logger = logger.NewLogger()
 	return instance
 }
 
@@ -31,7 +28,6 @@ func (self ProjectService) GetProjects() []dto.ProjectListItem {
 	for _, project := range projects {
 		projectList = append(projectList, dto.NewProjectListItem(project))
 	}
-	self.logger.Info(projectList)
 	return projectList
 }
 
@@ -44,15 +40,15 @@ func (self ProjectService) GetProject(projectId string) (dto.ProjectDetails, err
 
 }
 func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error) {
-	projectLifecycle, err := self.repository.GetLifecycle(domain.TProject)
+	projectLifecycle, err := self.repository.GetLifecycle(domain.IssueTypeProject)
 	if err != nil {
-		self.logger.Error(err.Error())
+		log.Println(err.Error())
 		return dto.ProjectListItem{}, err
 	}
 	project := domain.NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
 	stored, err := self.storageService.CreateProject(project)
 	if err != nil {
-		self.logger.Error("Could not create Project", err.Error())
+		log.Println("Could not create Project", err.Error())
 		return dto.ProjectListItem{}, err
 	}
 	return dto.NewProjectListItem(stored), nil

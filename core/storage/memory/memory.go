@@ -106,7 +106,7 @@ func (self memoryRepository) GetProject(projectId string) (domain.Project, error
 	return domain.Project{}, errors.New(fmt.Sprintf("Project with ID: %v not found", projectId))
 }
 func (self memoryRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
-	if issueType == domain.TProject {
+	if issueType == domain.IssueTypeProject {
 		return self.lifecycles[1], nil
 	}
 	return domain.Lifecycle{}, errors.New(fmt.Sprintf("No Lifecycle defined for issue type: %v", issueType))

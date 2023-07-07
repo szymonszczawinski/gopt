@@ -1,35 +1,33 @@
 package domain
 
 import (
-	"fmt"
 	"time"
 )
 
-type IssueType int
-type RelationType int
+type IssueType string
+type RelationType string
 
 const (
-	TProject IssueType = 1
-	TBug     IssueType = 2
+	IssueTypeProject IssueType = "Project"
+	IssueTypeBug     IssueType = "Bug"
 )
 
 const (
-	RCauses     RelationType = 1
-	RIsCausedBy RelationType = 2
+	RelationTypeCauses     RelationType = "Causes"
+	RelationTypeIsCausedBy RelationType = "IsCausedBy"
 )
 
 type Issue struct {
 	Entity
 	TimeTracked
-	itemKey      string
-	itemNumber   int
-	name         string
-	description  string
-	issueType    IssueType
-	currentState LifecycleState
-	lifecycle    Lifecycle
-	comments     []Comment
-	relations    []Relation
+	LivecycleManaged
+	itemKey     string
+	itemNumber  int
+	name        string
+	description string
+	issueType   IssueType
+	comments    []Comment
+	relations   []Relation
 }
 
 func (self Issue) GetItemKey() string {
@@ -51,18 +49,11 @@ func (self Issue) GetIssueType() IssueType {
 	return self.issueType
 }
 
-func (self IssueType) String() string {
-	return [...]string{"", "Project", "Bug"}[self]
-}
-
 func (self *Issue) GetAndIncrementItemNumber() int {
 	self.itemNumber += 1
 	return self.itemNumber
 }
 
-func (self Issue) GetLifecycleState() LifecycleState {
-	return self.currentState
-}
 func (self *Issue) AddComment(comment Comment) {
 	self.comments = append(self.comments, comment)
 }
@@ -79,14 +70,16 @@ func NewProject(projectKey string, name string, lifecycle Lifecycle) Project {
 				created: time.Now(),
 				updated: time.Now(),
 			},
-			itemKey:      projectKey + "-1",
-			itemNumber:   1,
-			name:         name,
-			description:  "",
-			currentState: lifecycle.startState,
-			lifecycle:    lifecycle,
-			issueType:    TProject,
-			comments:     []Comment{},
+			LivecycleManaged: LivecycleManaged{
+				lifecycle: lifecycle,
+				state:     lifecycle.startState,
+			},
+			itemKey:     projectKey,
+			itemNumber:  1,
+			name:        name,
+			description: "",
+			issueType:   IssueTypeProject,
+			comments:    []Comment{},
 		},
 	}
 	return project
@@ -103,24 +96,26 @@ func NewProjectFromRepo(id int, created time.Time, updated time.Time, itemKey st
 				created: created,
 				updated: updated,
 			},
-			itemKey:      itemKey,
-			itemNumber:   itemNumber,
-			name:         name,
-			description:  description,
-			issueType:    TProject,
-			currentState: state,
-			lifecycle:    lifecycle,
-			comments:     []Comment{},
-			relations:    []Relation{},
+			LivecycleManaged: LivecycleManaged{
+				lifecycle: lifecycle,
+				state:     state,
+			},
+			itemKey:     itemKey,
+			itemNumber:  itemNumber,
+			name:        name,
+			description: description,
+			issueType:   IssueTypeProject,
+			comments:    []Comment{},
+			relations:   []Relation{},
 		},
 	}
 	return project
 }
 
-func (self Project) String() string {
-	return fmt.Sprintf("Project[id:%v; key:%v; name:%v; state:%v\n comments:%v]",
-		self.GetId(), self.GetItemKey(), self.GetName(), self.currentState, self.comments)
-}
+// func (self Project) String() string {
+// 	return fmt.Sprintf("Project[id:%v; key:%v; name:%v; state:%v\n comments:%v]",
+// 		self.GetId(), self.GetItemKey(), self.GetName(), self.currentState, self.comments)
+// }
 
 func (self Project) GetComments() []Comment {
 	return self.comments

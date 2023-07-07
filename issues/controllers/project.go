@@ -19,5 +19,5 @@ func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup
 	projectsRoute := rootRoute.Group("/projects")
 	projectsRoute.GET("/", projectsPage)
 	projectsRoute.GET("/new", newProject)
-	projectsRoute.POST("/add", addProject)
+	projectsRoute.POST("/new", addProject)
 }

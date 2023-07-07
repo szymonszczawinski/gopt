@@ -16,24 +16,23 @@ const (
 )
 
 type LifecycleState struct {
-	id   int
+	Entity
 	name string
-}
-
-func (self LifecycleState) GetValue() string {
-	return self.name
 }
 
 func NewLifecycleState(id int, name string) LifecycleState {
 	state := LifecycleState{
-		id:   id,
-		name: name,
+		Entity: Entity{id: id},
+		name:   name,
 	}
 	return state
 }
+func (self LifecycleState) GetValue() string {
+	return self.name
+}
 
 type Lifecycle struct {
-	id          int
+	Entity
 	name        string
 	startState  LifecycleState
 	transitions map[LifecycleState][]LifecycleState
@@ -68,10 +67,27 @@ func (lcb *LifecycleBuilder) AddTransition(from LifecycleState, to LifecycleStat
 
 func (lcb LifecycleBuilder) Build() Lifecycle {
 	lifecycle := Lifecycle{
-		id:          lcb.id,
+		Entity:      Entity{id: lcb.id},
 		name:        lcb.name,
 		startState:  lcb.startState,
 		transitions: lcb.transitions,
 	}
 	return lifecycle
+}
+
+func (self Lifecycle) GetName() string {
+	return self.name
+}
+
+type LivecycleManaged struct {
+	lifecycle Lifecycle
+	state     LifecycleState
+}
+
+func (self LivecycleManaged) GetLifecycle() Lifecycle {
+	return self.lifecycle
+}
+
+func (self LivecycleManaged) GetState() LifecycleState {
+	return self.state
 }

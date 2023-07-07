@@ -28,16 +28,17 @@ func addProject(c *gin.Context) {
 	}
 	err := validateProject(newProject)
 	if err != nil {
-		displayeError(err, c)
+		displayeError2(err, c)
 		return
 	}
 	_, err = projectService.CreateProject(newProject)
 	if err != nil {
-		displayeError(err, c)
+		displayeError(err, newProject, c)
 		return
 	}
 	log.Println("Project Created")
-	c.Redirect(http.StatusFound, "/gosi/projects")
+	c.Writer.Header().Add("HX-Redirect", "/gosi/projects")
+	// c.Redirect(http.StatusFound, "/gosi/projects")
 
 }
 
@@ -56,7 +57,12 @@ func validateProject(p dto.CreateProjectCommand) error {
 	}
 }
 
-func displayeError(err error, c *gin.Context) {
+func displayeError(err error, p dto.CreateProjectCommand, c *gin.Context) {
+	c.HTML(http.StatusBadRequest, "projects/newproject.html",
+		gin.H{"title": "Add Project", "error": err.Error(), "projectName": p.Name, "projectKey": p.IssueKey})
+
+}
+func displayeError2(err error, c *gin.Context) {
 	log.Println("Could not create a Project: ", err.Error())
 	tmpl := template.Must(template.ParseFiles("public/projects/newproject.html"))
 	tmpl.ExecuteTemplate(c.Writer, "create-project-error", gin.H{"error": fmt.Sprintf("Could not create a project: %v", err.Error())})

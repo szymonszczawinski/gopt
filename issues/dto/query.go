@@ -11,27 +11,27 @@ const (
 )
 
 type ProjectListItem struct {
-	Id       int    `json:"id"`
-	IssueId  string `json:"issueId"`
-	Name     string `json:"name"`
-	Type     string `json:"issueType"`
-	State    string `json:"state"`
-	Assignee string `json:"assignee"`
-	Reporter string `json:"reporter"`
-	Created  string `json:"created"`
-	Updated  string `json:"updated"`
+	Id       int              `json:"id"`
+	IssueId  string           `json:"issueId"`
+	Name     string           `json:"name"`
+	Type     domain.IssueType `json:"issueType"`
+	State    string           `json:"state"`
+	Assignee string           `json:"assignee"`
+	Reporter string           `json:"reporter"`
+	Created  string           `json:"created"`
+	Updated  string           `json:"updated"`
 }
 
 type ProjectDetails struct {
-	Id       int    `json:"id"`
-	IssueId  string `json:"issueId"`
-	Name     string `json:"name"`
-	Type     string `json:"issueType"`
-	State    string `json:"state"`
-	Assignee string `json:"assignee"`
-	Reporter string `json:"reporter"`
-	Created  string `json:"created"`
-	Updated  string `json:"updated"`
+	Id       int              `json:"id"`
+	IssueId  string           `json:"issueId"`
+	Name     string           `json:"name"`
+	Type     domain.IssueType `json:"issueType"`
+	State    string           `json:"state"`
+	Assignee string           `json:"assignee"`
+	Reporter string           `json:"reporter"`
+	Created  string           `json:"created"`
+	Updated  string           `json:"updated"`
 	Comments []ProjectComment
 }
 
@@ -46,8 +46,8 @@ func NewProjectListItem(project domain.Project) ProjectListItem {
 		Id:       project.GetId(),
 		IssueId:  project.GetItemKey() + "-" + strconv.Itoa(project.GetItemNumber()),
 		Name:     project.GetName(),
-		Type:     project.GetIssueType().String(),
-		State:    project.GetLifecycleState().GetValue(),
+		Type:     project.GetIssueType(),
+		State:    project.GetState().GetValue(),
 		Assignee: "",
 		Reporter: "",
 		Created:  project.GetCreationTime().Format(DDMMYYYYhhmmss),
@@ -59,8 +59,8 @@ func NewProjectDetails(project domain.Project) ProjectDetails {
 		Id:       project.GetId(),
 		IssueId:  project.GetItemKey(),
 		Name:     project.GetName(),
-		Type:     project.GetIssueType().String(),
-		State:    project.GetLifecycleState().GetValue(),
+		Type:     project.GetIssueType(),
+		State:    project.GetState().GetValue(),
 		Assignee: "",
 		Reporter: "",
 		Created:  project.GetCreationTime().String(),
