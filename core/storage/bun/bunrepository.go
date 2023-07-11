@@ -51,6 +51,11 @@ func NewRepository(eg *errgroup.Group, ctx context.Context) *bunRepository {
 }
 func (self *bunRepository) StartService() {
 	dbfile := os.Getenv("DATABASE_FILE_NAME")
+	log.Println("DB File:", dbfile)
+	if _, err := os.Stat(dbfile); err != nil {
+		log.Println("File", dbfile, " does not exists")
+		dbfile = "gosi.db"
+	}
 	db, errOpenDB := sql.Open("sqlite3", dbfile)
 	if errOpenDB != nil {
 		log.Fatal(errOpenDB.Error())
