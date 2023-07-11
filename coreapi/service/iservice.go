@@ -13,7 +13,7 @@ const (
 )
 
 type IServiceManager interface {
-	GetService(serviceType ServiceType) (any, error)
+	GetService(serviceType ServiceType) (IService, error)
 	StartService(serviceType ServiceType, service IService) error
 	RegisterService(serviceType ServiceType, service IService)
 }

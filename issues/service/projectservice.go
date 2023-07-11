@@ -1,9 +1,6 @@
 package service
 
 import (
-	"errors"
-	"gosi/core/service"
-	iservice "gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"gosi/issues/domain"
 	"gosi/issues/dto"
@@ -15,10 +12,10 @@ type ProjectService struct {
 	repository     storage.IRepository
 }
 
-func NewProjectService() *ProjectService {
+func NewProjectService(storageService storage.IStorageService, repository storage.IRepository) *ProjectService {
 	instance := new(ProjectService)
-	instance.storageService, _ = getStorageService()
-	instance.repository, _ = getRepository()
+	instance.storageService = storageService
+	instance.repository = repository
 	return instance
 }
 
@@ -66,41 +63,4 @@ func (self ProjectService) AddComment(newComment dto.AddCommentCommand) (domain.
 		return stored, nil
 	}
 
-}
-
-func getStorageService() (storage.IStorageService, error) {
-
-	serviceManager, err := service.GetServiceManager()
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	service, err := serviceManager.GetService(iservice.ServiceTypeIStorageService)
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	storageService, ok := service.(storage.IStorageService)
-	if !ok {
-		return nil, errors.New("StorageService has incorrect type")
-	}
-	return storageService, nil
-}
-func getRepository() (storage.IRepository, error) {
-
-	serviceManager, err := service.GetServiceManager()
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	service, err := serviceManager.GetService(iservice.ServiceTypeIRepository)
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	repository, ok := service.(storage.IRepository)
-	if !ok {
-		return nil, errors.New("Repository has incorrect type")
-	}
-	return repository, nil
 }

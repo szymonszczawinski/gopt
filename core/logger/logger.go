@@ -3,12 +3,10 @@ package logger
 import (
 	"log"
 	"os"
-	"sync"
 )
 
 var (
-	instanceLock sync.RWMutex
-	Loger        Log
+	Loger Log
 )
 
 type Log interface {

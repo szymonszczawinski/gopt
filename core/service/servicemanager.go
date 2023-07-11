@@ -12,16 +12,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var singleInstance *serviceManager
-var lock = &sync.Mutex{}
+var (
+	smLock         = &sync.Mutex{}
+	singleInstance *serviceManager
+)
 
 type serviceManager struct {
-	services map[service.ServiceType]any
+	services map[service.ServiceType]service.IService
 	looper   queue.IJobQueue
 }
 
 // Get Service of given serviceType or return error if service is not registerred
-func (s *serviceManager) GetService(serviceType service.ServiceType) (any, error) {
+func (s *serviceManager) GetService(serviceType service.ServiceType) (service.IService, error) {
 	service, serviceExists := s.services[serviceType]
 	if serviceExists {
 		log.Println("Return service of type: ", serviceType)
@@ -48,8 +50,10 @@ func (s *serviceManager) RegisterService(serviceType service.ServiceType, servic
 }
 
 func NewServiceManager(eg *errgroup.Group, ctx context.Context) *serviceManager {
+	smLock.Lock()
+	defer smLock.Unlock()
 	instance := new(serviceManager)
-	instance.services = map[service.ServiceType]any{}
+	instance.services = map[service.ServiceType]service.IService{}
 	instance.looper = queue.NeqJobQueue("serviceManager", eg)
 	instance.looper.Start(ctx)
 	singleInstance = instance
@@ -57,6 +61,8 @@ func NewServiceManager(eg *errgroup.Group, ctx context.Context) *serviceManager 
 }
 
 func GetServiceManager() (service.IServiceManager, error) {
+	smLock.Lock()
+	defer smLock.Unlock()
 	if singleInstance == nil {
 		return nil, errors.New("No Service Manager created")
 	}

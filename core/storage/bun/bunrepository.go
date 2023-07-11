@@ -36,15 +36,17 @@ type bunRepository struct {
 }
 
 func NewRepository(eg *errgroup.Group, ctx context.Context) *bunRepository {
-	instance := new(bunRepository)
-	instance.ctx = ctx
-	instance.eg = eg
-	instance.dictionary = disctionaryData{
-		lifecycleStates: map[int]domain.LifecycleState{},
-		lifecycles:      map[int]domain.Lifecycle{},
+	instance := bunRepository{
+		lockDb: &sync.RWMutex{},
+		db:     &bun.DB{},
+		dictionary: disctionaryData{
+			lifecycleStates: map[int]domain.LifecycleState{},
+			lifecycles:      map[int]domain.Lifecycle{},
+		},
+		eg:  eg,
+		ctx: ctx,
 	}
-	instance.lockDb = &sync.RWMutex{}
-	return instance
+	return &instance
 
 }
 func (self *bunRepository) StartService() {
@@ -62,35 +64,27 @@ func (self *bunRepository) StartService() {
 	log.Println("Starting", service.ServiceTypeIRepository)
 	self.loadDictionaryData()
 }
-func (self bunRepository) Close() {
+func (self *bunRepository) Close() {
 	self.db.Close()
 }
 
 func (self *bunRepository) GetProjects() []domain.Project {
+	var (
+		projectsRows []dao.ProjectRow
+		projects     []domain.Project = []domain.Project{}
+	)
 	self.lockDb.RLock()
 	defer self.lockDb.RUnlock()
-	rows, err := self.db.NewSelect().
-		ColumnExpr("id").ColumnExpr("created").ColumnExpr("updated").ColumnExpr("name").
-		ColumnExpr("item_key").ColumnExpr("item_number").ColumnExpr("description").
-		ColumnExpr("state_id").ColumnExpr("lifecycle_id").ColumnExpr("created_by_id").
-		TableExpr("project").
-		Rows(self.ctx)
+
+	err := self.db.NewSelect().Model(&projectsRows).Scan(self.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer rows.Close()
-	projects := []domain.Project{}
 
-	for rows.Next() {
-		var row dao.ProjectRow
-		err = rows.Scan(&row.Id, &row.Created, &row.Updated, &row.Name, &row.ItemKey, &row.ItemNumber,
-			&row.Description, &row.StateId, &row.LifecycleId, &row.CreatedById)
-		if err != nil {
-			log.Println(err.Error())
-		} else {
-			projects = append(projects, domain.NewProjectFromRepo(row.Id, row.Created, row.Updated, row.ItemKey, row.ItemNumber, row.Name,
-				row.Description, self.getLifecycleState(row.StateId), self.getLifecycle(row.LifecycleId)))
-		}
+	for _, row := range projectsRows {
+		projects = append(projects, domain.NewProjectFromRepo(row.Id, row.Created, row.Updated, row.ItemKey, row.ItemNumber, row.Name,
+			row.Description, self.getLifecycleState(row.StateId), self.getLifecycle(row.LifecycleId)))
+		log.Println(projects)
 	}
 	return projects
 
@@ -150,44 +144,25 @@ func (self *bunRepository) loadDictionaryData() {
 }
 
 func (self *bunRepository) loadLifecycles() {
-	rows, err := self.db.NewSelect().
-		ColumnExpr("id").ColumnExpr("name").
-		TableExpr("lifecyclestate").
-		Rows(self.ctx)
-
+	var (
+		lifecycleStatesRows []dao.LifecycleStateRow
+		lifecyclesRows      []dao.LifecycleRow
+	)
+	err := self.db.NewSelect().Model(&lifecycleStatesRows).Scan(self.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for rows.Next() {
-		var id int
-		var name string
-		err = rows.Scan(&id, &name)
-		if err != nil {
-			log.Println("ERROR::", err.Error())
-		} else {
-			self.dictionary.lifecycleStates[id] = domain.NewLifecycleState(id, name)
-		}
+	for _, row := range lifecycleStatesRows {
+		self.dictionary.lifecycleStates[row.Id] = domain.NewLifecycleState(row.Id, row.Name)
 	}
-	rows.Close()
 	log.Println("LIFECYCLE STATES LOADED: ", len(self.dictionary.lifecycleStates))
-	rows, err = self.db.NewSelect().
-		ColumnExpr("id").ColumnExpr("name").ColumnExpr("start_state_id").
-		TableExpr("lifecycle").
-		Rows(self.ctx)
+
+	err = self.db.NewSelect().Model(&lifecyclesRows).Scan(self.ctx)
 	if err != nil {
 		log.Fatal(err)
 	}
-	for rows.Next() {
-		var id int
-		var name string
-		var startStateId int
-		rows.Scan(&id, &name, &startStateId)
-		if err != nil {
-			log.Println("ERROR::", err.Error())
-		} else {
-			self.dictionary.lifecycles[id] = domain.NewLifeCycleBuilder(id, name, self.dictionary.lifecycleStates[startStateId]).Build()
-		}
+	for _, row := range lifecyclesRows {
+		self.dictionary.lifecycles[row.Id] = domain.NewLifeCycleBuilder(row.Id, row.Name, self.dictionary.lifecycleStates[row.StartStateId]).Build()
 	}
-	rows.Close()
 	log.Println("LIFECYCLES LOADED: ", len(self.dictionary.lifecycles))
 }
