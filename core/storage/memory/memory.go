@@ -46,19 +46,19 @@ func (s *memoryRepository) initStorage() {
 
 func (s *memoryRepository) initLifecycleStates() {
 	s.lifecycleStates = make(map[int]domain.LifecycleState)
-	s.lifecycleStates[1] = domain.NewLifecycleState(1, domain.LIFECYCLE_STATE_DRAFT)
-	s.lifecycleStates[2] = domain.NewLifecycleState(2, domain.LIFECYCLE_STATE_NEW)
-	s.lifecycleStates[3] = domain.NewLifecycleState(3, domain.LIFECYCLE_STATE_ANALISYS)
-	s.lifecycleStates[4] = domain.NewLifecycleState(4, domain.LIFECYCLE_STATE_DESIGN)
-	s.lifecycleStates[5] = domain.NewLifecycleState(5, domain.LIFECYCLE_STATE_DEVELOPMENT)
-	s.lifecycleStates[6] = domain.NewLifecycleState(6, domain.LIFECYCLE_STATE_OPEN)
-	s.lifecycleStates[7] = domain.NewLifecycleState(7, domain.LIFECYCLE_STATE_CLOSED)
-	s.lifecycleStates[8] = domain.NewLifecycleState(8, domain.LIFECYCLE_STATE_INTEGRATION)
-	s.lifecycleStates[9] = domain.NewLifecycleState(9, domain.LIFECYCLE_STATE_VERIFICATION)
-	s.lifecycleStates[10] = domain.NewLifecycleState(10, domain.LIFECYCLE_STATE_FIXED)
-	s.lifecycleStates[11] = domain.NewLifecycleState(11, domain.LIFECYCLE_STATE_CLOSED)
-	s.lifecycleStates[12] = domain.NewLifecycleState(12, domain.LIFECYCLE_STATE_REJECTED)
-	s.lifecycleStates[13] = domain.NewLifecycleState(13, domain.LIFECYCLE_STATE_RETEST)
+	s.lifecycleStates[1] = domain.NewLifecycleState(1, "Draft")
+	s.lifecycleStates[2] = domain.NewLifecycleState(2, "New")
+	s.lifecycleStates[3] = domain.NewLifecycleState(3, "Analysis")
+	s.lifecycleStates[4] = domain.NewLifecycleState(4, "Design")
+	s.lifecycleStates[5] = domain.NewLifecycleState(5, "Development")
+	s.lifecycleStates[6] = domain.NewLifecycleState(6, "Open")
+	s.lifecycleStates[7] = domain.NewLifecycleState(7, "Closed")
+	s.lifecycleStates[8] = domain.NewLifecycleState(8, "Integration")
+	s.lifecycleStates[9] = domain.NewLifecycleState(9, "Verification")
+	s.lifecycleStates[10] = domain.NewLifecycleState(10, "Fixed")
+	s.lifecycleStates[12] = domain.NewLifecycleState(11, "Retest")
+	s.lifecycleStates[13] = domain.NewLifecycleState(12, "Rejected")
+	s.lifecycleStates[14] = domain.NewLifecycleState(13, "Assigned")
 }
 
 func (s *memoryRepository) initLifecycles() {

@@ -1,19 +1,6 @@
 package domain
 
-const (
-	LIFECYCLE_STATE_NEW          = "New"
-	LIFECYCLE_STATE_OPEN         = "Open"
-	LIFECYCLE_STATE_ANALISYS     = "Analisys"
-	LIFECYCLE_STATE_DESIGN       = "Design"
-	LIFECYCLE_STATE_DEVELOPMENT  = "Development"
-	LIFECYCLE_STATE_FIXED        = "Fixed"
-	LIFECYCLE_STATE_CLOSED       = "Closed"
-	LIFECYCLE_STATE_VERIFICATION = "Verification"
-	LIFECYCLE_STATE_INTEGRATION  = "Integration"
-	LIFECYCLE_STATE_RETEST       = "Retest"
-	LIFECYCLE_STATE_REJECTED     = "Rejected"
-	LIFECYCLE_STATE_DRAFT        = "Draft"
-)
+const ()
 
 type LifecycleState struct {
 	Entity

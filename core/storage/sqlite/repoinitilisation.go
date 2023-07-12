@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"gosi/core/storage/sql/command"
 	"gosi/core/storage/sql/schema"
-	"gosi/issues/domain"
 	"log"
 	"time"
 )
@@ -32,18 +31,19 @@ func initialiseLifecycleStates(db *sql.DB) {
 	if tableIsEmpty {
 		insertStatement, _ := db.Prepare(command.INSERT_LIFECYCLE_STATE)
 		defer insertStatement.Close()
-		insertStatement.Exec(domain.LIFECYCLE_STATE_DRAFT)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_NEW)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_OPEN)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_ANALISYS)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_DESIGN)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_DEVELOPMENT)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_INTEGRATION)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_VERIFICATION)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_FIXED)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_CLOSED)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_RETEST)
-		insertStatement.Exec(domain.LIFECYCLE_STATE_REJECTED)
+		insertStatement.Exec("Draft")
+		insertStatement.Exec("New")
+		insertStatement.Exec("Open")
+		insertStatement.Exec("Analysis")
+		insertStatement.Exec("Design")
+		insertStatement.Exec("Development")
+		insertStatement.Exec("Integration")
+		insertStatement.Exec("Verification")
+		insertStatement.Exec("Fixed")
+		insertStatement.Exec("Closed")
+		insertStatement.Exec("Retest")
+		insertStatement.Exec("Rejected")
+		insertStatement.Exec("Assigned")
 	}
 
 }

@@ -2,21 +2,18 @@ package bun
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"gosi/core/storage/dao"
 	"gosi/coreapi/service"
 	"gosi/issues/domain"
 	"log"
-	"os"
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/extra/bundebug"
 
-	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -50,22 +47,17 @@ func NewRepository(eg *errgroup.Group, ctx context.Context) *bunRepository {
 
 }
 func (self *bunRepository) StartService() {
-	dbfile := os.Getenv("DATABASE_FILE_NAME")
-	log.Println("DB File:", dbfile)
-	if _, err := os.Stat(dbfile); err != nil {
-		log.Println("File", dbfile, " does not exists")
-		dbfile = "gosi.db"
-	}
-	db, errOpenDB := sql.Open("sqlite3", dbfile)
-	if errOpenDB != nil {
-		log.Fatal(errOpenDB.Error())
+	if databaseExists() {
+		log.Println("Open existing DB")
+		self.db, _ = openDatabase(DatabaseDialectSqlite3)
 	} else {
-		self.db = bun.NewDB(db, sqlitedialect.New())
-		self.db.AddQueryHook(bundebug.NewQueryHook(
-			bundebug.WithVerbose(true),
-			bundebug.FromEnv("BUNDEBUG"),
-		))
+		log.Println("Create new DB")
+		self.db, _ = createAndInitDb(DatabaseDialectSqlite3, self.ctx)
 	}
+	self.db.AddQueryHook(bundebug.NewQueryHook(
+		bundebug.WithVerbose(true),
+		bundebug.FromEnv("BUNDEBUG"),
+	))
 	log.Println("Starting", service.ServiceTypeIRepository)
 	self.loadDictionaryData()
 }
@@ -142,32 +134,4 @@ func (self bunRepository) getLifecycle(id int) domain.Lifecycle {
 func (self bunRepository) getLifecycleState(id int) domain.LifecycleState {
 	lifecyclestate := self.dictionary.lifecycleStates[id]
 	return lifecyclestate
-}
-
-func (self *bunRepository) loadDictionaryData() {
-	self.loadLifecycles()
-}
-
-func (self *bunRepository) loadLifecycles() {
-	var (
-		lifecycleStatesRows []dao.LifecycleStateRow
-		lifecyclesRows      []dao.LifecycleRow
-	)
-	err := self.db.NewSelect().Model(&lifecycleStatesRows).Scan(self.ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, row := range lifecycleStatesRows {
-		self.dictionary.lifecycleStates[row.Id] = domain.NewLifecycleState(row.Id, row.Name)
-	}
-	log.Println("LIFECYCLE STATES LOADED: ", len(self.dictionary.lifecycleStates))
-
-	err = self.db.NewSelect().Model(&lifecyclesRows).Scan(self.ctx)
-	if err != nil {
-		log.Fatal(err)
-	}
-	for _, row := range lifecyclesRows {
-		self.dictionary.lifecycles[row.Id] = domain.NewLifeCycleBuilder(row.Id, row.Name, self.dictionary.lifecycleStates[row.StartStateId]).Build()
-	}
-	log.Println("LIFECYCLES LOADED: ", len(self.dictionary.lifecycles))
 }

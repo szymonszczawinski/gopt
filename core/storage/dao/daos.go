@@ -32,3 +32,10 @@ type LifecycleRow struct {
 	Name          string
 	StartStateId  int
 }
+
+type StateTransition struct {
+	bun.BaseModel `bun:"table:statetransition"`
+	LifecycleId   int
+	FromStateId   int
+	ToStateId     int
+}
