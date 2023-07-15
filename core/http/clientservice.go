@@ -28,7 +28,7 @@ func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientSe
 	sm, err := service.GetServiceManager()
 	if err == nil {
 
-		res, err := sm.GetService(messenger.IMMESSENGER_HANDLER_REGISTRY)
+		res := sm.MustGetComponent(messenger.IMMESSENGER_HANDLER_REGISTRY)
 		if err == nil {
 			impl, ok := res.(messenger.IMessengerHandlerRegistry)
 			if ok {
@@ -43,7 +43,7 @@ func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientSe
 	return serviceInstance
 }
 
-func (s *httpClientService) StartService() {
+func (s *httpClientService) StartComponent() {
 	log.Println("Starting", IHTTP_CLIENT_SERVICE)
 	s.looper.Start(s.ctx)
 }

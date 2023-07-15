@@ -4,10 +4,11 @@ import (
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/storage/bun"
+	"gosi/issues/storage"
 
 	"gosi/core/service"
-	"gosi/core/storage"
 	iservice "gosi/coreapi/service"
+	projectservice "gosi/issues/service"
 
 	"context"
 	"fmt"
@@ -51,27 +52,35 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 
 	log.Println("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
-	sm.StartService(iservice.ServiceTypeIMessenger, messengerService)
+	sm.StartComponent(iservice.ComponentTypeMessenger, messengerService)
 
-	log.Println("Starting REPOSITORY")
-	repository := bun.NewRepository(eg, ctx)
-	sm.StartService(iservice.ServiceTypeIRepository, repository)
+	log.Println("Starting DATABASE")
+	databaseConnection := bun.NewBunDatabase(eg, ctx)
+	sm.StartComponent(iservice.ComponentTypeBunDatabase, databaseConnection)
 
-	log.Println("Starting STORAGE SERVICE")
-	storageService := storage.NewStorageService(eg, ctx, repository)
-	sm.StartService(iservice.ServiceTypeIStorageService, storageService)
+	log.Println("Starting ISSUE REPOSITORY")
+	issueRepository := storage.NewIssueRepository(eg, ctx, databaseConnection)
+	sm.StartComponent(iservice.ComponentTypeIssueRepository, issueRepository)
+
+	log.Println("Starting ISSUE SERVICE")
+	issueService := projectservice.NewProjectService(eg, ctx, issueRepository)
+	sm.StartComponent(iservice.ComponentTypeIssueService, issueService)
+
+	// log.Println("Starting STORAGE SERVICE")
+	// storageService := storage.NewStorageService(eg, ctx, repository)
+	// sm.StartService(iservice.ServiceTypeIStorageService, storageService)
 
 	log.Println("Starting HTTP SERVER SERVICE")
 	httpServerService := http.NewHttpServerService(eg, ctx)
-	sm.StartService(iservice.ServiceTypeIHttpServerService, httpServerService)
+	sm.StartComponent(iservice.ComponentTypeHttpServerService, httpServerService)
 
 	log.Println("Starting HTTP CLIENT SERVICE")
 	httpClientService := http.NewHttpClientService(eg, ctx)
-	sm.StartService(iservice.ServiceTypeIHttpClientService, httpClientService)
+	sm.StartComponent(iservice.ComponentTypeHttpClientService, httpClientService)
 
 }
 
-func createPluginService(serviceLocation string, serviceName string) iservice.IService {
+func createPluginService(serviceLocation string, serviceName string) iservice.IComponent {
 	plug, err := plugin.Open(serviceLocation)
 	if err != nil {
 		log.Println("Could not load: ", serviceName, "Error: ", err)
@@ -88,7 +97,7 @@ func createPluginService(serviceLocation string, serviceName string) iservice.IS
 		return nil
 	}
 	instance := createFunction()
-	serviceInstance, isInstance := instance.(iservice.IService)
+	serviceInstance, isInstance := instance.(iservice.IComponent)
 	if !isInstance {
 		log.Println("Instance is not IModService")
 		return nil

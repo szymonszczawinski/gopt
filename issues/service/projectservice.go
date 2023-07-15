@@ -1,22 +1,31 @@
 package service
 
 import (
-	"gosi/coreapi/storage"
+	"context"
 	"gosi/issues/domain"
 	"gosi/issues/dto"
+	"gosi/issues/storage"
 	"log"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type ProjectService struct {
-	storageService storage.IStorageService
-	repository     storage.IRepository
+	ctx        context.Context
+	eg         *errgroup.Group
+	repository storage.IIssueRepository
 }
 
-func NewProjectService(storageService storage.IStorageService, repository storage.IRepository) *ProjectService {
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository storage.IIssueRepository) *ProjectService {
 	instance := new(ProjectService)
-	instance.storageService = storageService
 	instance.repository = repository
+	instance.ctx = ctx
+	instance.eg = eg
 	return instance
+}
+
+func (self *ProjectService) StartComponent() {
+
 }
 
 func (self ProjectService) GetProjects() []dto.ProjectListItem {
@@ -43,7 +52,7 @@ func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (d
 		return dto.ProjectListItem{}, err
 	}
 	project := domain.NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
-	stored, err := self.storageService.CreateProject(project)
+	stored, err := self.repository.StoreProject(project)
 	if err != nil {
 		log.Println("Could not create Project", err.Error())
 		return dto.ProjectListItem{}, err
@@ -56,7 +65,7 @@ func (self ProjectService) AddComment(newComment dto.AddCommentCommand) (domain.
 	if err != nil {
 		return domain.Comment{}, err
 	}
-	stored, err := self.storageService.CreateComment(domain.NewComment(project.GetId(), newComment.Content))
+	stored, err := self.repository.StoreComment(domain.NewComment(project.GetId(), newComment.Content))
 	if err != nil {
 		return domain.Comment{}, err
 	} else {

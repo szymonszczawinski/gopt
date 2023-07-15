@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"errors"
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
-	"gosi/coreapi/storage"
 	projectservice "gosi/issues/service"
 	"log"
 
@@ -15,9 +13,7 @@ var projectService *projectservice.ProjectService
 
 func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup) {
 
-	storageService, _ := getStorageService()
-	repository, _ := getRepository()
-	projectService = projectservice.NewProjectService(storageService, repository)
+	projectService = mustCreateProjectService()
 	apiProjectsRoute := apiRootRoute.Group("/projects")
 	apiProjectsRoute.GET("/", getProjects)
 	apiProjectsRoute.GET("/:issueId", getProject)
@@ -30,41 +26,18 @@ func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup
 	projectsRoute.POST("/new", addProject)
 }
 
-func getStorageService() (storage.IStorageService, error) {
+func mustCreateProjectService() *projectservice.ProjectService {
 
 	serviceManager, err := service.GetServiceManager()
 	if err != nil {
 		log.Fatal(err.Error())
-		return nil, err
+		return nil
 	}
-	service, err := serviceManager.GetService(iservice.ServiceTypeIStorageService)
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	storageService, ok := service.(storage.IStorageService)
+	service := serviceManager.MustGetComponent(iservice.ComponentTypeIssueService)
+	projectService, ok := service.(*projectservice.ProjectService)
 	if !ok {
 		log.Fatal(err.Error())
-		return nil, errors.New("StorageService has incorrect type")
+		return nil
 	}
-	return storageService, nil
-}
-func getRepository() (storage.IRepository, error) {
-
-	serviceManager, err := service.GetServiceManager()
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	service, err := serviceManager.GetService(iservice.ServiceTypeIRepository)
-	if err != nil {
-		log.Fatal(err.Error())
-		return nil, err
-	}
-	repository, ok := service.(storage.IRepository)
-	if !ok {
-		log.Fatal(err.Error())
-		return nil, errors.New("Repository has incorrect type")
-	}
-	return repository, nil
+	return projectService
 }

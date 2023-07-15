@@ -1,9 +1,12 @@
 package messenger
 
+import "gosi/coreapi/service"
+
 type Message any
 type Feedback any
 
 type IMessenger interface {
+	service.IComponent
 	Publish(t Topic, m Message, listener PublishListener)
 	Subscribe(t Topic, listener SubscribeListener)
 }

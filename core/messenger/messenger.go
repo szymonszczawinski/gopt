@@ -30,19 +30,19 @@ type messengerService struct {
 	handlers map[imessenger.Topic][]IMessengerHandler
 }
 
-func NewMessengerService(eg *errgroup.Group, ctx context.Context) *messengerService {
+func NewMessengerService(eg *errgroup.Group, ctx context.Context) imessenger.IMessenger {
 	log.Println("New Messenger Service")
 	messenger := new(messengerService)
 	messenger.ctx = ctx
 	messenger.looper = queue.NeqJobQueue("messengerService", eg)
 	messenger.handlers = map[imessenger.Topic][]IMessengerHandler{}
 	sm, _ := service.GetServiceManager()
-	sm.RegisterService(IMMESSENGER_HANDLER_REGISTRY, messenger)
+	sm.RegisterComponent(IMMESSENGER_HANDLER_REGISTRY, messenger)
 	return messenger
 }
 
-func (s *messengerService) StartService() {
-	log.Println("Starting", iservice.ServiceTypeIMessenger)
+func (s *messengerService) StartComponent() {
+	log.Println("Starting", iservice.ComponentTypeMessenger)
 	s.looper.Start(s.ctx)
 }
 

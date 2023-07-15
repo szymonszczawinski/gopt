@@ -1,30 +1,37 @@
-package bun
+package storage
 
 import (
 	"context"
 	"errors"
 	"fmt"
-	"gosi/core/storage/dao"
+	"gosi/core/storage/bun"
 	"gosi/coreapi/service"
+	"gosi/issues/dao"
 	"gosi/issues/domain"
 	"log"
 	"sync"
 
-	_ "github.com/mattn/go-sqlite3"
-	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/extra/bundebug"
-
 	"golang.org/x/sync/errgroup"
 )
+
+type IIssueRepository interface {
+	service.IComponent
+	GetProjects() []domain.Project
+	GetProject(projectId string) (domain.Project, error)
+	GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error)
+	StoreProject(project domain.Project) (domain.Project, error)
+	GetComments() []domain.Comment
+	StoreComment(comment domain.Comment) (domain.Comment, error)
+}
 
 type disctionaryData struct {
 	lifecycleStates map[int]domain.LifecycleState
 	lifecycles      map[int]domain.Lifecycle
 }
 
-type bunRepository struct {
+type issueRepository struct {
 	lockDb *sync.RWMutex
-	db     *bun.DB
+	db     bun.IBunDatabase
 
 	dictionary disctionaryData
 
@@ -32,10 +39,10 @@ type bunRepository struct {
 	ctx context.Context
 }
 
-func NewRepository(eg *errgroup.Group, ctx context.Context) *bunRepository {
-	instance := bunRepository{
+func NewIssueRepository(eg *errgroup.Group, ctx context.Context, db bun.IBunDatabase) *issueRepository {
+	instance := issueRepository{
 		lockDb: &sync.RWMutex{},
-		db:     &bun.DB{},
+		db:     db,
 		dictionary: disctionaryData{
 			lifecycleStates: map[int]domain.LifecycleState{},
 			lifecycles:      map[int]domain.Lifecycle{},
@@ -44,28 +51,13 @@ func NewRepository(eg *errgroup.Group, ctx context.Context) *bunRepository {
 		ctx: ctx,
 	}
 	return &instance
-
 }
-func (self *bunRepository) StartService() {
-	if databaseExists() {
-		log.Println("Open existing DB")
-		self.db, _ = openDatabase(DatabaseDialectSqlite3)
-	} else {
-		log.Println("Create new DB")
-		self.db, _ = createAndInitDb(DatabaseDialectSqlite3, self.ctx)
-	}
-	self.db.AddQueryHook(bundebug.NewQueryHook(
-		bundebug.WithVerbose(true),
-		bundebug.FromEnv("BUNDEBUG"),
-	))
-	log.Println("Starting", service.ServiceTypeIRepository)
+
+func (self *issueRepository) StartComponent() {
 	self.loadDictionaryData()
 }
-func (self *bunRepository) Close() {
-	self.db.Close()
-}
 
-func (self *bunRepository) GetProjects() []domain.Project {
+func (self *issueRepository) GetProjects() []domain.Project {
 	var (
 		projectsRows []dao.ProjectRow
 		projects     []domain.Project = []domain.Project{}
@@ -86,10 +78,13 @@ func (self *bunRepository) GetProjects() []domain.Project {
 	return projects
 
 }
-func (self bunRepository) GetProject(projectId string) (domain.Project, error) {
+func (self issueRepository) GetProject(projectId string) (domain.Project, error) {
+	self.lockDb.RLock()
+	self.lockDb.RUnlock()
+
 	return domain.Project{}, nil
 }
-func (self *bunRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
+func (self *issueRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
 	for _, lc := range self.dictionary.lifecycles {
 		if lc.GetName() == string(issueType) {
 			return lc, nil
@@ -97,7 +92,7 @@ func (self *bunRepository) GetLifecycle(issueType domain.IssueType) (domain.Life
 	}
 	return domain.Lifecycle{}, errors.New(fmt.Sprintf("Could not find Lifecycle for: %v", string(issueType)))
 }
-func (self *bunRepository) StoreProject(project domain.Project) (domain.Project, error) {
+func (self *issueRepository) StoreProject(project domain.Project) (domain.Project, error) {
 	self.lockDb.Lock()
 	self.lockDb.Unlock()
 	dao := &dao.ProjectRow{
@@ -119,19 +114,50 @@ func (self *bunRepository) StoreProject(project domain.Project) (domain.Project,
 	return domain.Project{}, nil
 }
 
-func (self *bunRepository) GetComments() []domain.Comment {
+func (self *issueRepository) GetComments() []domain.Comment {
+	self.lockDb.RLock()
+	self.lockDb.RUnlock()
+
 	return nil
 }
-func (self *bunRepository) StoreComment(comment domain.Comment) (domain.Comment, error) {
+func (self *issueRepository) StoreComment(comment domain.Comment) (domain.Comment, error) {
+	self.lockDb.Lock()
+	self.lockDb.Unlock()
+
 	return domain.Comment{}, nil
 }
 
-func (self bunRepository) getLifecycle(id int) domain.Lifecycle {
+func (self issueRepository) getLifecycle(id int) domain.Lifecycle {
 	lifecycle := self.dictionary.lifecycles[id]
 	return lifecycle
 }
 
-func (self bunRepository) getLifecycleState(id int) domain.LifecycleState {
+func (self issueRepository) getLifecycleState(id int) domain.LifecycleState {
 	lifecyclestate := self.dictionary.lifecycleStates[id]
 	return lifecyclestate
+}
+func (self *issueRepository) loadDictionaryData() {
+	self.loadLifecycles()
+}
+
+func (self *issueRepository) loadLifecycles() {
+	var (
+		lifecycleStatesRows []dao.LifecycleStateRow
+		lifecyclesRows      []dao.LifecycleRow
+	)
+	err := self.db.NewSelect().Model(&lifecycleStatesRows).Scan(self.ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, row := range lifecycleStatesRows {
+		self.dictionary.lifecycleStates[row.Id] = domain.NewLifecycleState(row.Id, row.Name)
+	}
+
+	err = self.db.NewSelect().Model(&lifecyclesRows).Scan(self.ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, row := range lifecyclesRows {
+		self.dictionary.lifecycles[row.Id] = domain.NewLifeCycleBuilder(row.Id, row.Name, self.dictionary.lifecycleStates[row.StartStateId]).Build()
+	}
 }

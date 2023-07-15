@@ -24,8 +24,8 @@ func NewHttpServerService(eg *errgroup.Group, ctx context.Context) *httpServerSe
 	return instance
 }
 
-func (s *httpServerService) StartService() {
-	log.Println("Starting", service.ServiceTypeIHttpServerService)
+func (s *httpServerService) StartComponent() {
+	log.Println("Starting", service.ComponentTypeHttpServerService)
 	s.looper.Start(s.ctx)
 	s.server.Start()
 }

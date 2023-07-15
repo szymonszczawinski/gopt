@@ -17,7 +17,7 @@ type storageService struct {
 	repository storage.IRepository
 }
 
-func NewStorageService(eg *errgroup.Group, ctx context.Context, repository storage.IRepository) *storageService {
+func NewStorageService(eg *errgroup.Group, ctx context.Context, repository storage.IRepository) storage.IStorageService {
 	log.Println("New Storage Service")
 	instance := new(storageService)
 	instance.ctx = ctx
@@ -25,8 +25,8 @@ func NewStorageService(eg *errgroup.Group, ctx context.Context, repository stora
 	instance.repository = repository
 	return instance
 }
-func (self *storageService) StartService() {
-	log.Println("Starting", service.ServiceTypeIStorageService)
+func (self *storageService) StartComponent() {
+	log.Println("Starting", service.ComponentTypeTypeStorageService)
 	self.looper.Start(self.ctx)
 }
 

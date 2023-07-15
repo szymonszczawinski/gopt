@@ -2,7 +2,6 @@ package sqlite
 
 import (
 	"database/sql"
-	"gosi/core/storage/dao"
 	"gosi/core/storage/sql/query"
 	"gosi/coreapi/service"
 	"gosi/issues/domain"
@@ -11,6 +10,7 @@ import (
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
+	"gosi/issues/dao"
 )
 
 type sqliteRepository struct {
@@ -31,7 +31,7 @@ func NewSqliteRepository() *sqliteRepository {
 }
 
 func (self *sqliteRepository) StartService() {
-	log.Println("Starting", service.ServiceTypeIRepository)
+	log.Println("Starting", service.ComponentTypeSqlite3Repository)
 	dbfile := os.Getenv("DATABASE_FILE_NAME")
 	db, errOpenDB := sql.Open("sqlite3", dbfile)
 	if errOpenDB != nil {

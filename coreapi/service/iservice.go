@@ -2,22 +2,26 @@ package service
 
 const NEW_FUNCTION string = "New"
 
-type ServiceType string
+type ComponentType string
 
 const (
-	ServiceTypeIRepository        = "IRepository"
-	ServiceTypeIMessenger         = "IMessenger"
-	ServiceTypeIStorageService    = "IStorageService"
-	ServiceTypeIHttpServerService = "IHttpServerService"
-	ServiceTypeIHttpClientService = "IHttpClientService"
+	ComponentTypeMessenger          = "Messenger"
+	ComponentTypeTypeStorageService = "StorageService"
+	ComponentTypeHttpServerService  = "HttpServerService"
+	ComponentTypeHttpClientService  = "HttpClientService"
+	ComponentTypeBunDatabase        = "BunDatabase"
+	ComponentTypeMemoryRepository   = "MemoryRepository"
+	ComponentTypeSqlite3Repository  = "Sqlite3Repository"
+	ComponentTypeIssueRepository    = "IssueRepository"
+	ComponentTypeIssueService       = "IssueService"
 )
 
 type IServiceManager interface {
-	GetService(serviceType ServiceType) (IService, error)
-	StartService(serviceType ServiceType, service IService) error
-	RegisterService(serviceType ServiceType, service IService)
+	MustGetComponent(componentType ComponentType) IComponent
+	StartComponent(componentType ComponentType, component IComponent) error
+	RegisterComponent(componentType ComponentType, component IComponent)
 }
 
-type IService interface {
-	StartService()
+type IComponent interface {
+	StartComponent()
 }

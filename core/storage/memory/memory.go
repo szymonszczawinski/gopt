@@ -90,7 +90,7 @@ func NewMemoryRepository() storage.IRepository {
 }
 
 func (self *memoryRepository) StartService() {
-	log.Println("Starting", service.ServiceTypeIRepository)
+	log.Println("Starting", service.ComponentTypeMemoryRepository)
 	self.initStorage()
 }
 

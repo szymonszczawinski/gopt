@@ -18,42 +18,43 @@ var (
 )
 
 type serviceManager struct {
-	services map[service.ServiceType]service.IService
-	looper   queue.IJobQueue
+	components map[service.ComponentType]service.IComponent
+	looper     queue.IJobQueue
 }
 
 // Get Service of given serviceType or return error if service is not registerred
-func (s *serviceManager) GetService(serviceType service.ServiceType) (service.IService, error) {
-	service, serviceExists := s.services[serviceType]
-	if serviceExists {
-		log.Println("Return service of type: ", serviceType)
-		return service, nil
+func (self *serviceManager) MustGetComponent(componentType service.ComponentType) service.IComponent {
+	component, componentExists := self.components[componentType]
+	if componentExists {
+		log.Println("Return component of type: ", componentType)
+		return component
 	}
-	return nil, errors.New(fmt.Sprintf("Service: %v is not registerred", serviceType))
+	log.Fatal(fmt.Sprintf("Componnent %v does not exists", componentType))
+	return nil
 }
 
 // Register given service for a given ServiceType as a key and start service
-func (s *serviceManager) StartService(serviceType service.ServiceType, service service.IService) error {
-	_, serviceExists := s.services[serviceType]
-	if serviceExists {
-		return errors.New(fmt.Sprintf("Service %v already registerred", serviceType))
+func (self *serviceManager) StartComponent(componentType service.ComponentType, component service.IComponent) error {
+	_, componentExists := self.components[componentType]
+	if componentExists {
+		return errors.New(fmt.Sprintf("Component %v already registerred", componentType))
 	}
-	s.RegisterService(serviceType, service)
-	service.StartService()
+	self.RegisterComponent(componentType, component)
+	component.StartComponent()
 	return nil
 }
 
 // Register given service for a given ServiceType
-func (s *serviceManager) RegisterService(serviceType service.ServiceType, service service.IService) {
-	log.Println("Register Service: ", serviceType)
-	s.services[serviceType] = service
+func (self *serviceManager) RegisterComponent(componentType service.ComponentType, component service.IComponent) {
+	log.Println("Register Component: ", componentType)
+	self.components[componentType] = component
 }
 
 func NewServiceManager(eg *errgroup.Group, ctx context.Context) *serviceManager {
 	smLock.Lock()
 	defer smLock.Unlock()
 	instance := new(serviceManager)
-	instance.services = map[service.ServiceType]service.IService{}
+	instance.components = map[service.ComponentType]service.IComponent{}
 	instance.looper = queue.NeqJobQueue("serviceManager", eg)
 	instance.looper.Start(ctx)
 	singleInstance = instance

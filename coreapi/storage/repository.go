@@ -3,11 +3,18 @@ package storage
 import "gosi/issues/domain"
 
 type RepositoryType int
+type DatabaseDialect string
 
 const (
 	RepositoryTypeMemory RepositoryType = 1
 	RepositoryTypeSql    RepositoryType = 2
 	RepositoryTypeBun    RepositoryType = 3
+)
+
+const (
+	DatabaseDialectSqlite3  DatabaseDialect = "sqlite3"
+	DatabaseDialectMySql    DatabaseDialect = "mysql"
+	DatabaseDialectPostgres DatabaseDialect = "postgres"
 )
 
 type IRepository interface {
