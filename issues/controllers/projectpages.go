@@ -39,6 +39,21 @@ func addProject(c *gin.Context) {
 	log.Println("Project Created")
 	c.Writer.Header().Add("HX-Redirect", "/gosi/projects")
 	// c.Redirect(http.StatusFound, "/gosi/projects")
+}
+
+func projectDetails(c *gin.Context) {
+	log.Println("PROJECT DETAILS")
+	projectId := c.Param("issueId")
+	project, err := projectService.GetProject(projectId)
+	if err != nil {
+		log.Println(err.Error())
+		data := make(map[string]string)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
+		return
+	}
+	c.HTML(http.StatusOK, "projects/details.html", gin.H{
+		"title": "Project Details",
+		"data":  project, "error": ""})
 
 }
 

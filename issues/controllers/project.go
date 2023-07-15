@@ -24,6 +24,7 @@ func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup
 	projectsRoute.GET("/", projectsPage)
 	projectsRoute.GET("/new", newProject)
 	projectsRoute.POST("/new", addProject)
+	projectsRoute.GET("/:issueId", projectDetails)
 }
 
 func mustCreateProjectService() *projectservice.ProjectService {

@@ -8,13 +8,16 @@ type IssueType string
 type RelationType string
 
 const (
-	IssueTypeProject IssueType = "Project"
-	IssueTypeBug     IssueType = "Bug"
+	IssueTypeProject     IssueType = "Project"
+	IssueTypeRequirement IssueType = "Requirement"
+	IssueTypeBug         IssueType = "Bug"
 )
 
 const (
 	RelationTypeCauses     RelationType = "Causes"
 	RelationTypeIsCausedBy RelationType = "IsCausedBy"
+	RelationTypeIsChildOf  RelationType = "IsChildOf"
+	RelationTypeIsParentOf RelationType = "IsParentOf"
 )
 
 type Issue struct {
@@ -60,6 +63,7 @@ func (self *Issue) AddComment(comment Comment) {
 
 type Project struct {
 	Issue
+	requirements []Requirement
 }
 
 func NewProject(projectKey string, name string, lifecycle Lifecycle) Project {
@@ -81,6 +85,7 @@ func NewProject(projectKey string, name string, lifecycle Lifecycle) Project {
 			issueType:   IssueTypeProject,
 			comments:    []Comment{},
 		},
+		requirements: []Requirement{},
 	}
 	return project
 }

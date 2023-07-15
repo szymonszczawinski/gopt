@@ -20,7 +20,7 @@
     </tr>
     {{range .data}} {{ block "project-list-element" .}}
     <tr class="hover:bg-gray-50">
-      <td class="border px-8 py-4">{{.IssueId}}</td>
+      <td class="border px-8 py-4"><a href="/gosi/projects/{{.IssueId}}" class="text-blue-600">{{.IssueId}}</a></td>
       <td class="border px-8 py-4">{{.Name}}</td>
       <td class="border px-8 py-4">{{.State}}</td>
       <td class="border px-8 py-4">{{.Assignee}}</td>
