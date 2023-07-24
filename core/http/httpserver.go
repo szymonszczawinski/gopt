@@ -2,10 +2,12 @@ package http
 
 import (
 	"context"
+	"embed"
 	"fmt"
 	common_controllers "gosi/core/http/controllers"
 	issues_controllers "gosi/issues/controllers"
 	user_controllers "gosi/users/controllers"
+	"html/template"
 	"log"
 	"net/http"
 	"time"
@@ -14,6 +16,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+type StaticContent struct {
+	PublicDir embed.FS
+}
+
 type HttpServer struct {
 	server *http.Server
 	engine *gin.Engine
@@ -21,7 +27,7 @@ type HttpServer struct {
 	ctx    context.Context
 }
 
-func NewHttpServer(context context.Context, group *errgroup.Group, port int) *HttpServer {
+func NewHttpServer(context context.Context, group *errgroup.Group, port int, staticContent StaticContent) *HttpServer {
 	instance := new(HttpServer)
 	instance.engine = gin.Default()
 	instance.server = &http.Server{
@@ -30,7 +36,10 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int) *Ht
 	}
 	instance.ctx = context
 	instance.group = group
-	instance.engine.LoadHTMLGlob("public/**/*.html")
+	// instance.engine.LoadHTMLGlob("public/**/*.html")
+	tmpl := template.Must(template.ParseFS(staticContent.PublicDir, "public/**/*.html"))
+	instance.engine.SetHTMLTemplate(tmpl)
+	instance.engine.StaticFS("/public", http.FS(staticContent.PublicDir))
 	configureRoutes(instance.engine)
 	return instance
 }

@@ -23,7 +23,7 @@ import (
 
 var systemStartParameters map[string]any
 
-func Start(cla map[string]any) {
+func Start(cla map[string]any, staticContent http.StaticContent) {
 	log.Println("START CORE")
 	systemStartParameters = cla
 	baseContext, cancel := context.WithCancel(context.Background())
@@ -31,7 +31,7 @@ func Start(cla map[string]any) {
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
 	service.NewServiceManager(mainGroup, groupContext)
 	//some simple comment
-	startServices(mainGroup, groupContext)
+	startServices(mainGroup, groupContext, staticContent)
 	// time.Sleep(time.Second * 5)
 	if err := mainGroup.Wait(); err == nil {
 		log.Println("FINISH CORE")
@@ -40,13 +40,13 @@ func Start(cla map[string]any) {
 	defer close(signalChannel)
 }
 
-func startServices(eg *errgroup.Group, ctx context.Context) {
+func startServices(eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
 	log.Println("START CORE :: START SERVICES")
 
-	startCoreServices(eg, ctx)
+	startCoreServices(eg, ctx, staticContent)
 }
 
-func startCoreServices(eg *errgroup.Group, ctx context.Context) {
+func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
 	log.Println("START CORE :: START CORE SERVICES")
 	sm, _ := service.GetServiceManager()
 
@@ -71,7 +71,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context) {
 	// sm.StartService(iservice.ServiceTypeIStorageService, storageService)
 
 	log.Println("Starting HTTP SERVER SERVICE")
-	httpServerService := http.NewHttpServerService(eg, ctx)
+	httpServerService := http.NewHttpServerService(eg, ctx, staticContent)
 	sm.StartComponent(iservice.ComponentTypeHttpServerService, httpServerService)
 
 	log.Println("Starting HTTP CLIENT SERVICE")

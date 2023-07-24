@@ -15,11 +15,11 @@ type httpServerService struct {
 	server HttpServer
 }
 
-func NewHttpServerService(eg *errgroup.Group, ctx context.Context) *httpServerService {
+func NewHttpServerService(eg *errgroup.Group, ctx context.Context, staticContent StaticContent) *httpServerService {
 	instance := new(httpServerService)
 	instance.ctx = ctx
 	instance.looper = queue.NeqJobQueue("httpServerService", eg)
-	instance.server = *NewHttpServer(ctx, eg, 8081)
+	instance.server = *NewHttpServer(ctx, eg, 8081, staticContent)
 
 	return instance
 }

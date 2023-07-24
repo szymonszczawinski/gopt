@@ -2,8 +2,10 @@ package main
 
 import (
 	"context"
+	"embed"
 	"gosi/core"
 	"gosi/core/config"
+	"gosi/core/http"
 	"gosi/coreapi/queue"
 	"log"
 	"os"
@@ -16,12 +18,18 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+//go:embed public/* static/*
+var publicDir embed.FS
+
 func main() {
 	godotenv.Load()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 	log.Println("GOSI :: START")
+	staticContent := http.StaticContent{
+		PublicDir: publicDir,
+	}
 	cla := parseCLA(os.Args)
-	core.Start(cla)
+	core.Start(cla, staticContent)
 
 	log.Println("GOSI :: FINISH")
 	// sqlite.GetSqliteRepository()
