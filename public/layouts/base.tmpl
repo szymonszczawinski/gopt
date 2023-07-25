@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+{{ define "base" }}
+<html>
+    <head>
+        {{ template "header" .}}
+    </head>
+    <body class="flex flex-col min-h-screen">
+        {{ template "nav" .}}
+    </body>
+    
+<footer class="mt-auto bg-gray-800 text-white p-2">
+
+        {{ template "footer" .}}
+    </footer>
+</html>
+{{ end }}

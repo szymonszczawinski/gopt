@@ -10,8 +10,10 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 )
@@ -36,12 +38,65 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 	}
 	instance.ctx = context
 	instance.group = group
+	// loadTemplates(instance.engine, staticContent.PublicDir)
 	// instance.engine.LoadHTMLGlob("public/**/*.html")
 	tmpl := template.Must(template.ParseFS(staticContent.PublicDir, "public/**/*.html"))
+	for _, t := range tmpl.Templates() {
+		log.Println("TEMPLATE:", t.Name())
+	}
 	instance.engine.SetHTMLTemplate(tmpl)
 	instance.engine.StaticFS("/public", http.FS(staticContent.PublicDir))
 	configureRoutes(instance.engine)
 	return instance
+}
+
+func loadTemplates(engine *gin.Engine, fs embed.FS) {
+	templates := multitemplate.New()
+	headerTemplate, e1 := template.ParseFS(fs, "public/globals/header.tmpl")
+	if e1 != nil {
+		log.Println("ERROR", e1.Error())
+	}
+	log.Println("header loaded", headerTemplate.Name())
+	ee1 := headerTemplate.Execute(os.Stdout, "")
+	if ee1 != nil {
+		log.Println("E:H:", ee1.Error())
+	}
+	templates.Add("header", headerTemplate)
+
+	footerTemplate, e2 := template.ParseFS(fs, "public/globals/footer.tmpl")
+	if e2 != nil {
+		log.Println("ERROR", e2.Error())
+	}
+	log.Println("footer loaded", footerTemplate.Name())
+	ee2 := footerTemplate.Execute(os.Stdout, "")
+	if ee2 != nil {
+		log.Println("E:F:", ee2.Error())
+	}
+	templates.Add("footer", footerTemplate)
+
+	navTemplate, e3 := template.ParseFS(fs, "public/globals/nav.tmpl")
+	if e3 != nil {
+		log.Println("ERROR", e3.Error())
+	}
+	log.Println("nav loaded", navTemplate.Name())
+	ee3 := navTemplate.Execute(os.Stdout, "")
+	if ee3 != nil {
+		log.Println("E:N:", ee3.Error())
+	}
+
+	templates.Add("nav", navTemplate)
+
+	homeTemplate, e4 := template.ParseFS(fs, "public/globals/base.tmpl", "public/home/home.html")
+	if e4 != nil {
+		log.Println("ERROR", e4.Error())
+	}
+	log.Println("home loaded", homeTemplate.Name(), homeTemplate.Tree)
+	ee4 := homeTemplate.Execute(os.Stdout, "")
+	if ee4 != nil {
+		log.Println("E:B:", ee4.Error())
+	}
+	templates.Add("home", homeTemplate)
+	engine.HTMLRender = templates
 }
 
 func (s *HttpServer) Start() {

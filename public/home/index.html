@@ -1,7 +1,18 @@
 {{ define "home/index.html" }}
-{{ template "globals/header.html" .}}
-<p class="text-center text-xl font-medium">
-    Welcome to G-OSI
-</p>
-{{ template "globals/footer.html" .}}
+<!DOCTYPE html>
+<html>
+    <header>
+        {{ template "globals/header.html" .}}
+    </header>
+    <body class="flex flex-col min-h-screen">
+
+        {{ template "globals/nav.html" .}}
+        <p class="text-center text-xl font-medium">
+            Welcome to G-OSI
+        </p>
+    </body>
+    <footer class="mt-auto bg-gray-800 text-white p-2">
+        {{ template "globals/footer.html" .}}
+    </footer>
+</html>
 {{ end }}
