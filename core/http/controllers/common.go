@@ -28,7 +28,7 @@ func Hello(c *gin.Context) {
 
 func AddBasePages(rootRoute *gin.RouterGroup) {
 	rootRoute.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home/index.html", gin.H{
+		c.HTML(http.StatusOK, "home", gin.H{
 			"title": "HOME",
 		})
 	})
