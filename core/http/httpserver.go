@@ -4,6 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"gosi/auth"
 	common_controllers "gosi/core/http/controllers"
 	issues_controllers "gosi/issues/controllers"
 	user_controllers "gosi/users/controllers"
@@ -75,23 +76,39 @@ func createGinHandler(staticContent StaticContent) *gin.Engine {
 
 func configureRoutes(router *gin.Engine) {
 	rootRoute := router.Group("/gosi")
+
 	apiRoute := rootRoute.Group("/api")
 	issues_controllers.AddProjectsRoutes(apiRoute, rootRoute)
 	user_controllers.AddUsersRoutes(apiRoute, rootRoute)
 	common_controllers.AddBasePages(rootRoute)
+
+	auth.AddAuthRoutes(rootRoute)
+
+	restrictedRoute := rootRoute.Group("/restricted")
+	restrictedRoute.Use(auth.SessionAuth())
+	auth.AddRestrictedRoute(restrictedRoute)
 }
 
 func loadTemplates(fs embed.FS) multitemplate.Renderer {
 	r := multitemplate.NewRenderer()
 	layouts := getLayouts(fs)
-	addTemplate(r, "home", "public/home/home.html", layouts, fs)
-	addTemplate(r, "projects", "public/projects/projects.html", layouts, fs)
+	addCompositeTemplate(r, "home", "public/home/home.html", layouts, fs)
+	addCompositeTemplate(r, "projects", "public/projects/projects.html", layouts, fs)
+	addCompositeTemplate(r, "admin", "public/admin/admin.html", layouts, fs)
+	addCompositeTemplate(r, "login", "public/auth/login.html", getSimpleLayouts(), fs)
+	addCompositeTemplate(r, "error", "public/error/error.html", getSimpleLayouts(), fs)
 	return r
 }
 
-func addTemplate(r multitemplate.Renderer, name string, path string, layouts []string, fs embed.FS) multitemplate.Renderer {
+func addCompositeTemplate(r multitemplate.Renderer, name string, path string, layouts []string, fs embed.FS) multitemplate.Renderer {
 	layouts = append(layouts, path)
 	tmpl, _ := template.ParseFS(fs, layouts...)
+	r.Add(name, tmpl)
+	return r
+}
+
+func addSimpleTemplate(r multitemplate.Renderer, name string, path string, fs embed.FS) multitemplate.Renderer {
+	tmpl, _ := template.ParseFS(fs, path)
 	r.Add(name, tmpl)
 	return r
 }
@@ -105,5 +122,11 @@ func getLayouts(fs embed.FS) []string {
 	for _, layout := range site {
 		layouts = append(layouts, layoutsDir+"/"+layout.Name())
 	}
+	return layouts
+}
+func getSimpleLayouts() []string {
+	layouts := []string{"public/layouts/basesimple.html",
+		"public/layouts/header.html",
+		"public/layouts/footer.html"}
 	return layouts
 }

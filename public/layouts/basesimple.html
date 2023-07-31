@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        {{ template "header" .}}
+    </head>
+
+    <body class="flex flex-col min-h-screen">
+        {{template "content" .}} 
+    </body>
+    <footer class="mt-auto bg-gray-800 text-white p-2">
+        {{ template "footer" .}}
+    </footer>
+</html>
