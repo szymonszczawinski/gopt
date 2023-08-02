@@ -1,5 +1,53 @@
 {{ define "content" }}
-<p class="text-center text-xl font-medium">
-    LOGIN
-</p>
+<div>
+  <div>
+    <form hx-post="/gosi/login" hx-target="#login-error-message">
+      <div>
+        <label
+          for="username"
+          class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
+          >Username</label
+        >
+        <input
+          type="text"
+          name="username"
+          id="username"
+          class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+          value="{{.username}}"
+        />
+      </div>
+      <div>
+        <label
+          for="password"
+          class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
+          >Password</label
+        >
+        <input
+          type="password"
+          name="password"
+          id="password"
+          class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+          value="{{.password}}"
+        />
+      </div>
+      <div>
+        <button
+          type="submit"
+          class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2"
+        >
+          LogIn
+        </button>
+      </div>
+    </form>
+  </div>
+  <div>
+    {{ block "login-error" .}}
+    <label
+      id="login-error-message"
+      class="block mb-2 text-sm font-medium text-red-900"
+      >{{ .error }}</label
+    >
+    {{end}}
+  </div>
+</div>
 {{ end }}

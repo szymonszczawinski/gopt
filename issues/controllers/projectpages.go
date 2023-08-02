@@ -81,5 +81,4 @@ func displayeError2(err error, c *gin.Context) {
 	log.Println("Could not create a Project: ", err.Error())
 	tmpl := template.Must(template.ParseFiles("public/projects/newproject.html"))
 	tmpl.ExecuteTemplate(c.Writer, "create-project-error", gin.H{"error": fmt.Sprintf("Could not create a project: %v", err.Error())})
-
 }

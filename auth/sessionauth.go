@@ -26,7 +26,7 @@ func (s session) isExpired() bool {
 	return s.expiry.Before(time.Now())
 }
 
-type UserCredentials struct {
+type CredentialsData struct {
 	password string
 	username string
 }
@@ -42,7 +42,7 @@ func SessionAuth() gin.HandlerFunc {
 				return
 			}
 			// For any other type of error, return a bad request status
-			c.Writer.WriteHeader(http.StatusBadRequest)
+			c.HTML(http.StatusBadRequest, "/gosi/error", gin.H{"error": err.Error()})
 			return
 		}
 

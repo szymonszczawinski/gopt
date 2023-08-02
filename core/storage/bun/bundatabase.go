@@ -18,19 +18,13 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type IBunDatabase interface {
-	service.IComponent
-	NewSelect() *bun.SelectQuery
-	NewInsert() *bun.InsertQuery
-}
-
 type bunDatabase struct {
 	db  *bun.DB
 	ctx context.Context
 	eg  *errgroup.Group
 }
 
-func NewBunDatabase(eg *errgroup.Group, ctx context.Context) IBunDatabase {
+func NewBunDatabase(eg *errgroup.Group, ctx context.Context) storage.IBunDatabase {
 	instance := new(bunDatabase)
 	instance.ctx = ctx
 	instance.eg = eg

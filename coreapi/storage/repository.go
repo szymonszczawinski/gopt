@@ -1,6 +1,11 @@
 package storage
 
-import "gosi/issues/domain"
+import (
+	"gosi/coreapi/service"
+	"gosi/issues/domain"
+
+	"github.com/uptrace/bun"
+)
 
 type RepositoryType int
 type DatabaseDialect string
@@ -16,6 +21,12 @@ const (
 	DatabaseDialectMySql    DatabaseDialect = "mysql"
 	DatabaseDialectPostgres DatabaseDialect = "postgres"
 )
+
+type IBunDatabase interface {
+	service.IComponent
+	NewSelect() *bun.SelectQuery
+	NewInsert() *bun.InsertQuery
+}
 
 type IRepository interface {
 	GetProjects() []domain.Project

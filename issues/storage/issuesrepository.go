@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gosi/core/storage/bun"
 	"gosi/coreapi/service"
+	"gosi/coreapi/storage"
 	"gosi/issues/dao"
 	"gosi/issues/domain"
 	"log"
@@ -31,7 +31,7 @@ type disctionaryData struct {
 
 type issueRepository struct {
 	lockDb *sync.RWMutex
-	db     bun.IBunDatabase
+	db     storage.IBunDatabase
 
 	dictionary disctionaryData
 
@@ -39,7 +39,7 @@ type issueRepository struct {
 	ctx context.Context
 }
 
-func NewIssueRepository(eg *errgroup.Group, ctx context.Context, db bun.IBunDatabase) *issueRepository {
+func NewIssueRepository(eg *errgroup.Group, ctx context.Context, db storage.IBunDatabase) *issueRepository {
 	instance := issueRepository{
 		lockDb: &sync.RWMutex{},
 		db:     db,

@@ -70,11 +70,11 @@ func createGinHandler(staticContent StaticContent) *gin.Engine {
 	engine := gin.Default()
 	engine.HTMLRender = loadTemplates(staticContent.PublicDir)
 	engine.StaticFS("/public", http.FS(staticContent.PublicDir))
-	configureRoutes(engine)
+	configureRoutes(engine, staticContent.PublicDir)
 	return engine
 }
 
-func configureRoutes(router *gin.Engine) {
+func configureRoutes(router *gin.Engine, fs embed.FS) {
 	rootRoute := router.Group("/gosi")
 
 	apiRoute := rootRoute.Group("/api")
@@ -82,7 +82,7 @@ func configureRoutes(router *gin.Engine) {
 	user_controllers.AddUsersRoutes(apiRoute, rootRoute)
 	common_controllers.AddBasePages(rootRoute)
 
-	auth.AddAuthRoutes(rootRoute)
+	auth.AddAuthRoutes(rootRoute, fs)
 
 	restrictedRoute := rootRoute.Group("/restricted")
 	restrictedRoute.Use(auth.SessionAuth())
