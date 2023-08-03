@@ -80,10 +80,12 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
 	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
+	homeController := http.NewHomeController(staticContent.PublicDir)
 	projectsController := projects_controller.NewProjectController(projetcsService, staticContent.PublicDir)
 	authController := auth.NewAuthController(authService, staticContent.PublicDir)
 
 	httpServer := http.NewHttpServer(ctx, eg, HttpServerPort, staticContent)
+	httpServer.AddController(homeController)
 	httpServer.AddController(projectsController)
 	httpServer.AddController(authController)
 	httpServer.Start()

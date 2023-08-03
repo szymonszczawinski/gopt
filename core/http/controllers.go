@@ -1,12 +1,41 @@
 package http
 
 import (
+	"embed"
 	"gosi/auth"
+	"gosi/coreapi/viewcon"
 	"log"
 	"net/http"
 
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 )
+
+type homeController struct {
+	viewcon.Controller
+}
+
+func NewHomeController(fs embed.FS) *homeController {
+	instance := homeController{
+		Controller: viewcon.Controller{
+			FileSystem: fs,
+		},
+	}
+	return &instance
+}
+
+func (self *homeController) ConfigureRoutes(root, pages, api *gin.RouterGroup, fs embed.FS) {
+	root.GET("/", self.homePage)
+
+}
+
+func (self *homeController) homePage(c *gin.Context) {
+	c.HTML(http.StatusOK, "home", gin.H{
+		"title": "HOME",
+	})
+}
+func (self *homeController) LoadViews(r multitemplate.Renderer) {
+}
 
 func configureMainRoutes(router *gin.Engine) (*gin.RouterGroup, *gin.RouterGroup, *gin.RouterGroup) {
 	rootRoute := router.Group("/gosi")
@@ -15,14 +44,7 @@ func configureMainRoutes(router *gin.Engine) (*gin.RouterGroup, *gin.RouterGroup
 
 	apiRoute.Use(auth.SessionAuth())
 	pagesRoute.Use(auth.SessionAuth())
-	addBasePages(rootRoute)
 	return rootRoute, pagesRoute, apiRoute
-	// issues_controllers.AddProjectsRoutes(apiRoute, pagesRoute)
-	//
-	// user_controllers.AddUsersRoutes(apiRoute, pagesRoute)
-	// addBasePages(rootRoute)
-	// auth.AddAuthRoutes(rootRoute, fs)
-
 }
 
 func root(router *gin.Engine) gin.HandlerFunc {
@@ -38,17 +60,4 @@ func root(router *gin.Engine) gin.HandlerFunc {
 
 		c.String(http.StatusOK, "Welcome GOSI Server\nAvailable Routes:\n%v", routesMap)
 	}
-}
-
-func hello(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"data": "hello world"})
-}
-
-func addBasePages(rootRoute *gin.RouterGroup) {
-	rootRoute.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "home", gin.H{
-			"title": "HOME",
-		})
-	})
-
 }
