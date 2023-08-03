@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"text/template"
 
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -36,6 +37,11 @@ func (self *authController) ConfigureRoutes(root, pages, api *gin.RouterGroup, f
 	root.POST("login", self.loginSubmit)
 
 }
+
+func (self *authController) LoadViews(r multitemplate.Renderer) {
+	viewcon.AddCompositeTemplate(r, "login", "public/auth/login.html", viewcon.GetSimpleLayouts(), self.FileSystem)
+}
+
 func (self authController) loginSubmit(c *gin.Context) {
 	credentialsData := CredentialsData{
 		password: c.PostForm("username"),

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 )
@@ -34,13 +35,15 @@ type httpServer struct {
 	server     *http.Server
 	router     *gin.Engine
 	routes     Routes
+	renderrer  multitemplate.Renderer
 	fileSystem embed.FS
 	group      *errgroup.Group
 	ctx        context.Context
 }
 
 func NewHttpServer(context context.Context, group *errgroup.Group, port int, staticContent StaticContent) *httpServer {
-	ginRouter := createGinRouter(staticContent.PublicDir)
+	renderrer := multitemplate.NewRenderer()
+	ginRouter := createGinRouter(staticContent.PublicDir, renderrer)
 	root, pages, api := configureMainRoutes(ginRouter)
 	instance := httpServer{
 		server: &http.Server{
@@ -53,6 +56,7 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 			pages: pages,
 			api:   api,
 		},
+		renderrer:  renderrer,
 		fileSystem: staticContent.PublicDir,
 		group:      group,
 		ctx:        context,
@@ -85,10 +89,11 @@ func (s *httpServer) Start() {
 
 func (self *httpServer) AddController(c viewcon.IController) {
 	c.ConfigureRoutes(self.routes.root, self.routes.pages, self.routes.api, self.fileSystem)
+
 }
-func createGinRouter(fs embed.FS) *gin.Engine {
+func createGinRouter(fs embed.FS, renderrer multitemplate.Renderer) *gin.Engine {
 	engine := gin.Default()
-	engine.HTMLRender = loadTemplates(fs)
+	engine.HTMLRender = loadTemplates(fs, renderrer)
 	engine.StaticFS("/public", http.FS(fs))
 	return engine
 }
