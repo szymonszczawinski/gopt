@@ -10,25 +10,32 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type ProjectService struct {
+type IProjectService interface {
+	GetProjects() []dto.ProjectListItem
+	GetProject(projectId string) (dto.ProjectDetails, error)
+	CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error)
+	AddComment(newComment dto.AddCommentCommand) (domain.Comment, error)
+}
+
+type projectService struct {
 	ctx        context.Context
 	eg         *errgroup.Group
 	repository storage.IIssueRepository
 }
 
-func NewProjectService(eg *errgroup.Group, ctx context.Context, repository storage.IIssueRepository) *ProjectService {
-	instance := new(ProjectService)
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository storage.IIssueRepository) *projectService {
+	instance := new(projectService)
 	instance.repository = repository
 	instance.ctx = ctx
 	instance.eg = eg
 	return instance
 }
 
-func (self *ProjectService) StartComponent() {
+func (self *projectService) StartComponent() {
 
 }
 
-func (self ProjectService) GetProjects() []dto.ProjectListItem {
+func (self projectService) GetProjects() []dto.ProjectListItem {
 	projects := self.repository.GetProjects()
 	projectList := make([]dto.ProjectListItem, 0)
 	for _, project := range projects {
@@ -37,7 +44,7 @@ func (self ProjectService) GetProjects() []dto.ProjectListItem {
 	return projectList
 }
 
-func (self ProjectService) GetProject(projectId string) (dto.ProjectDetails, error) {
+func (self projectService) GetProject(projectId string) (dto.ProjectDetails, error) {
 	project, err := self.repository.GetProject(projectId)
 	if err != nil {
 		return dto.ProjectDetails{}, err
@@ -45,7 +52,7 @@ func (self ProjectService) GetProject(projectId string) (dto.ProjectDetails, err
 	return dto.NewProjectDetails(project), nil
 
 }
-func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error) {
+func (self projectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error) {
 	projectLifecycle, err := self.repository.GetLifecycle(domain.IssueTypeProject)
 	if err != nil {
 		log.Println(err.Error())
@@ -60,7 +67,7 @@ func (self ProjectService) CreateProject(newProject dto.CreateProjectCommand) (d
 	return dto.NewProjectListItem(stored), nil
 }
 
-func (self ProjectService) AddComment(newComment dto.AddCommentCommand) (domain.Comment, error) {
+func (self projectService) AddComment(newComment dto.AddCommentCommand) (domain.Comment, error) {
 	project, err := self.repository.GetProject(newComment.ParentIssueKey)
 	if err != nil {
 		return domain.Comment{}, err

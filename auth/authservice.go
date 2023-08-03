@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"gosi/coreapi/service"
 
 	"golang.org/x/sync/errgroup"
@@ -32,5 +33,5 @@ func (self *authenticationService) StartComponent() {
 }
 
 func (self authenticationService) login(credentialData CredentialsData) (UserCredentials, error) {
-	panic("Not Implemented")
+	return UserCredentials{}, errors.New("Not implemented")
 }

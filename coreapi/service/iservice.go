@@ -14,6 +14,7 @@ const (
 	ComponentTypeSqlite3Repository  = "Sqlite3Repository"
 	ComponentTypeIssueRepository    = "IssueRepository"
 	ComponentTypeIssueService       = "IssueService"
+	ComponentTypeAuthRepository     = "AuthRepository"
 	ComponentTypeAuthService        = "AuthService"
 )
 

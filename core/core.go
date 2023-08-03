@@ -1,6 +1,7 @@
 package core
 
 import (
+	"gosi/auth"
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/storage/bun"
@@ -8,7 +9,8 @@ import (
 
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
-	projectservice "gosi/issues/service"
+	projects_controller "gosi/issues/controllers"
+	project_service "gosi/issues/service"
 
 	"context"
 	"fmt"
@@ -19,6 +21,10 @@ import (
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
+)
+
+const (
+	HttpServerPort = 8081
 )
 
 var systemStartParameters map[string]any
@@ -63,20 +69,28 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeIssueRepository, issueRepository)
 
 	log.Println("Starting ISSUE SERVICE")
-	issueService := projectservice.NewProjectService(eg, ctx, issueRepository)
-	sm.StartComponent(iservice.ComponentTypeIssueService, issueService)
+	projetcsService := project_service.NewProjectService(eg, ctx, issueRepository)
+	sm.StartComponent(iservice.ComponentTypeIssueService, projetcsService)
 
-	// log.Println("Starting STORAGE SERVICE")
-	// storageService := storage.NewStorageService(eg, ctx, repository)
-	// sm.StartService(iservice.ServiceTypeIStorageService, storageService)
+	log.Println("Starting AUTH REPOSITORY")
+	authRepository := auth.NewAuthRepository(eg, ctx, databaseConnection)
+	sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
-	log.Println("Starting HTTP SERVER SERVICE")
-	httpServerService := http.NewHttpServerService(eg, ctx, staticContent)
-	sm.StartComponent(iservice.ComponentTypeHttpServerService, httpServerService)
+	log.Println("Starting AUTH SERVICE")
+	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
+	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
-	log.Println("Starting HTTP CLIENT SERVICE")
-	httpClientService := http.NewHttpClientService(eg, ctx)
-	sm.StartComponent(iservice.ComponentTypeHttpClientService, httpClientService)
+	projectsController := projects_controller.NewProjectController(projetcsService, staticContent.PublicDir)
+	authController := auth.NewAuthController(authService, staticContent.PublicDir)
+
+	httpServer := http.NewHttpServer(ctx, eg, HttpServerPort, staticContent)
+	httpServer.AddController(projectsController)
+	httpServer.AddController(authController)
+	httpServer.Start()
+
+	// log.Println("Starting HTTP SERVER SERVICE")
+	// httpServerService := http.NewHttpServerService(eg, ctx, staticContent)
+	// sm.StartComponent(iservice.ComponentTypeHttpServerService, httpServerService)
 
 }
 

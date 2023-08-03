@@ -12,7 +12,7 @@ import (
 type httpServerService struct {
 	looper queue.IJobQueue
 	ctx    context.Context
-	server HttpServer
+	server httpServer
 }
 
 func NewHttpServerService(eg *errgroup.Group, ctx context.Context, staticContent StaticContent) *httpServerService {

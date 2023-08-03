@@ -11,16 +11,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func projectsPage(c *gin.Context) {
+func (self projectController) projectsPage(c *gin.Context) {
 	c.HTML(http.StatusOK, "projects", gin.H{
 		"title": "Projects",
-		"data":  projectService.GetProjects(), "error": ""})
+		"data":  self.projectService.GetProjects(), "error": ""})
 }
-func newProject(c *gin.Context) {
+func (self projectController) newProject(c *gin.Context) {
 	c.HTML(http.StatusOK, "projects/newproject.html", gin.H{"title": "Add Project"})
 }
 
-func addProject(c *gin.Context) {
+func (self projectController) addProject(c *gin.Context) {
 	log.Println("addProject")
 	newProject := dto.CreateProjectCommand{
 		IssueKey: c.PostForm("project-key"),
@@ -31,7 +31,7 @@ func addProject(c *gin.Context) {
 		displayeError2(err, c)
 		return
 	}
-	_, err = projectService.CreateProject(newProject)
+	_, err = self.projectService.CreateProject(newProject)
 	if err != nil {
 		displayeError(err, newProject, c)
 		return
@@ -41,10 +41,10 @@ func addProject(c *gin.Context) {
 	// c.Redirect(http.StatusFound, "/gosi/projects")
 }
 
-func projectDetails(c *gin.Context) {
+func (self projectController) projectDetails(c *gin.Context) {
 	log.Println("PROJECT DETAILS")
 	projectId := c.Param("issueId")
-	project, err := projectService.GetProject(projectId)
+	project, err := self.projectService.GetProject(projectId)
 	if err != nil {
 		log.Println(err.Error())
 		data := make(map[string]string)
