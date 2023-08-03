@@ -64,22 +64,23 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 	return &instance
 }
 
-func (s *httpServer) Start() {
-	s.group.Go(func() error {
+func (self *httpServer) Start() {
+	self.router.HTMLRender = self.renderrer
+	self.group.Go(func() error {
 
-		s.group.Go(func() error {
+		self.group.Go(func() error {
 			// service connections
-			if err := s.server.ListenAndServe(); err != nil {
+			if err := self.server.ListenAndServe(); err != nil {
 				log.Printf("Listen: %s\n", err)
 				return err
 			}
 			return nil
 		})
-		<-s.ctx.Done()
-		ctx, cancel := context.WithTimeout(s.ctx, 5*time.Second)
+		<-self.ctx.Done()
+		ctx, cancel := context.WithTimeout(self.ctx, 5*time.Second)
 		// Listen for the interrupt signal.
 		defer cancel()
-		if err := s.server.Shutdown(ctx); err != nil {
+		if err := self.server.Shutdown(ctx); err != nil {
 			log.Fatal("Server Shutdown:", err)
 		}
 		log.Println("Server exiting")
@@ -89,11 +90,11 @@ func (s *httpServer) Start() {
 
 func (self *httpServer) AddController(c viewcon.IController) {
 	c.ConfigureRoutes(self.routes.root, self.routes.pages, self.routes.api, self.fileSystem)
-
+	self.renderrer = c.LoadViews(self.renderrer)
 }
 func createGinRouter(fs embed.FS, renderrer multitemplate.Renderer) *gin.Engine {
 	engine := gin.Default()
-	engine.HTMLRender = loadTemplates(fs, renderrer)
+	// engine.HTMLRender = loadTemplates(fs, renderrer)
 	engine.StaticFS("/public", http.FS(fs))
 	return engine
 }

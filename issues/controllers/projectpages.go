@@ -12,6 +12,7 @@ import (
 )
 
 func (self projectController) projectsPage(c *gin.Context) {
+	log.Println("PROJECTS PAGE")
 	c.HTML(http.StatusOK, "projects", gin.H{
 		"title": "Projects",
 		"data":  self.projectService.GetProjects(), "error": ""})

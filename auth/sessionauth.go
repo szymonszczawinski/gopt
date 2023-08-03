@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"log"
 	"net/http"
 	"time"
 
@@ -31,21 +32,22 @@ type CredentialsData struct {
 	username string
 }
 
-func SessionAuth() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		_, err := c.Cookie("session_token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				// If the cookie is not set, return an unauthorized status
-				// c.Writer.WriteHeader(http.StatusUnauthorized)
-				c.Redirect(http.StatusFound, "/gosi/login")
-				return
-			}
-			// For any other type of error, return a bad request status
-			c.HTML(http.StatusBadRequest, "/gosi/error", gin.H{"error": err.Error()})
+func SessionAuth(c *gin.Context) {
+	log.Println("Session AUTH")
+	_, err := c.Cookie("session_token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			// If the cookie is not set, return an unauthorized status
+			// c.Writer.WriteHeader(http.StatusUnauthorized)
+			log.Println("NO COOKIE")
+			c.Redirect(http.StatusFound, "/gosi/login")
+			c.Abort()
 			return
 		}
-
-		c.Next()
+		// For any other type of error, return a bad request status
+		c.HTML(http.StatusBadRequest, "/gosi/error", gin.H{"error": err.Error()})
+		return
 	}
+	log.Println("NEXT")
+	c.Next()
 }

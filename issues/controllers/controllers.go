@@ -2,9 +2,11 @@ package controllers
 
 import (
 	"embed"
+	"gosi/auth"
 	"gosi/coreapi/viewcon"
 	projectservice "gosi/issues/service"
 
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,13 +34,16 @@ func (self *projectController) ConfigureRoutes(root, pages, api *gin.RouterGroup
 	apiProjects.POST("/:issueId/addComment", self.addProjectComment)
 
 	pagesProjects := pages.Group("/projects")
-
-	pagesProjects.GET("/", self.projectsPage)
-	pagesProjects.GET("/new", self.newProject)
-	pagesProjects.POST("/new", self.addProject)
-	pagesProjects.GET("/:issueId", self.projectDetails)
+	pagesProjects.Use(auth.SessionAuth)
+	{
+		pagesProjects.GET("/", self.projectsPage)
+		pagesProjects.GET("/new", self.newProject)
+		pagesProjects.POST("/new", self.addProject)
+		pagesProjects.GET("/:issueId", self.projectDetails)
+	}
 }
 
-func AddProjectsRoutes(apiRootRoute *gin.RouterGroup, rootRoute *gin.RouterGroup) {
-
+func (self *projectController) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
+	viewcon.AddCompositeTemplate(r, "projects", "public/projects/projects.html", viewcon.GetLayouts(), self.FileSystem)
+	return r
 }

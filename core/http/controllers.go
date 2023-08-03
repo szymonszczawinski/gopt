@@ -2,7 +2,7 @@ package http
 
 import (
 	"embed"
-	"gosi/auth"
+	// "gosi/auth"
 	"gosi/coreapi/viewcon"
 	"log"
 	"net/http"
@@ -26,7 +26,10 @@ func NewHomeController(fs embed.FS) *homeController {
 
 func (self *homeController) ConfigureRoutes(root, pages, api *gin.RouterGroup, fs embed.FS) {
 	root.GET("/", self.homePage)
-
+}
+func (self *homeController) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
+	viewcon.AddCompositeTemplate(r, "home", "public/home/home.html", viewcon.GetLayouts(), self.FileSystem)
+	return r
 }
 
 func (self *homeController) homePage(c *gin.Context) {
@@ -34,16 +37,14 @@ func (self *homeController) homePage(c *gin.Context) {
 		"title": "HOME",
 	})
 }
-func (self *homeController) LoadViews(r multitemplate.Renderer) {
-}
 
 func configureMainRoutes(router *gin.Engine) (*gin.RouterGroup, *gin.RouterGroup, *gin.RouterGroup) {
 	rootRoute := router.Group("/gosi")
 	apiRoute := rootRoute.Group("/api")
 	pagesRoute := rootRoute.Group("/pages")
 
-	apiRoute.Use(auth.SessionAuth())
-	pagesRoute.Use(auth.SessionAuth())
+	// apiRoute.Use(auth.SessionAuth())
+	// pagesRoute.Use(auth.SessionAuth())
 	return rootRoute, pagesRoute, apiRoute
 }
 
