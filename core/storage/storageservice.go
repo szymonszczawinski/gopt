@@ -5,7 +5,7 @@ import (
 	"gosi/coreapi/queue"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
-	"gosi/issues/domain"
+	"gosi/project/domain"
 	"log"
 
 	"golang.org/x/sync/errgroup"

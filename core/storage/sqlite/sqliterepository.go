@@ -4,13 +4,13 @@ import (
 	"database/sql"
 	"gosi/core/storage/sql/query"
 	"gosi/coreapi/service"
-	"gosi/issues/domain"
+	"gosi/project/domain"
 	"log"
 	"os"
 	"sync"
 
 	_ "github.com/mattn/go-sqlite3"
-	"gosi/issues/dao"
+	"gosi/project/dao"
 )
 
 type sqliteRepository struct {

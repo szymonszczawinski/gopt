@@ -1,4 +1,4 @@
-package storage
+package project
 
 import (
 	"context"
@@ -6,15 +6,15 @@ import (
 	"fmt"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
-	"gosi/issues/dao"
-	"gosi/issues/domain"
+	"gosi/project/dao"
+	"gosi/project/domain"
 	"log"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
 
-type IIssueRepository interface {
+type IProjectRepository interface {
 	service.IComponent
 	GetProjects() []domain.Project
 	GetProject(projectId string) (domain.Project, error)
@@ -29,7 +29,7 @@ type disctionaryData struct {
 	lifecycles      map[int]domain.Lifecycle
 }
 
-type issueRepository struct {
+type projectRepository struct {
 	lockDb *sync.RWMutex
 	db     storage.IBunDatabase
 
@@ -39,8 +39,8 @@ type issueRepository struct {
 	ctx context.Context
 }
 
-func NewIssueRepository(eg *errgroup.Group, ctx context.Context, db storage.IBunDatabase) *issueRepository {
-	instance := issueRepository{
+func NewProjectRepository(eg *errgroup.Group, ctx context.Context, db storage.IBunDatabase) *projectRepository {
+	instance := projectRepository{
 		lockDb: &sync.RWMutex{},
 		db:     db,
 		dictionary: disctionaryData{
@@ -53,11 +53,11 @@ func NewIssueRepository(eg *errgroup.Group, ctx context.Context, db storage.IBun
 	return &instance
 }
 
-func (self *issueRepository) StartComponent() {
+func (self *projectRepository) StartComponent() {
 	self.loadDictionaryData()
 }
 
-func (self *issueRepository) GetProjects() []domain.Project {
+func (self *projectRepository) GetProjects() []domain.Project {
 	var (
 		projectsRows []dao.ProjectRow
 		projects     []domain.Project = []domain.Project{}
@@ -78,13 +78,13 @@ func (self *issueRepository) GetProjects() []domain.Project {
 	return projects
 
 }
-func (self issueRepository) GetProject(projectId string) (domain.Project, error) {
+func (self projectRepository) GetProject(projectId string) (domain.Project, error) {
 	self.lockDb.RLock()
 	self.lockDb.RUnlock()
 
 	return domain.Project{}, nil
 }
-func (self *issueRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
+func (self *projectRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
 	for _, lc := range self.dictionary.lifecycles {
 		if lc.GetName() == string(issueType) {
 			return lc, nil
@@ -92,7 +92,7 @@ func (self *issueRepository) GetLifecycle(issueType domain.IssueType) (domain.Li
 	}
 	return domain.Lifecycle{}, errors.New(fmt.Sprintf("Could not find Lifecycle for: %v", string(issueType)))
 }
-func (self *issueRepository) StoreProject(project domain.Project) (domain.Project, error) {
+func (self *projectRepository) StoreProject(project domain.Project) (domain.Project, error) {
 	self.lockDb.Lock()
 	self.lockDb.Unlock()
 	dao := &dao.ProjectRow{
@@ -114,33 +114,33 @@ func (self *issueRepository) StoreProject(project domain.Project) (domain.Projec
 	return domain.Project{}, nil
 }
 
-func (self *issueRepository) GetComments() []domain.Comment {
+func (self *projectRepository) GetComments() []domain.Comment {
 	self.lockDb.RLock()
 	self.lockDb.RUnlock()
 
 	return nil
 }
-func (self *issueRepository) StoreComment(comment domain.Comment) (domain.Comment, error) {
+func (self *projectRepository) StoreComment(comment domain.Comment) (domain.Comment, error) {
 	self.lockDb.Lock()
 	self.lockDb.Unlock()
 
 	return domain.Comment{}, nil
 }
 
-func (self issueRepository) getLifecycle(id int) domain.Lifecycle {
+func (self projectRepository) getLifecycle(id int) domain.Lifecycle {
 	lifecycle := self.dictionary.lifecycles[id]
 	return lifecycle
 }
 
-func (self issueRepository) getLifecycleState(id int) domain.LifecycleState {
+func (self projectRepository) getLifecycleState(id int) domain.LifecycleState {
 	lifecyclestate := self.dictionary.lifecycleStates[id]
 	return lifecyclestate
 }
-func (self *issueRepository) loadDictionaryData() {
+func (self *projectRepository) loadDictionaryData() {
 	self.loadLifecycles()
 }
 
-func (self *issueRepository) loadLifecycles() {
+func (self *projectRepository) loadLifecycles() {
 	var (
 		lifecycleStatesRows []dao.LifecycleStateRow
 		lifecyclesRows      []dao.LifecycleRow

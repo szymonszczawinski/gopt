@@ -5,12 +5,11 @@ import (
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/storage/bun"
-	"gosi/issues/storage"
+	"gosi/project"
 
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
-	projects_controller "gosi/issues/controllers"
-	project_service "gosi/issues/service"
+	project_controllers "gosi/project/controllers"
 
 	"context"
 	"fmt"
@@ -65,11 +64,11 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeBunDatabase, databaseConnection)
 
 	log.Println("Starting ISSUE REPOSITORY")
-	issueRepository := storage.NewIssueRepository(eg, ctx, databaseConnection)
+	issueRepository := project.NewProjectRepository(eg, ctx, databaseConnection)
 	sm.StartComponent(iservice.ComponentTypeIssueRepository, issueRepository)
 
 	log.Println("Starting ISSUE SERVICE")
-	projetcsService := project_service.NewProjectService(eg, ctx, issueRepository)
+	projetcsService := project.NewProjectService(eg, ctx, issueRepository)
 	sm.StartComponent(iservice.ComponentTypeIssueService, projetcsService)
 
 	log.Println("Starting AUTH REPOSITORY")
@@ -81,7 +80,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
 	homeController := http.NewHomeController(staticContent.PublicDir)
-	projectsController := projects_controller.NewProjectController(projetcsService, staticContent.PublicDir)
+	projectsController := project_controllers.NewProjectController(projetcsService, staticContent.PublicDir)
 	authController := auth.NewAuthController(authService, staticContent.PublicDir)
 
 	httpServer := http.NewHttpServer(ctx, eg, HttpServerPort, staticContent)

@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"gosi/issues/domain"
+	"gosi/project/domain"
 	"strconv"
 	"time"
 )

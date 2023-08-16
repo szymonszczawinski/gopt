@@ -4,7 +4,7 @@ import (
 	"embed"
 	"gosi/auth"
 	"gosi/coreapi/viewcon"
-	projectservice "gosi/issues/service"
+	"gosi/project"
 
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
@@ -12,10 +12,10 @@ import (
 
 type projectController struct {
 	viewcon.Controller
-	projectService projectservice.IProjectService
+	projectService project.IProjectService
 }
 
-func NewProjectController(projectService projectservice.IProjectService, fs embed.FS) *projectController {
+func NewProjectController(projectService project.IProjectService, fs embed.FS) *projectController {
 	instance := projectController{
 		Controller: viewcon.Controller{
 			FileSystem: fs,

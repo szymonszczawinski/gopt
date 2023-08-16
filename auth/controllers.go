@@ -9,6 +9,7 @@ import (
 	"text/template"
 
 	"github.com/gin-contrib/multitemplate"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -35,12 +36,19 @@ func NewAuthController(authService IAuthService, fs embed.FS) *authController {
 func (self *authController) ConfigureRoutes(root, pages, api *gin.RouterGroup, fs embed.FS) {
 	root.GET("login", self.login)
 	root.POST("login", self.loginSubmit)
+	root.GET("logout", self.logout)
 
 }
 
 func (self *authController) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
 	viewcon.AddCompositeTemplate(r, "login", "public/auth/login.html", viewcon.GetSimpleLayouts(), self.FileSystem)
 	return r
+}
+
+func (self authController) login(c *gin.Context) {
+	c.HTML(http.StatusOK, "login", gin.H{
+		"title": "LOGIN",
+	})
 }
 
 func (self authController) loginSubmit(c *gin.Context) {
@@ -60,10 +68,21 @@ func (self authController) loginSubmit(c *gin.Context) {
 		"title": "HOME",
 	})
 }
-func (self authController) login(c *gin.Context) {
-	c.HTML(http.StatusOK, "login", gin.H{
-		"title": "LOGIN",
-	})
+
+func (self authController) logout(c *gin.Context) {
+	session := sessions.Default(c)
+	user := session.Get(AUTH_KEY)
+	if user == nil {
+		c.HTML(http.StatusBadRequest, "error", gin.H{"error": "Invalid session token"})
+		return
+	}
+	session.Delete(AUTH_KEY)
+	if err := session.Save(); err != nil {
+		c.HTML(http.StatusInternalServerError, "error", gin.H{"error": "Failed to save session"})
+		return
+	}
+	c.Redirect(http.StatusFound, "/gosi")
+	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }
 
 func displayLoginError(err error, c *gin.Context, fs embed.FS) {

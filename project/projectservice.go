@@ -1,10 +1,9 @@
-package service
+package project
 
 import (
 	"context"
-	"gosi/issues/domain"
-	"gosi/issues/dto"
-	"gosi/issues/storage"
+	"gosi/project/domain"
+	"gosi/project/viewmodels"
 	"log"
 
 	"golang.org/x/sync/errgroup"
@@ -20,10 +19,10 @@ type IProjectService interface {
 type projectService struct {
 	ctx        context.Context
 	eg         *errgroup.Group
-	repository storage.IIssueRepository
+	repository IProjectRepository
 }
 
-func NewProjectService(eg *errgroup.Group, ctx context.Context, repository storage.IIssueRepository) *projectService {
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository) *projectService {
 	instance := new(projectService)
 	instance.repository = repository
 	instance.ctx = ctx

@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"gosi/issues/dto"
+	"gosi/project/viewmodels"
 	"log"
 	"net/http"
 

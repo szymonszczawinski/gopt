@@ -3,7 +3,7 @@ package controllers
 import (
 	"errors"
 	"fmt"
-	"gosi/issues/dto"
+	"gosi/project/viewmodels"
 	"log"
 	"net/http"
 	"text/template"

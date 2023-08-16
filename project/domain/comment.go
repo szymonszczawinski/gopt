@@ -2,7 +2,7 @@ package domain
 
 import (
 	"fmt"
-	"gosi/users"
+	"gosi/user"
 	"time"
 )
 
@@ -11,7 +11,7 @@ type Comment struct {
 	TimeTracked
 	parentItemId int
 	content      string
-	author       users.User
+	author       user.User
 }
 
 func (self Comment) GetContent() string {

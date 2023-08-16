@@ -21,9 +21,11 @@ import (
 //go:embed public/* static/*
 var publicDir embed.FS
 
-func main() {
+func init() {
 	godotenv.Load()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
+}
+func main() {
 	log.Println("GOSI :: START")
 	staticContent := http.StaticContent{
 		PublicDir: publicDir,

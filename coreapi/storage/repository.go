@@ -2,7 +2,7 @@ package storage
 
 import (
 	"gosi/coreapi/service"
-	"gosi/issues/domain"
+	"gosi/project/domain"
 
 	"github.com/uptrace/bun"
 )

@@ -7,9 +7,12 @@ import (
 	"gosi/coreapi/viewcon"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gin-contrib/multitemplate"
+	"github.com/gin-contrib/sessions"
+	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/sync/errgroup"
 )
@@ -96,5 +99,14 @@ func createGinRouter(fs embed.FS, renderrer multitemplate.Renderer) *gin.Engine 
 	engine := gin.Default()
 	// engine.HTMLRender = loadTemplates(fs, renderrer)
 	engine.StaticFS("/public", http.FS(fs))
+	cookieOptions := sessions.Options{Path: "/",
+		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
+		Domain:   "",
+		MaxAge:   60 * 5,
+	}
+	cookieStore := cookie.NewStore([]byte(os.Getenv("SECRET")))
+	cookieStore.Options(cookieOptions)
+	engine.Use(sessions.Sessions("mysession", cookieStore))
 	return engine
 }
