@@ -4,16 +4,14 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"fmt"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"log"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3"
 	"github.com/uptrace/bun"
-	"github.com/uptrace/bun/dialect/mysqldialect"
 	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/dialect/sqlitedialect"
 	"github.com/uptrace/bun/driver/pgdriver"
 	"golang.org/x/sync/errgroup"
 )
@@ -33,11 +31,20 @@ func NewBunDatabase(eg *errgroup.Group, ctx context.Context) storage.IBunDatabas
 
 func (self *bunDatabase) StartComponent() {
 	log.Println("Starting", service.ComponentTypeBunDatabase)
-	if databaseExists() {
-		self.db, _ = openDatabase(storage.DatabaseDialectSqlite3)
-	} else {
-		self.db, _ = createAndInitDb(storage.DatabaseDialectSqlite3, self.ctx)
+	dialect := getDialect()
+	log.Println("Dialect:", dialect)
+	self.db, _ = openDatabase(dialect)
+}
+
+func getDialect() storage.DatabaseDialect {
+	dialectString := os.Getenv("DB_DIALECT")
+	switch dialectString {
+	case "postgres":
+		return storage.DatabaseDialectPostgres
+	case "slite3":
+		return storage.DatabaseDialectSqlite3
 	}
+	panic(fmt.Sprintf("Dialect %v not supported", dialectString))
 }
 
 func (self *bunDatabase) Close() {
@@ -53,21 +60,19 @@ func (self *bunDatabase) NewInsert() *bun.InsertQuery {
 
 }
 
-func databaseExists() bool {
-	dbfile := os.Getenv("DATABASE_FILE_NAME")
-	if _, err := os.Stat(dbfile); err != nil {
-		log.Println("File", dbfile, " does not exists")
-		return false
+func databaseExists(dialect storage.DatabaseDialect) bool {
+	if dialect == storage.DatabaseDialectSqlite3 {
+		dbfile := os.Getenv("DATABASE_FILE_NAME")
+		if _, err := os.Stat(dbfile); err != nil {
+			log.Println("File", dbfile, " does not exists")
+			return false
+		}
 	}
 	return true
 }
 
 func openDatabase(dialect storage.DatabaseDialect) (*bun.DB, error) {
 	switch dialect {
-	case storage.DatabaseDialectSqlite3:
-		return mustOpenSqlite3Database(), nil
-	case storage.DatabaseDialectMySql:
-		return mustOpenMysqlDatabase(), nil
 	case storage.DatabaseDialectPostgres:
 		return mustOpenPostgresDatabase(), nil
 	}
@@ -75,46 +80,33 @@ func openDatabase(dialect storage.DatabaseDialect) (*bun.DB, error) {
 }
 
 func mustOpenPostgresDatabase() *bun.DB {
-	dsn := "postgres://postgres:@localhost:5432/test?sslmode=disable"
-	// dsn := "unix://user:pass@dbname/var/run/postgresql/.s.PGSQL.5432"
-	sqldb := sql.OpenDB(pgdriver.NewConnector(pgdriver.WithDSN(dsn)))
+	dsn := os.Getenv("DB_URL")
+	log.Println("DSN", dsn)
+	pgconn := pgdriver.NewConnector(
+		pgdriver.WithNetwork("tcp"),
+		pgdriver.WithAddr(os.Getenv("DB_HOST_PORT")),
+		pgdriver.WithUser(os.Getenv("DB_USER")),
+		pgdriver.WithPassword(os.Getenv("DB_PASS")),
+		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
+	)
+
+	sqldb := sql.OpenDB(pgconn)
 	return bun.NewDB(sqldb, pgdialect.New())
-}
-
-func mustOpenMysqlDatabase() *bun.DB {
-	connectionString := os.Getenv("CONNECTION_STRING")
-	sqldb, err := sql.Open("mysql", connectionString)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	return bun.NewDB(sqldb, mysqldialect.New())
-}
-
-func mustOpenSqlite3Database() *bun.DB {
-	dbfile := os.Getenv("DATABASE_FILE_NAME")
-	sqldb, err := sql.Open("sqlite3", dbfile)
-	if err != nil {
-		log.Panic(err.Error())
-	}
-	return bun.NewDB(sqldb, sqlitedialect.New())
 }
 
 func createAndInitDb(dialect storage.DatabaseDialect, ctx context.Context) (*bun.DB, error) {
 	switch dialect {
-	case storage.DatabaseDialectSqlite3:
-		return mustCreateSqlite3Database(ctx), nil
+	case storage.DatabaseDialectPostgres:
+		return mustCreatePostgresDb(ctx), nil
 	}
+
 	return nil, nil
 }
 
-func mustCreateSqlite3Database(ctx context.Context) *bun.DB {
-	dbfile := os.Getenv("DATABASE_FILE_NAME")
-	sqldb, err := sql.Open("sqlite3", dbfile)
-	if err != nil {
-		log.Panic(err.Error())
-	}
-	db := bun.NewDB(sqldb, sqlitedialect.New())
+func mustCreatePostgresDb(ctx context.Context) *bun.DB {
+	log.Println("Open DB")
+	db := mustOpenPostgresDatabase()
+	log.Println("Init DB")
 	mustInitDatabase(db, ctx)
 	return db
 }
