@@ -2,7 +2,6 @@ package dto
 
 import (
 	"gosi/project/domain"
-	"strconv"
 	"time"
 )
 
@@ -11,28 +10,23 @@ const (
 )
 
 type ProjectListItem struct {
-	Id       int              `json:"id"`
-	IssueId  string           `json:"issueId"`
-	Name     string           `json:"name"`
-	Type     domain.IssueType `json:"issueType"`
-	State    string           `json:"state"`
-	Assignee string           `json:"assignee"`
-	Reporter string           `json:"reporter"`
-	Created  string           `json:"created"`
-	Updated  string           `json:"updated"`
+	Id         int    `json:"id"`
+	ProjectKey string `json:"projectKey"`
+	Name       string `json:"name"`
+	State      string `json:"state"`
+	Owner      string `json:"owner"`
+	Created    string `json:"created"`
+	Updated    string `json:"updated"`
 }
 
 type ProjectDetails struct {
-	Id       int              `json:"id"`
-	IssueId  string           `json:"issueId"`
-	Name     string           `json:"name"`
-	Type     domain.IssueType `json:"issueType"`
-	State    string           `json:"state"`
-	Assignee string           `json:"assignee"`
-	Reporter string           `json:"reporter"`
-	Created  string           `json:"created"`
-	Updated  string           `json:"updated"`
-	Comments []ProjectComment
+	Id         int    `json:"id"`
+	ProjectKey string `json:"projectKey"`
+	Name       string `json:"name"`
+	State      string `json:"state"`
+	Owner      string `json:"owner"`
+	Created    string `json:"created"`
+	Updated    string `json:"updated"`
 }
 
 type ProjectComment struct {
@@ -43,38 +37,26 @@ type ProjectComment struct {
 
 func NewProjectListItem(project domain.Project) ProjectListItem {
 	return ProjectListItem{
-		Id:       project.GetId(),
-		IssueId:  project.GetItemKey() + "-" + strconv.Itoa(project.GetItemNumber()),
-		Name:     project.GetName(),
-		Type:     project.GetIssueType(),
-		State:    project.GetState().GetValue(),
-		Assignee: "",
-		Reporter: "",
-		Created:  project.GetCreationTime().Format(DDMMYYYYhhmmss),
-		Updated:  project.GetLastUpdateTime().Format(DDMMYYYYhhmmss),
+		Id:         project.GetId(),
+		ProjectKey: project.ProjectKey,
+		Name:       project.Name,
+		State:      project.GetState().GetValue(),
+		Owner:      "",
+		Created:    project.GetCreationTime().Format(DDMMYYYYhhmmss),
+		Updated:    project.GetLastUpdateTime().Format(DDMMYYYYhhmmss),
 	}
 }
 func NewProjectDetails(project domain.Project) ProjectDetails {
 	projectDetails := ProjectDetails{
-		Id:       project.GetId(),
-		IssueId:  project.GetItemKey(),
-		Name:     project.GetName(),
-		Type:     project.GetIssueType(),
-		State:    project.GetState().GetValue(),
-		Assignee: "",
-		Reporter: "",
-		Created:  project.GetCreationTime().String(),
-		Updated:  project.GetLastUpdateTime().String(),
-		Comments: []ProjectComment{},
+		Id:         project.GetId(),
+		ProjectKey: project.ProjectKey,
+		Name:       project.Name,
+		State:      project.GetState().GetValue(),
+		Owner:      "",
+		Created:    project.GetCreationTime().String(),
+		Updated:    project.GetLastUpdateTime().String(),
 	}
 
-	for _, comment := range project.GetComments() {
-		projectDetails.Comments = append(projectDetails.Comments, ProjectComment{
-			Id:      comment.GetId(),
-			Created: comment.GetCreationTime(),
-			Content: comment.GetContent(),
-		})
-	}
 	return projectDetails
 
 }

@@ -12,12 +12,12 @@ type ProjectRow struct {
 	Created       time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	Updated       time.Time `bun:",nullzero,notnull,default:current_timestamp"`
 	Name          string
-	ItemKey       string
-	ItemNumber    int
+	ProjectKey    string
 	Description   string
 	StateId       int
 	LifecycleId   int
 	CreatedById   int
+	OwnerId       int
 }
 
 type LifecycleStateRow struct {

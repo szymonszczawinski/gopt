@@ -12,14 +12,14 @@ type Page struct {
 	Layout   string
 }
 
-func AddCompositeTemplate(r multitemplate.Renderer, name string, path string, layouts []string, fs embed.FS) multitemplate.Renderer {
+func AddCompositeView(r multitemplate.Renderer, name string, path string, layouts []string, fs embed.FS) multitemplate.Renderer {
 	layouts = append(layouts, path)
 	tmpl, _ := template.ParseFS(fs, layouts...)
 	r.Add(name, tmpl)
 	return r
 }
 
-func AddSimpleTemplate(r multitemplate.Renderer, name string, path string, fs embed.FS) multitemplate.Renderer {
+func AddSimpleView(r multitemplate.Renderer, name string, path string, fs embed.FS) multitemplate.Renderer {
 	tmpl, _ := template.ParseFS(fs, path)
 	r.Add(name, tmpl)
 	return r

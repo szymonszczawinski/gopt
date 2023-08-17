@@ -26,7 +26,7 @@ func NewProjectController(projectService project.IProjectService, fs embed.FS) *
 }
 
 func (self *projectController) ConfigureRoutes(root, pages, api *gin.RouterGroup, fs embed.FS) {
-	apiProjects := api.Group("/projects")
+	apiProjects := api.Group("/project")
 
 	apiProjects.GET("/", self.getProjects)
 	apiProjects.GET("/:issueId", self.getProject)
@@ -44,6 +44,6 @@ func (self *projectController) ConfigureRoutes(root, pages, api *gin.RouterGroup
 }
 
 func (self *projectController) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewcon.AddCompositeTemplate(r, "projects", "public/projects/projects.html", viewcon.GetLayouts(), self.FileSystem)
+	viewcon.AddCompositeView(r, "projects", "public/projects/projects.html", viewcon.GetLayouts(), self.FileSystem)
 	return r
 }

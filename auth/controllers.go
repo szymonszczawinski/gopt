@@ -41,7 +41,7 @@ func (self *authController) ConfigureRoutes(root, pages, api *gin.RouterGroup, f
 }
 
 func (self *authController) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewcon.AddCompositeTemplate(r, "login", "public/auth/login.html", viewcon.GetSimpleLayouts(), self.FileSystem)
+	viewcon.AddCompositeView(r, "login", "public/auth/login.html", viewcon.GetSimpleLayouts(), self.FileSystem)
 	return r
 }
 

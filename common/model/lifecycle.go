@@ -1,4 +1,4 @@
-package domain
+package model
 
 const ()
 
@@ -9,7 +9,7 @@ type LifecycleState struct {
 
 func NewLifecycleState(id int, name string) LifecycleState {
 	state := LifecycleState{
-		Entity: Entity{id: id},
+		Entity: Entity{Id: id},
 		name:   name,
 	}
 	return state
@@ -23,6 +23,10 @@ type Lifecycle struct {
 	name        string
 	startState  LifecycleState
 	transitions map[LifecycleState][]LifecycleState
+}
+
+func (self Lifecycle) GetStartState() LifecycleState {
+	return self.startState
 }
 
 type LifecycleBuilder struct {
@@ -54,7 +58,7 @@ func (lcb *LifecycleBuilder) AddTransition(from LifecycleState, to LifecycleStat
 
 func (lcb LifecycleBuilder) Build() Lifecycle {
 	lifecycle := Lifecycle{
-		Entity:      Entity{id: lcb.id},
+		Entity:      Entity{Id: lcb.id},
 		name:        lcb.name,
 		startState:  lcb.startState,
 		transitions: lcb.transitions,
@@ -67,14 +71,14 @@ func (self Lifecycle) GetName() string {
 }
 
 type LivecycleManaged struct {
-	lifecycle Lifecycle
-	state     LifecycleState
+	Lifecycle Lifecycle
+	State     LifecycleState
 }
 
 func (self LivecycleManaged) GetLifecycle() Lifecycle {
-	return self.lifecycle
+	return self.Lifecycle
 }
 
 func (self LivecycleManaged) GetState() LifecycleState {
-	return self.state
+	return self.State
 }

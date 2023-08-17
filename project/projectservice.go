@@ -52,7 +52,7 @@ func (self projectService) GetProject(projectId string) (dto.ProjectDetails, err
 
 }
 func (self projectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error) {
-	projectLifecycle, err := self.repository.GetLifecycle(domain.IssueTypeProject)
+	projectLifecycle, err := self.repository.GetLifecycle()
 	if err != nil {
 		log.Println(err.Error())
 		return dto.ProjectListItem{}, err

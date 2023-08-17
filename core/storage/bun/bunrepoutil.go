@@ -3,17 +3,104 @@ package bun
 import (
 	"context"
 	"gosi/project/dao"
+	"log"
 
 	"github.com/uptrace/bun"
 )
 
 func mustInitDatabase(db *bun.DB, ctx context.Context) {
+	if err := initStates(db, ctx); err != nil {
+		return
+	}
+	if err := initLifecycles(db, ctx); err != nil {
+		return
+	}
+
+	if err := initProjects(db, ctx); err != nil {
+		return
+	}
+
+	initTransitions(db, ctx)
+}
+
+func initTransitions(db *bun.DB, ctx context.Context) {
+	_, err := db.NewCreateTable().
+		Model((*dao.StateTransition)(nil)).
+		IfNotExists().
+		Exec(ctx)
+	if err != nil {
+		log.Println(err)
+	}
+	//Project :: DRAFT -> NEW -> ANALISYS -> DESIGN -> DEV -> CLOSED
+	transitions := []dao.StateTransition{
+		{LifecycleId: 1, FromStateId: 1, ToStateId: 2},
+		{LifecycleId: 1, FromStateId: 2, ToStateId: 4},
+		{LifecycleId: 1, FromStateId: 4, ToStateId: 5},
+		{LifecycleId: 1, FromStateId: 5, ToStateId: 6},
+		{LifecycleId: 1, FromStateId: 6, ToStateId: 10},
+	}
+	_, err = db.NewInsert().Model(&transitions).Exec(ctx)
+	if err != nil {
+		log.Println(err)
+	}
+
+}
+
+func initProjects(db *bun.DB, ctx context.Context) error {
+	_, err := db.NewCreateTable().
+		Model((*dao.ProjectRow)(nil)).
+		IfNotExists().
+		Exec(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	project := dao.ProjectRow{
+		Id:          1,
+		Name:        "COSMOS",
+		ProjectKey:  "COSMOS",
+		Description: "Super COSMOS Project",
+		StateId:     1,
+		LifecycleId: 1,
+		CreatedById: 1,
+		OwnerId:     1,
+	}
+	_, err = db.NewInsert().Model(&project).Exec(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
+func initLifecycles(db *bun.DB, ctx context.Context) error {
+	_, err := db.NewCreateTable().
+		Model((*dao.LifecycleRow)(nil)).
+		IfNotExists().
+		Exec(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	lifecycle := dao.LifecycleRow{Id: 1, Name: "Project", StartStateId: 1}
+	_, err = db.NewInsert().Model(&lifecycle).Exec(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+
+}
+
+func initStates(db *bun.DB, ctx context.Context) error {
 	_, err := db.NewCreateTable().
 		Model((*dao.LifecycleStateRow)(nil)).
 		IfNotExists().
 		Exec(ctx)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return err
 	}
 	states := []dao.LifecycleStateRow{
 		{Id: 1, Name: "Draft"},
@@ -33,59 +120,8 @@ func mustInitDatabase(db *bun.DB, ctx context.Context) {
 
 	_, err = db.NewInsert().Model(&states).Exec(ctx)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+		return err
 	}
-	_, err = db.NewCreateTable().
-		Model((*dao.LifecycleRow)(nil)).
-		IfNotExists().
-		Exec(ctx)
-	if err != nil {
-		panic(err)
-	}
-
-	lifecycle := dao.LifecycleRow{Id: 1, Name: "Project", StartStateId: 1}
-	_, err = db.NewInsert().Model(&lifecycle).Exec(ctx)
-	if err != nil {
-		panic(err)
-	}
-	_, err = db.NewCreateTable().
-		Model((*dao.StateTransition)(nil)).
-		IfNotExists().
-		Exec(ctx)
-	if err != nil {
-		panic(err)
-	}
-	//Project :: DRAFT -> NEW -> ANALISYS -> DESIGN -> DEV -> CLOSED
-	transitions := []dao.StateTransition{
-		{LifecycleId: 1, FromStateId: 1, ToStateId: 2},
-		{LifecycleId: 1, FromStateId: 2, ToStateId: 4},
-		{LifecycleId: 1, FromStateId: 4, ToStateId: 5},
-		{LifecycleId: 1, FromStateId: 5, ToStateId: 6},
-		{LifecycleId: 1, FromStateId: 6, ToStateId: 10},
-	}
-	_, err = db.NewInsert().Model(&transitions).Exec(ctx)
-	if err != nil {
-		panic(err)
-	}
-	_, err = db.NewCreateTable().
-		Model((*dao.ProjectRow)(nil)).
-		IfNotExists().
-		Exec(ctx)
-	if err != nil {
-		panic(err)
-	}
-	project := dao.ProjectRow{
-		Name:        "COSMOS",
-		ItemKey:     "COSMOS",
-		ItemNumber:  1,
-		Description: "Super COSMOS Project",
-		StateId:     1,
-		LifecycleId: 1,
-		CreatedById: 1,
-	}
-	_, err = db.NewInsert().Model(&project).Exec(ctx)
-	if err != nil {
-		panic(err)
-	}
-
+	return nil
 }

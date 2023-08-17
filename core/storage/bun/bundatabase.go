@@ -33,7 +33,7 @@ func (self *bunDatabase) StartComponent() {
 	log.Println("Starting", service.ComponentTypeBunDatabase)
 	dialect := getDialect()
 	log.Println("Dialect:", dialect)
-	self.db, _ = openDatabase(dialect)
+	self.db, _ = openDatabase(dialect, self.ctx)
 }
 
 func getDialect() storage.DatabaseDialect {
@@ -60,21 +60,10 @@ func (self *bunDatabase) NewInsert() *bun.InsertQuery {
 
 }
 
-func databaseExists(dialect storage.DatabaseDialect) bool {
-	if dialect == storage.DatabaseDialectSqlite3 {
-		dbfile := os.Getenv("DATABASE_FILE_NAME")
-		if _, err := os.Stat(dbfile); err != nil {
-			log.Println("File", dbfile, " does not exists")
-			return false
-		}
-	}
-	return true
-}
-
-func openDatabase(dialect storage.DatabaseDialect) (*bun.DB, error) {
+func openDatabase(dialect storage.DatabaseDialect, ctx context.Context) (*bun.DB, error) {
 	switch dialect {
 	case storage.DatabaseDialectPostgres:
-		return mustOpenPostgresDatabase(), nil
+		return mustOpenAndInitPostgresDb(ctx), nil
 	}
 	return nil, errors.New("Could not open database")
 }
@@ -94,16 +83,7 @@ func mustOpenPostgresDatabase() *bun.DB {
 	return bun.NewDB(sqldb, pgdialect.New())
 }
 
-func createAndInitDb(dialect storage.DatabaseDialect, ctx context.Context) (*bun.DB, error) {
-	switch dialect {
-	case storage.DatabaseDialectPostgres:
-		return mustCreatePostgresDb(ctx), nil
-	}
-
-	return nil, nil
-}
-
-func mustCreatePostgresDb(ctx context.Context) *bun.DB {
+func mustOpenAndInitPostgresDb(ctx context.Context) *bun.DB {
 	log.Println("Open DB")
 	db := mustOpenPostgresDatabase()
 	log.Println("Init DB")

@@ -3,7 +3,7 @@ package project
 import (
 	"context"
 	"errors"
-	"fmt"
+	"gosi/common/model"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"gosi/project/dao"
@@ -18,15 +18,15 @@ type IProjectRepository interface {
 	service.IComponent
 	GetProjects() []domain.Project
 	GetProject(projectId string) (domain.Project, error)
-	GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error)
+	GetLifecycle() (model.Lifecycle, error)
 	StoreProject(project domain.Project) (domain.Project, error)
 	GetComments() []domain.Comment
 	StoreComment(comment domain.Comment) (domain.Comment, error)
 }
 
 type disctionaryData struct {
-	lifecycleStates map[int]domain.LifecycleState
-	lifecycles      map[int]domain.Lifecycle
+	lifecycleStates map[int]model.LifecycleState
+	lifecycles      map[int]model.Lifecycle
 }
 
 type projectRepository struct {
@@ -44,8 +44,8 @@ func NewProjectRepository(eg *errgroup.Group, ctx context.Context, db storage.IB
 		lockDb: &sync.RWMutex{},
 		db:     db,
 		dictionary: disctionaryData{
-			lifecycleStates: map[int]domain.LifecycleState{},
-			lifecycles:      map[int]domain.Lifecycle{},
+			lifecycleStates: map[int]model.LifecycleState{},
+			lifecycles:      map[int]model.Lifecycle{},
 		},
 		eg:  eg,
 		ctx: ctx,
@@ -71,7 +71,7 @@ func (self *projectRepository) GetProjects() []domain.Project {
 	}
 
 	for _, row := range projectsRows {
-		projects = append(projects, domain.NewProjectFromRepo(row.Id, row.Created, row.Updated, row.ItemKey, row.ItemNumber, row.Name,
+		projects = append(projects, domain.NewProjectFromRepo(row.Id, row.Created, row.Updated, row.ProjectKey, row.Name,
 			row.Description, self.getLifecycleState(row.StateId), self.getLifecycle(row.LifecycleId)))
 		log.Println(projects)
 	}
@@ -84,25 +84,25 @@ func (self projectRepository) GetProject(projectId string) (domain.Project, erro
 
 	return domain.Project{}, nil
 }
-func (self *projectRepository) GetLifecycle(issueType domain.IssueType) (domain.Lifecycle, error) {
+func (self *projectRepository) GetLifecycle() (model.Lifecycle, error) {
 	for _, lc := range self.dictionary.lifecycles {
-		if lc.GetName() == string(issueType) {
+		if lc.GetName() == "Project" {
 			return lc, nil
 		}
 	}
-	return domain.Lifecycle{}, errors.New(fmt.Sprintf("Could not find Lifecycle for: %v", string(issueType)))
+	return model.Lifecycle{}, errors.New("Could not find Project Lifecycle")
 }
 func (self *projectRepository) StoreProject(project domain.Project) (domain.Project, error) {
 	self.lockDb.Lock()
 	self.lockDb.Unlock()
 	dao := &dao.ProjectRow{
-		Name:        project.GetName(),
-		ItemKey:     project.GetItemKey(),
-		ItemNumber:  project.GetItemNumber(),
-		Description: project.GetDescription(),
+		Name:        project.Name,
+		ProjectKey:  project.ProjectKey,
+		Description: project.Description,
 		StateId:     project.GetState().GetId(),
 		LifecycleId: project.GetLifecycle().GetId(),
 		CreatedById: 0,
+		OwnerId:     0,
 	}
 	res, err := self.db.NewInsert().Model(dao).Returning("id").Exec(self.ctx)
 	if err != nil {
@@ -127,12 +127,12 @@ func (self *projectRepository) StoreComment(comment domain.Comment) (domain.Comm
 	return domain.Comment{}, nil
 }
 
-func (self projectRepository) getLifecycle(id int) domain.Lifecycle {
+func (self projectRepository) getLifecycle(id int) model.Lifecycle {
 	lifecycle := self.dictionary.lifecycles[id]
 	return lifecycle
 }
 
-func (self projectRepository) getLifecycleState(id int) domain.LifecycleState {
+func (self projectRepository) getLifecycleState(id int) model.LifecycleState {
 	lifecyclestate := self.dictionary.lifecycleStates[id]
 	return lifecyclestate
 }
@@ -150,7 +150,7 @@ func (self *projectRepository) loadLifecycles() {
 		log.Fatal(err)
 	}
 	for _, row := range lifecycleStatesRows {
-		self.dictionary.lifecycleStates[row.Id] = domain.NewLifecycleState(row.Id, row.Name)
+		self.dictionary.lifecycleStates[row.Id] = model.NewLifecycleState(row.Id, row.Name)
 	}
 
 	err = self.db.NewSelect().Model(&lifecyclesRows).Scan(self.ctx)
@@ -158,6 +158,6 @@ func (self *projectRepository) loadLifecycles() {
 		log.Fatal(err)
 	}
 	for _, row := range lifecyclesRows {
-		self.dictionary.lifecycles[row.Id] = domain.NewLifeCycleBuilder(row.Id, row.Name, self.dictionary.lifecycleStates[row.StartStateId]).Build()
+		self.dictionary.lifecycles[row.Id] = model.NewLifeCycleBuilder(row.Id, row.Name, self.dictionary.lifecycleStates[row.StartStateId]).Build()
 	}
 }
