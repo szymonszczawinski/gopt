@@ -1,0 +1,5 @@
+gosi.db
+go.mod
+go.sum
+.air.toml
+.env

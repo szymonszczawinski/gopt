@@ -9,7 +9,7 @@ import (
 
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
-	project_controllers "gosi/project/controllers"
+	project_controllers "gosi/project/handlers"
 
 	"context"
 	"fmt"
@@ -79,14 +79,14 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
 	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
-	homeController := http.NewHomeController(staticContent.PublicDir)
-	projectsController := project_controllers.NewProjectController(projetcsService, staticContent.PublicDir)
-	authController := auth.NewAuthController(authService, staticContent.PublicDir)
+	homeController := http.NewHomeHandler(staticContent.PublicDir)
+	projectsController := project_controllers.NewProjectHandler(projetcsService, staticContent.PublicDir)
+	authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
 
 	httpServer := http.NewHttpServer(ctx, eg, HttpServerPort, staticContent)
-	httpServer.AddController(homeController)
-	httpServer.AddController(projectsController)
-	httpServer.AddController(authController)
+	httpServer.AddHandler(homeController)
+	httpServer.AddHandler(projectsController)
+	httpServer.AddHandler(authController)
 	httpServer.Start()
 
 	// log.Println("Starting HTTP SERVER SERVICE")

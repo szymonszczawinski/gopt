@@ -4,7 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"gosi/coreapi/viewcon"
+	"gosi/coreapi/viewhandlers"
 	"log"
 	"net/http"
 	"os"
@@ -26,18 +26,13 @@ type StaticContent struct {
 }
 
 type IHttpServer interface {
-	AddController(c viewcon.IController)
+	AddHandler(c viewhandlers.IViewHandler)
 }
 
-type Routes struct {
-	root  *gin.RouterGroup
-	pages *gin.RouterGroup
-	api   *gin.RouterGroup
-}
 type httpServer struct {
 	server     *http.Server
 	router     *gin.Engine
-	routes     Routes
+	routes     *viewhandlers.Routes
 	renderrer  multitemplate.Renderer
 	fileSystem embed.FS
 	group      *errgroup.Group
@@ -47,18 +42,14 @@ type httpServer struct {
 func NewHttpServer(context context.Context, group *errgroup.Group, port int, staticContent StaticContent) *httpServer {
 	renderrer := multitemplate.NewRenderer()
 	ginRouter := createGinRouter(staticContent.PublicDir, renderrer)
-	root, pages, api := configureMainRoutes(ginRouter)
+	routes := configureMainRoutes(ginRouter)
 	instance := httpServer{
 		server: &http.Server{
 			Addr:    fmt.Sprintf("localhost:%v", port),
 			Handler: ginRouter,
 		},
-		router: ginRouter,
-		routes: Routes{
-			root:  root,
-			pages: pages,
-			api:   api,
-		},
+		router:     ginRouter,
+		routes:     routes,
 		renderrer:  renderrer,
 		fileSystem: staticContent.PublicDir,
 		group:      group,
@@ -91,8 +82,8 @@ func (self *httpServer) Start() {
 	})
 }
 
-func (self *httpServer) AddController(c viewcon.IController) {
-	c.ConfigureRoutes(self.routes.root, self.routes.pages, self.routes.api, self.fileSystem)
+func (self *httpServer) AddHandler(c viewhandlers.IViewHandler) {
+	c.ConfigureRoutes(*self.routes)
 	self.renderrer = c.LoadViews(self.renderrer)
 }
 func createGinRouter(fs embed.FS, renderrer multitemplate.Renderer) *gin.Engine {

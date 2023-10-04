@@ -13,7 +13,6 @@ type IProjectService interface {
 	GetProjects() []dto.ProjectListItem
 	GetProject(projectId string) (dto.ProjectDetails, error)
 	CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error)
-	AddComment(newComment dto.AddCommentCommand) (domain.Comment, error)
 }
 
 type projectService struct {
@@ -64,18 +63,4 @@ func (self projectService) CreateProject(newProject dto.CreateProjectCommand) (d
 		return dto.ProjectListItem{}, err
 	}
 	return dto.NewProjectListItem(stored), nil
-}
-
-func (self projectService) AddComment(newComment dto.AddCommentCommand) (domain.Comment, error) {
-	project, err := self.repository.GetProject(newComment.ParentIssueKey)
-	if err != nil {
-		return domain.Comment{}, err
-	}
-	stored, err := self.repository.StoreComment(domain.NewComment(project.GetId(), newComment.Content))
-	if err != nil {
-		return domain.Comment{}, err
-	} else {
-		return stored, nil
-	}
-
 }

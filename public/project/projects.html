@@ -1,7 +1,7 @@
 {{ define "content" }}
 <div class="bg-gray-700 text-white p-4">
   <a
-    href="/gosi/projects/new"
+    href="/gosi/views/projects/new"
     class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
     >Add Project</a
   >
@@ -20,7 +20,7 @@
     </tr>
     {{range .data}} {{ block "project-list-element" .}}
     <tr class="hover:bg-gray-50">
-      <td class="border px-8 py-4"><a href="/gosi/projects/{{.IssueId}}" class="text-blue-600">{{.IssueId}}</a></td>
+      <td class="border px-8 py-4"><a href="/gosi/views/projects/{{.ProjectKey}}" class="text-blue-600">{{.ProjectKey}}</a></td>
       <td class="border px-8 py-4">{{.Name}}</td>
       <td class="border px-8 py-4">{{.State}}</td>
       <td class="border px-8 py-4">{{.Assignee}}</td>

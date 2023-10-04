@@ -20,8 +20,7 @@ type IProjectRepository interface {
 	GetProject(projectId string) (domain.Project, error)
 	GetLifecycle() (model.Lifecycle, error)
 	StoreProject(project domain.Project) (domain.Project, error)
-	GetComments() []domain.Comment
-	StoreComment(comment domain.Comment) (domain.Comment, error)
+	UpdateProject(project domain.Project) (domain.Project, error)
 }
 
 type disctionaryData struct {
@@ -78,12 +77,14 @@ func (self *projectRepository) GetProjects() []domain.Project {
 	return projects
 
 }
+
 func (self projectRepository) GetProject(projectId string) (domain.Project, error) {
 	self.lockDb.RLock()
 	self.lockDb.RUnlock()
 
 	return domain.Project{}, nil
 }
+
 func (self *projectRepository) GetLifecycle() (model.Lifecycle, error) {
 	for _, lc := range self.dictionary.lifecycles {
 		if lc.GetName() == "Project" {
@@ -92,6 +93,7 @@ func (self *projectRepository) GetLifecycle() (model.Lifecycle, error) {
 	}
 	return model.Lifecycle{}, errors.New("Could not find Project Lifecycle")
 }
+
 func (self *projectRepository) StoreProject(project domain.Project) (domain.Project, error) {
 	self.lockDb.Lock()
 	self.lockDb.Unlock()
@@ -114,17 +116,9 @@ func (self *projectRepository) StoreProject(project domain.Project) (domain.Proj
 	return domain.Project{}, nil
 }
 
-func (self *projectRepository) GetComments() []domain.Comment {
-	self.lockDb.RLock()
-	self.lockDb.RUnlock()
-
-	return nil
-}
-func (self *projectRepository) StoreComment(comment domain.Comment) (domain.Comment, error) {
-	self.lockDb.Lock()
-	self.lockDb.Unlock()
-
-	return domain.Comment{}, nil
+func (self *projectRepository) UpdateProject(p domain.Project) (domain.Project, error) {
+	log.Fatal("Not Implemented")
+	return domain.Project{}, nil
 }
 
 func (self projectRepository) getLifecycle(id int) model.Lifecycle {

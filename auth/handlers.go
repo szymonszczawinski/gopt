@@ -3,7 +3,7 @@ package auth
 import (
 	"embed"
 	"fmt"
-	"gosi/coreapi/viewcon"
+	"gosi/coreapi/viewhandlers"
 	"log"
 	"net/http"
 	"text/template"
@@ -19,39 +19,39 @@ const (
 	LoginErrorBlock = "login-error"
 )
 
-type authController struct {
-	viewcon.Controller
+type authHandler struct {
+	viewhandlers.BaseHandler
 	authService IAuthService
 }
 
-func NewAuthController(authService IAuthService, fs embed.FS) *authController {
-	instance := authController{
-		Controller: viewcon.Controller{
+func NewAuthHandler(authService IAuthService, fs embed.FS) *authHandler {
+	instance := authHandler{
+		BaseHandler: viewhandlers.BaseHandler{
 			FileSystem: fs,
 		},
 		authService: authService,
 	}
 	return &instance
 }
-func (self *authController) ConfigureRoutes(root, pages, api *gin.RouterGroup, fs embed.FS) {
-	root.GET("login", self.login)
-	root.POST("login", self.loginSubmit)
-	root.GET("logout", self.logout)
+func (self *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+	routes.Root().GET("login", self.login)
+	routes.Root().POST("login", self.loginSubmit)
+	routes.Root().GET("logout", self.logout)
 
 }
 
-func (self *authController) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewcon.AddCompositeView(r, "login", "public/auth/login.html", viewcon.GetSimpleLayouts(), self.FileSystem)
+func (self *authHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
+	viewhandlers.AddCompositeView(r, "login", "public/auth/login.html", viewhandlers.GetSimpleLayouts(), self.FileSystem)
 	return r
 }
 
-func (self authController) login(c *gin.Context) {
+func (self authHandler) login(c *gin.Context) {
 	c.HTML(http.StatusOK, "login", gin.H{
 		"title": "LOGIN",
 	})
 }
 
-func (self authController) loginSubmit(c *gin.Context) {
+func (self authHandler) loginSubmit(c *gin.Context) {
 	credentialsData := CredentialsData{
 		password: c.PostForm("username"),
 		username: c.PostForm("password"),
@@ -69,7 +69,7 @@ func (self authController) loginSubmit(c *gin.Context) {
 	})
 }
 
-func (self authController) logout(c *gin.Context) {
+func (self authHandler) logout(c *gin.Context) {
 	session := sessions.Default(c)
 	user := session.Get(AUTH_KEY)
 	if user == nil {

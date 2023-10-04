@@ -1,9 +1,11 @@
 package auth
 
 import (
+	"log"
+	"net/http"
+
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 const (
@@ -19,6 +21,7 @@ var (
 )
 
 func SessionAuth(c *gin.Context) {
+	log.Println("Session AUTH")
 	session := sessions.Default(c)
 	if session.Get(AUTH_KEY) == nil {
 		c.Redirect(http.StatusFound, "/gosi/login")

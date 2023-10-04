@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"gosi/project/viewmodels"
@@ -8,12 +8,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (self projectController) getProjects(c *gin.Context) {
+func (self projectHandler) getProjects(c *gin.Context) {
 	log.Println("getProjetcs")
 	c.JSON(http.StatusOK, gin.H{"data": self.projectService.GetProjects(), "error": ""})
 }
 
-func (self projectController) getProject(c *gin.Context) {
+func (self projectHandler) getProject(c *gin.Context) {
 	projectId := c.Param("issueId")
 
 	project, err := self.projectService.GetProject(projectId)
@@ -26,7 +26,7 @@ func (self projectController) getProject(c *gin.Context) {
 
 }
 
-func (self projectController) addProjectAPI(c *gin.Context) {
+func (self projectHandler) addProjectAPI(c *gin.Context) {
 	var newProject dto.CreateProjectCommand
 
 	if err := c.BindJSON(&newProject); err != nil {
@@ -42,19 +42,4 @@ func (self projectController) addProjectAPI(c *gin.Context) {
 	}
 	c.IndentedJSON(http.StatusCreated, gin.H{"data": createdProject, "error": ""})
 
-}
-
-func (self projectController) addProjectComment(c *gin.Context) {
-	var projectComment dto.AddCommentCommand
-	if err := c.BindJSON(&projectComment); err != nil {
-		data := make(map[string]string)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
-	}
-	createdComment, err := self.projectService.AddComment(projectComment)
-	if err != nil {
-		data := make(map[string]string)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
-		return
-	}
-	c.IndentedJSON(http.StatusCreated, gin.H{"elementId": createdComment.GetId(), "error": ""})
 }

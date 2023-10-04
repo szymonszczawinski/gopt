@@ -1,4 +1,4 @@
-package controllers
+package handlers
 
 import (
 	"errors"
@@ -11,17 +11,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (self projectController) projectsPage(c *gin.Context) {
+func (self projectHandler) projectsPage(c *gin.Context) {
 	log.Println("PROJECTS PAGE")
 	c.HTML(http.StatusOK, "projects", gin.H{
 		"title": "Projects",
 		"data":  self.projectService.GetProjects(), "error": ""})
 }
-func (self projectController) newProject(c *gin.Context) {
+func (self projectHandler) newProject(c *gin.Context) {
 	c.HTML(http.StatusOK, "projects/newproject.html", gin.H{"title": "Add Project"})
 }
 
-func (self projectController) addProject(c *gin.Context) {
+func (self projectHandler) addProject(c *gin.Context) {
 	log.Println("addProject")
 	newProject := dto.CreateProjectCommand{
 		IssueKey: c.PostForm("project-key"),
@@ -42,8 +42,7 @@ func (self projectController) addProject(c *gin.Context) {
 	// c.Redirect(http.StatusFound, "/gosi/projects")
 }
 
-func (self projectController) projectDetails(c *gin.Context) {
-	log.Println("PROJECT DETAILS")
+func (self projectHandler) projectDetails(c *gin.Context) {
 	projectId := c.Param("issueId")
 	project, err := self.projectService.GetProject(projectId)
 	if err != nil {
@@ -52,7 +51,8 @@ func (self projectController) projectDetails(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
 		return
 	}
-	c.HTML(http.StatusOK, "projects/details.html", gin.H{
+	log.Println("PROJECT DETAILS", project)
+	c.HTML(http.StatusOK, "project_details", gin.H{
 		"title": "Project Details",
 		"data":  project, "error": ""})
 

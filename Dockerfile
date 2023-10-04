@@ -11,7 +11,7 @@
 #BUILD APP
 ############################################################################
 
-FROM golang:1.20.4 as appBuilder
+FROM golang:1.21.1 as appBuilder
 WORKDIR /app/src/gosi/
 COPY . .
 WORKDIR /app/src/gosi/
@@ -21,7 +21,7 @@ RUN go build --trimpath -o app main.go
 #CREATE FINAL IMAGE
 ############################################################################
 
-FROM debian:stable AS server
+FROM alpine:3.14 AS server
 
 WORKDIR /app/josi
 
