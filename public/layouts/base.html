@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 <html>
     <head>
-        {{ template "header" .}}
+        {{ template "head" .}}
     </head>
 
     <body class="flex flex-col min-h-screen">
         {{ template "nav" .}}
-        {{template "content" .}} 
+        <div id="content">
+            {{template "content" .}} 
+        </div>
+        <footer class="mt-auto bg-gray-800 text-white p-2">
+            {{ template "footer" .}}
+        </footer>
     </body>
-    <footer class="mt-auto bg-gray-800 text-white p-2">
-        {{ template "footer" .}}
-    </footer>
 </html>
