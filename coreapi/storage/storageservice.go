@@ -1,6 +1,6 @@
 package storage
 
-import "gosi/project/domain"
+import "gosi/domain/project/domain"
 
 type IStorageService interface {
 	CreateProject(project domain.Project) (domain.Project, error)

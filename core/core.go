@@ -1,15 +1,16 @@
 package core
 
 import (
-	"gosi/auth"
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/storage/bun"
-	"gosi/project"
+	"gosi/domain/auth"
+	"gosi/domain/home"
+	"gosi/domain/project"
 
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
-	project_controllers "gosi/project/handlers"
+	project_handlers "gosi/domain/project/handlers"
 
 	"context"
 	"fmt"
@@ -79,8 +80,8 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
 	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
-	homeController := http.NewHomeHandler(staticContent.PublicDir)
-	projectsController := project_controllers.NewProjectHandler(projetcsService, staticContent.PublicDir)
+	homeController := home.NewHomeHandler(staticContent.PublicDir)
+	projectsController := project_handlers.NewProjectHandler(projetcsService, staticContent.PublicDir)
 	authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
 
 	httpServer := http.NewHttpServer(ctx, eg, HttpServerPort, staticContent)

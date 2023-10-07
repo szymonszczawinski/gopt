@@ -2,9 +2,8 @@ package handlers
 
 import (
 	"embed"
-	// "gosi/auth"
 	"gosi/coreapi/viewhandlers"
-	"gosi/project"
+	"gosi/domain/project"
 
 	"github.com/gin-contrib/multitemplate"
 )

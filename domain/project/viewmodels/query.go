@@ -1,7 +1,7 @@
 package dto
 
 import (
-	"gosi/project/domain"
+	"gosi/domain/project/domain"
 	"time"
 )
 

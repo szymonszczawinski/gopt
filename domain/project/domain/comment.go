@@ -2,8 +2,8 @@ package domain
 
 import (
 	"fmt"
-	"gosi/common/model"
-	"gosi/user"
+	"gosi/domain/common/model"
+	"gosi/domain/user"
 	"time"
 )
 

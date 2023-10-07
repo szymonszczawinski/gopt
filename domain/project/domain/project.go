@@ -1,7 +1,7 @@
 package domain
 
 import (
-	"gosi/common/model"
+	"gosi/domain/common/model"
 	"time"
 )
 

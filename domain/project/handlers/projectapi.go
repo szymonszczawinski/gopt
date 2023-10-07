@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"gosi/project/viewmodels"
+	"gosi/domain/project/viewmodels"
 	"log"
 	"net/http"
 

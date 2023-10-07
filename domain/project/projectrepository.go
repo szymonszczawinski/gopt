@@ -3,11 +3,11 @@ package project
 import (
 	"context"
 	"errors"
-	"gosi/common/model"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
-	"gosi/project/dao"
-	"gosi/project/domain"
+	"gosi/domain/common/model"
+	"gosi/domain/project/dao"
+	"gosi/domain/project/domain"
 	"log"
 	"sync"
 

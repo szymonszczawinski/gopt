@@ -2,8 +2,8 @@ package project
 
 import (
 	"context"
-	"gosi/project/domain"
-	"gosi/project/viewmodels"
+	"gosi/domain/project/domain"
+	"gosi/domain/project/viewmodels"
 	"log"
 
 	"golang.org/x/sync/errgroup"

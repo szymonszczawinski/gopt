@@ -1,10 +1,8 @@
-package http
+package home
 
 import (
 	"embed"
-	// "gosi/auth"
 	"gosi/coreapi/viewhandlers"
-	"log"
 	"net/http"
 
 	"github.com/gin-contrib/multitemplate"
@@ -38,30 +36,4 @@ func (self *homeHandler) homePage(c *gin.Context) {
 	c.HTML(http.StatusOK, "home", gin.H{
 		"title": "HOME",
 	})
-}
-
-func configureMainRoutes(router *gin.Engine) *viewhandlers.Routes {
-	rootRoute := router.Group("/gosi")
-	apiRoute := rootRoute.Group("/api")
-	viewsRoute := rootRoute.Group("/views")
-
-	// apiRoute.Use(auth.SessionAuth)
-	// viewsRoute.Use(auth.SessionAuth)
-	routes := viewhandlers.NewRoutes(rootRoute, viewsRoute, apiRoute)
-	return routes
-}
-
-func root(router *gin.Engine) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		routes := router.Routes()
-		routesMap := map[string]string{}
-
-		log.Println(routes)
-		for _, r := range routes {
-			routesMap[r.Path] = r.Handler
-		}
-		log.Println(routesMap)
-
-		c.String(http.StatusOK, "Welcome GOSI Server\nAvailable Routes:\n%v", routesMap)
-	}
 }

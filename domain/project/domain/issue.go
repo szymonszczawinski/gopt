@@ -1,6 +1,6 @@
 package domain
 
-import "gosi/common/model"
+import "gosi/domain/common/model"
 
 type IssueType string
 

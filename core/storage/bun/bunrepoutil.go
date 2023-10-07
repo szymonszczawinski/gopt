@@ -2,7 +2,7 @@ package bun
 
 import (
 	"context"
-	"gosi/project/dao"
+	"gosi/domain/project/dao"
 	"log"
 
 	"github.com/uptrace/bun"

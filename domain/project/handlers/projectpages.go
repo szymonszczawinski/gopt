@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"gosi/project/viewmodels"
+	"gosi/domain/project/viewmodels"
 	"log"
 	"net/http"
 	"text/template"
