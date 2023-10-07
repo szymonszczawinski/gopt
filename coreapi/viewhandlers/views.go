@@ -47,6 +47,7 @@ func AddSimpleView(r multitemplate.Renderer, name string, path string, fs embed.
 func GetLayouts() []string {
 	layouts := []string{"public/layouts/base.html",
 		"public/fragments/head.html",
+		"public/fragments/header.html",
 		"public/fragments/footer.html",
 		"public/fragments/nav.html"}
 	return layouts
@@ -66,6 +67,7 @@ func GetLayouts() []string {
 func GetSimpleLayouts() []string {
 	layouts := []string{"public/layouts/basesimple.html",
 		"public/fragments/head.html",
+		"public/fragments/header.html",
 		"public/fragments/footer.html"}
 	return layouts
 }

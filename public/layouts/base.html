@@ -5,6 +5,7 @@
     </head>
 
     <body class="flex flex-col min-h-screen">
+        {{ template "header" .}}
         {{ template "nav" .}}
         <div id="content">
             {{template "content" .}} 
