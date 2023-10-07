@@ -15,8 +15,8 @@ import (
 )
 
 const (
-	LoginTemplate   = "public/auth/login.html"
-	LoginErrorBlock = "login-error"
+	LoginErrorTemplate     = "public/auth/login_error.html"
+	LoginErrorTemplateName = "login_error"
 )
 
 type authHandler struct {
@@ -87,8 +87,8 @@ func (self authHandler) logout(c *gin.Context) {
 
 func displayLoginError(err error, c *gin.Context, fs embed.FS) {
 	log.Println("Login Error", err.Error())
-	tmpl := template.Must(template.ParseFS(fs, LoginTemplate))
-	tmplerr := tmpl.ExecuteTemplate(c.Writer, LoginErrorBlock, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
+	tmpl := template.Must(template.ParseFS(fs, LoginErrorTemplate))
+	tmplerr := tmpl.ExecuteTemplate(c.Writer, LoginErrorTemplateName, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
 	if tmplerr != nil {
 		log.Println("TEMPLATE ERROR: ", tmplerr.Error())
 	}

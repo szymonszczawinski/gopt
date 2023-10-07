@@ -1,7 +1,7 @@
 {{ define "content" }}
 <div>
   <div>
-    <form hx-post="/gosi/login" hx-target="#login-error-message">
+    <form hx-post="/gosi/login" hx-target="#login-error">
       <div>
         <label
           for="username"
@@ -40,14 +40,7 @@
       </div>
     </form>
   </div>
-  <div>
-    {{ block "login-error" .}}
-    <label
-      id="login-error-message"
-      class="block mb-2 text-sm font-medium text-red-900"
-      >{{ .error }}</label
-    >
-    {{end}}
+  <div id="login-error"/>
   </div>
 </div>
 {{ end }}
