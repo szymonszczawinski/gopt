@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"gosi/domain/project/viewmodels"
+	"gosi/domain/project"
 	"log"
 	"net/http"
 
@@ -27,7 +27,7 @@ func (self projectHandler) getProject(c *gin.Context) {
 }
 
 func (self projectHandler) addProjectAPI(c *gin.Context) {
-	var newProject dto.CreateProjectCommand
+	var newProject project.CreateProjectCommand
 
 	if err := c.BindJSON(&newProject); err != nil {
 		data := make(map[string]string)

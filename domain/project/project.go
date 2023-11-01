@@ -1,50 +1,53 @@
-package domain
+package project
 
 import (
 	"gosi/domain/common/model"
 	"time"
 )
 
-type RelationType string
-
-const (
-	RelationTypeCauses     RelationType = "Causes"
-	RelationTypeIsCausedBy RelationType = "IsCausedBy"
-	RelationTypeIsChildOf  RelationType = "IsChildOf"
-	RelationTypeIsParentOf RelationType = "IsParentOf"
-)
-
 type Project struct {
 	model.Entity
 	model.TimeTracked
-	model.LivecycleManaged
 	Name        string
 	ProjectKey  string
 	Description string
-	Issues      []Issue
+	State       ProjectState
+}
+type ProjectState struct {
+	id          int
+	lifecycleId int
+	name        string
 }
 
-func NewProject(projectKey string, name string, lifecycle model.Lifecycle) Project {
+func (state ProjectState) String() string {
+	return state.name
+}
+
+func NewProjectState(id, lifecycleId int, name string) ProjectState {
+	return ProjectState{
+		id:          id,
+		lifecycleId: lifecycleId,
+		name:        name,
+	}
+}
+
+func NewProject(projectKey string, name string, state ProjectState) Project {
 	project := Project{
 		Entity: model.Entity{},
 		TimeTracked: model.TimeTracked{
 			Created: time.Now(),
 			Updated: time.Now(),
 		},
-		LivecycleManaged: model.LivecycleManaged{
-			Lifecycle: lifecycle,
-			State:     lifecycle.GetStartState(),
-		},
+		State:       state,
 		Name:        name,
 		ProjectKey:  projectKey,
 		Description: "",
-		Issues:      []Issue{},
 	}
 	return project
 }
 
 func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey, name, description string,
-	state model.LifecycleState, lifecycle model.Lifecycle) Project {
+	state ProjectState) Project {
 	project := Project{
 		Entity: model.Entity{
 			Id: id,
@@ -53,10 +56,7 @@ func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey
 			Created: created,
 			Updated: updated,
 		},
-		LivecycleManaged: model.LivecycleManaged{
-			Lifecycle: lifecycle,
-			State:     state,
-		},
+		State:       state,
 		ProjectKey:  projectKey,
 		Name:        name,
 		Description: description,

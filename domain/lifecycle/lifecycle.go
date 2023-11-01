@@ -1,15 +1,17 @@
-package model
+package lifecycle
+
+import "gosi/domain/common/model"
 
 const ()
 
 type LifecycleState struct {
-	Entity
+	model.Entity
 	name string
 }
 
 func NewLifecycleState(id int, name string) LifecycleState {
 	state := LifecycleState{
-		Entity: Entity{Id: id},
+		Entity: model.Entity{Id: id},
 		name:   name,
 	}
 	return state
@@ -19,7 +21,7 @@ func (self LifecycleState) GetValue() string {
 }
 
 type Lifecycle struct {
-	Entity
+	model.Entity
 	name        string
 	startState  LifecycleState
 	transitions map[LifecycleState][]LifecycleState
@@ -58,7 +60,7 @@ func (lcb *LifecycleBuilder) AddTransition(from LifecycleState, to LifecycleStat
 
 func (lcb LifecycleBuilder) Build() Lifecycle {
 	lifecycle := Lifecycle{
-		Entity:      Entity{Id: lcb.id},
+		Entity:      model.Entity{Id: lcb.id},
 		name:        lcb.name,
 		startState:  lcb.startState,
 		transitions: lcb.transitions,

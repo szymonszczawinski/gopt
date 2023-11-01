@@ -1,7 +1,6 @@
-package dto
+package project
 
 import (
-	"gosi/domain/project/domain"
 	"time"
 )
 
@@ -9,6 +8,15 @@ const (
 	DDMMYYYYhhmmss = "2006-01-02 15:04:05"
 )
 
+type CreateProjectCommand struct {
+	IssueKey string `json:"issueKey"`
+	Name     string `json:"name"`
+}
+
+type AddCommentCommand struct {
+	ParentIssueKey string `json:"parrentIssueKey"`
+	Content        string `json:"content"`
+}
 type ProjectListItem struct {
 	Id         int    `json:"id"`
 	ProjectKey string `json:"projectKey"`
@@ -35,23 +43,23 @@ type ProjectComment struct {
 	Content string    `json:"content"`
 }
 
-func NewProjectListItem(project domain.Project) ProjectListItem {
+func NewProjectListItem(project Project) ProjectListItem {
 	return ProjectListItem{
 		Id:         project.GetId(),
 		ProjectKey: project.ProjectKey,
 		Name:       project.Name,
-		State:      project.GetState().GetValue(),
+		State:      project.State.String(),
 		Owner:      "",
 		Created:    project.GetCreationTime().Format(DDMMYYYYhhmmss),
 		Updated:    project.GetLastUpdateTime().Format(DDMMYYYYhhmmss),
 	}
 }
-func NewProjectDetails(project domain.Project) ProjectDetails {
+func NewProjectDetails(project Project) ProjectDetails {
 	projectDetails := ProjectDetails{
 		Id:         project.GetId(),
 		ProjectKey: project.ProjectKey,
 		Name:       project.Name,
-		State:      project.GetState().GetValue(),
+		State:      project.State.String(),
 		Owner:      "",
 		Created:    project.GetCreationTime().String(),
 		Updated:    project.GetLastUpdateTime().String(),

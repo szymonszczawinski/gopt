@@ -2,7 +2,8 @@ package bun
 
 import (
 	"context"
-	"gosi/domain/project/dao"
+	"gosi/domain/lifecycle"
+	"gosi/domain/project"
 	"log"
 
 	"github.com/uptrace/bun"
@@ -25,14 +26,14 @@ func mustInitDatabase(db *bun.DB, ctx context.Context) {
 
 func initTransitions(db *bun.DB, ctx context.Context) {
 	_, err := db.NewCreateTable().
-		Model((*dao.StateTransition)(nil)).
+		Model((*lifecycle.StateTransition)(nil)).
 		IfNotExists().
 		Exec(ctx)
 	if err != nil {
 		log.Println(err)
 	}
 	//Project :: DRAFT -> NEW -> ANALISYS -> DESIGN -> DEV -> CLOSED
-	transitions := []dao.StateTransition{
+	transitions := []lifecycle.StateTransition{
 		{LifecycleId: 1, FromStateId: 1, ToStateId: 2},
 		{LifecycleId: 1, FromStateId: 2, ToStateId: 4},
 		{LifecycleId: 1, FromStateId: 4, ToStateId: 5},
@@ -48,14 +49,14 @@ func initTransitions(db *bun.DB, ctx context.Context) {
 
 func initProjects(db *bun.DB, ctx context.Context) error {
 	_, err := db.NewCreateTable().
-		Model((*dao.ProjectRow)(nil)).
+		Model((*project.ProjectRow)(nil)).
 		IfNotExists().
 		Exec(ctx)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	project := dao.ProjectRow{
+	project := project.ProjectRow{
 		Id:          1,
 		Name:        "COSMOS",
 		ProjectKey:  "COSMOS",
@@ -75,7 +76,7 @@ func initProjects(db *bun.DB, ctx context.Context) error {
 
 func initLifecycles(db *bun.DB, ctx context.Context) error {
 	_, err := db.NewCreateTable().
-		Model((*dao.LifecycleRow)(nil)).
+		Model((*lifecycle.LifecycleRow)(nil)).
 		IfNotExists().
 		Exec(ctx)
 	if err != nil {
@@ -83,7 +84,7 @@ func initLifecycles(db *bun.DB, ctx context.Context) error {
 		return err
 	}
 
-	lifecycle := dao.LifecycleRow{Id: 1, Name: "Project", StartStateId: 1}
+	lifecycle := lifecycle.LifecycleRow{Id: 1, Name: "Project", StartStateId: 1}
 	_, err = db.NewInsert().Model(&lifecycle).Exec(ctx)
 	if err != nil {
 		log.Println(err)
@@ -95,14 +96,14 @@ func initLifecycles(db *bun.DB, ctx context.Context) error {
 
 func initStates(db *bun.DB, ctx context.Context) error {
 	_, err := db.NewCreateTable().
-		Model((*dao.LifecycleStateRow)(nil)).
+		Model((*lifecycle.LifecycleStateRow)(nil)).
 		IfNotExists().
 		Exec(ctx)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
-	states := []dao.LifecycleStateRow{
+	states := []lifecycle.LifecycleStateRow{
 		{Id: 1, Name: "Draft"},
 		{Id: 2, Name: "New"},
 		{Id: 3, Name: "Open"},

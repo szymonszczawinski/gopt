@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"fmt"
-	"gosi/domain/project/viewmodels"
+	"gosi/domain/project"
 	"log"
 	"net/http"
 	"text/template"
@@ -23,7 +23,7 @@ func (self projectHandler) newProject(c *gin.Context) {
 
 func (self projectHandler) addProject(c *gin.Context) {
 	log.Println("addProject")
-	newProject := dto.CreateProjectCommand{
+	newProject := project.CreateProjectCommand{
 		IssueKey: c.PostForm("project-key"),
 		Name:     c.PostForm("project-name"),
 	}
@@ -58,7 +58,7 @@ func (self projectHandler) projectDetails(c *gin.Context) {
 
 }
 
-func validateProject(p dto.CreateProjectCommand) error {
+func validateProject(p project.CreateProjectCommand) error {
 	var result string
 	if len(p.Name) == 0 {
 		result = "Name must not be empty.\n"
@@ -73,7 +73,7 @@ func validateProject(p dto.CreateProjectCommand) error {
 	}
 }
 
-func displayeError(err error, p dto.CreateProjectCommand, c *gin.Context) {
+func displayeError(err error, p project.CreateProjectCommand, c *gin.Context) {
 	c.HTML(http.StatusBadRequest, "projects/newproject.html",
 		gin.H{"title": "Add Project", "error": err.Error(), "projectName": p.Name, "projectKey": p.IssueKey})
 

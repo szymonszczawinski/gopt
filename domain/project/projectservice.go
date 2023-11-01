@@ -2,17 +2,15 @@ package project
 
 import (
 	"context"
-	"gosi/domain/project/domain"
-	"gosi/domain/project/viewmodels"
 	"log"
 
 	"golang.org/x/sync/errgroup"
 )
 
 type IProjectService interface {
-	GetProjects() []dto.ProjectListItem
-	GetProject(projectId string) (dto.ProjectDetails, error)
-	CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error)
+	GetProjects() []ProjectListItem
+	GetProject(projectId string) (ProjectDetails, error)
+	CreateProject(newProject CreateProjectCommand) (ProjectListItem, error)
 }
 
 type projectService struct {
@@ -33,34 +31,34 @@ func (self *projectService) StartComponent() {
 
 }
 
-func (self projectService) GetProjects() []dto.ProjectListItem {
+func (self projectService) GetProjects() []ProjectListItem {
 	projects := self.repository.GetProjects()
-	projectList := make([]dto.ProjectListItem, 0)
+	projectList := make([]ProjectListItem, 0)
 	for _, project := range projects {
-		projectList = append(projectList, dto.NewProjectListItem(project))
+		projectList = append(projectList, NewProjectListItem(project))
 	}
 	return projectList
 }
 
-func (self projectService) GetProject(projectId string) (dto.ProjectDetails, error) {
+func (self projectService) GetProject(projectId string) (ProjectDetails, error) {
 	project, err := self.repository.GetProject(projectId)
 	if err != nil {
-		return dto.ProjectDetails{}, err
+		return ProjectDetails{}, err
 	}
-	return dto.NewProjectDetails(project), nil
+	return NewProjectDetails(project), nil
 
 }
-func (self projectService) CreateProject(newProject dto.CreateProjectCommand) (dto.ProjectListItem, error) {
+func (self projectService) CreateProject(newProject CreateProjectCommand) (ProjectListItem, error) {
 	projectLifecycle, err := self.repository.GetLifecycle()
 	if err != nil {
 		log.Println(err.Error())
-		return dto.ProjectListItem{}, err
+		return ProjectListItem{}, err
 	}
-	project := domain.NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
+	project := NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
 	stored, err := self.repository.StoreProject(project)
 	if err != nil {
 		log.Println("Could not create Project", err.Error())
-		return dto.ProjectListItem{}, err
+		return ProjectListItem{}, err
 	}
-	return dto.NewProjectListItem(stored), nil
+	return NewProjectListItem(stored), nil
 }
