@@ -23,27 +23,27 @@ func NewProjectHandler(projectService project.IProjectService, fs embed.FS) *pro
 	return &instance
 }
 
-func (self *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 	pagesProjects := routes.Views().Group("/projects")
 	// pagesProjects.Use(auth.SessionAuth)
 	{
-		pagesProjects.GET("/", self.projectsPage)
-		pagesProjects.GET("/new", self.newProject)
-		pagesProjects.POST("/new", self.addProject)
-		pagesProjects.GET("/:issueId", self.projectDetails)
+		pagesProjects.GET("/", handler.projectsPage)
+		pagesProjects.GET("/new", handler.newProject)
+		pagesProjects.POST("/new", handler.addProject)
+		pagesProjects.GET("/:issueId", handler.projectDetails)
 	}
 }
-func (self *projectHandler) ConfigureApiRoutes(routes viewhandlers.Routes) {
+func (handler *projectHandler) ConfigureApiRoutes(routes viewhandlers.Routes) {
 	apiProjects := routes.Apis().Group("/project")
 
-	apiProjects.GET("/", self.getProjects)
-	apiProjects.GET("/:issueId", self.getProject)
-	apiProjects.POST("/add", self.addProjectAPI)
+	apiProjects.GET("/", handler.getProjects)
+	apiProjects.GET("/:issueId", handler.getProject)
+	apiProjects.POST("/add", handler.addProjectAPI)
 
 }
 
-func (self *projectHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, "projects", "public/project/projects.html", viewhandlers.GetLayouts(), self.FileSystem)
-	viewhandlers.AddCompositeView(r, "project_details", "public/project/details.html", viewhandlers.GetLayouts(), self.FileSystem)
+func (handler *projectHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
+	viewhandlers.AddCompositeView(r, "projects", "public/project/projects.html", viewhandlers.GetLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, "project_details", "public/project/details.html", viewhandlers.GetLayouts(), handler.FileSystem)
 	return r
 }

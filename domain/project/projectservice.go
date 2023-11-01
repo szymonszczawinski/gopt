@@ -11,6 +11,7 @@ type IProjectService interface {
 	GetProjects() []ProjectListItem
 	GetProject(projectId string) (ProjectDetails, error)
 	CreateProject(newProject CreateProjectCommand) (ProjectListItem, error)
+	CloseProject(projectId string) (ProjectDetails, error)
 }
 
 type projectService struct {
@@ -61,4 +62,9 @@ func (service projectService) CreateProject(newProject CreateProjectCommand) (Pr
 		return ProjectListItem{}, err
 	}
 	return NewProjectListItem(stored), nil
+}
+
+func (service *projectService) CloseProject(projectId string) (ProjectDetails, error) {
+	//TODO: to implement
+	return ProjectDetails{}, nil
 }
