@@ -30,5 +30,5 @@ func NewAuthRepository(eg *errgroup.Group, ctx context.Context, db storage.IBunD
 	}
 	return instance
 }
-func (self authRepository) StartComponent() {
+func (repo authRepository) StartComponent() {
 }

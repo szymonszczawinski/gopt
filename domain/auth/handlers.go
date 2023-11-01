@@ -2,6 +2,7 @@ package auth
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"gosi/coreapi/viewhandlers"
 	"log"
@@ -19,6 +20,11 @@ const (
 	LoginErrorTemplateName = "login_error"
 )
 
+var (
+	ErrorInvalidSessionToken = errors.New("invalid session token")
+	ErrorFailedSaveSession   = errors.New("faield to save session")
+)
+
 type authHandler struct {
 	viewhandlers.BaseHandler
 	authService IAuthService
@@ -33,32 +39,30 @@ func NewAuthHandler(authService IAuthService, fs embed.FS) *authHandler {
 	}
 	return &instance
 }
-func (self *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
-	routes.Root().GET("login", self.login)
-	routes.Root().POST("login", self.loginSubmit)
-	routes.Root().GET("logout", self.logout)
+func (handler *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+	routes.Root().GET("login", handler.login)
+	routes.Root().POST("login", handler.loginSubmit)
+	routes.Root().GET("logout", handler.logout)
 
 }
 
-func (self *authHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, "login", "public/auth/login.html", viewhandlers.GetSimpleLayouts(), self.FileSystem)
+func (handler *authHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
+	viewhandlers.AddCompositeView(r, "login", "public/auth/login.html", viewhandlers.GetSimpleLayouts(), handler.FileSystem)
 	return r
 }
 
-func (self authHandler) login(c *gin.Context) {
+func (handler authHandler) login(c *gin.Context) {
 	c.HTML(http.StatusOK, "login", gin.H{
 		"title": "LOGIN",
 	})
 }
 
-func (self authHandler) loginSubmit(c *gin.Context) {
-	credentialsData := CredentialsData{
-		password: c.PostForm("username"),
-		username: c.PostForm("password"),
-	}
-	uc, err := self.authService.login(credentialsData)
+func (handler authHandler) loginSubmit(c *gin.Context) {
+	password := c.PostForm("username")
+	username := c.PostForm("password")
+	uc, err := handler.authService.login(username, password)
 	if err != nil {
-		displayLoginError(err, c, self.FileSystem)
+		displayLoginError(err, c, handler.FileSystem)
 		return
 	}
 	log.Println(uc)
@@ -69,16 +73,16 @@ func (self authHandler) loginSubmit(c *gin.Context) {
 	})
 }
 
-func (self authHandler) logout(c *gin.Context) {
+func (handler authHandler) logout(c *gin.Context) {
 	session := sessions.Default(c)
 	user := session.Get(AUTH_KEY)
 	if user == nil {
-		c.HTML(http.StatusBadRequest, "error", gin.H{"error": "Invalid session token"})
+		c.HTML(http.StatusBadRequest, "error", gin.H{"error": ErrorInvalidSessionToken})
 		return
 	}
 	session.Delete(AUTH_KEY)
 	if err := session.Save(); err != nil {
-		c.HTML(http.StatusInternalServerError, "error", gin.H{"error": "Failed to save session"})
+		c.HTML(http.StatusInternalServerError, "error", gin.H{"error": ErrorFailedSaveSession})
 		return
 	}
 	c.Redirect(http.StatusFound, "/gosi")

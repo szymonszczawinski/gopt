@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"gosi/client/config"
-	"gosi/client/connector/http"
+	"gosi/client/connector/http/"
 	"log"
 	"os"
 	"os/signal"

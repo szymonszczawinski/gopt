@@ -10,7 +10,7 @@ import (
 
 type IAuthService interface {
 	service.IComponent
-	login(CredentialsData) (UserCredentials, error)
+	login(username, password string) (AuthCredentials, error)
 }
 
 type authenticationService struct {
@@ -28,10 +28,19 @@ func NewAuthenticationService(eg *errgroup.Group, ctx context.Context, repositor
 	return &instance
 }
 
-func (self *authenticationService) StartComponent() {
+func (service *authenticationService) StartComponent() {
 
 }
 
-func (self authenticationService) login(credentialData CredentialsData) (UserCredentials, error) {
-	return UserCredentials{}, errors.New("Not implemented")
+func (service authenticationService) login(username, pass string) (AuthCredentials, error) {
+	userName, err := NewUserName(username)
+	if err != nil {
+		return AuthCredentials{}, err
+	}
+	password, err := NewPassword(pass)
+	if err != nil {
+		return AuthCredentials{}, err
+	}
+	authCredentials := NewAuthCredentials(userName, password)
+	return authCredentials, errors.New("not implemented")
 }
