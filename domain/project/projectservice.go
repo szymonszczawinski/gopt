@@ -27,12 +27,12 @@ func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProj
 	return instance
 }
 
-func (self *projectService) StartComponent() {
+func (service *projectService) StartComponent() {
 
 }
 
-func (self projectService) GetProjects() []ProjectListItem {
-	projects := self.repository.GetProjects()
+func (service projectService) GetProjects() []ProjectListItem {
+	projects := service.repository.GetProjects()
 	projectList := make([]ProjectListItem, 0)
 	for _, project := range projects {
 		projectList = append(projectList, NewProjectListItem(project))
@@ -40,22 +40,22 @@ func (self projectService) GetProjects() []ProjectListItem {
 	return projectList
 }
 
-func (self projectService) GetProject(projectId string) (ProjectDetails, error) {
-	project, err := self.repository.GetProject(projectId)
+func (service projectService) GetProject(projectId string) (ProjectDetails, error) {
+	project, err := service.repository.GetProject(projectId)
 	if err != nil {
 		return ProjectDetails{}, err
 	}
 	return NewProjectDetails(project), nil
 
 }
-func (self projectService) CreateProject(newProject CreateProjectCommand) (ProjectListItem, error) {
-	projectLifecycle, err := self.repository.GetLifecycle()
+func (service projectService) CreateProject(newProject CreateProjectCommand) (ProjectListItem, error) {
+	projectState, err := service.repository.GetProjectState()
 	if err != nil {
 		log.Println(err.Error())
 		return ProjectListItem{}, err
 	}
-	project := NewProject(newProject.IssueKey, newProject.Name, projectLifecycle)
-	stored, err := self.repository.StoreProject(project)
+	project := NewProject(newProject.IssueKey, newProject.Name, projectState)
+	stored, err := service.repository.StoreProject(project)
 	if err != nil {
 		log.Println("Could not create Project", err.Error())
 		return ProjectListItem{}, err

@@ -65,11 +65,11 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeBunDatabase, databaseConnection)
 
 	log.Println("Starting ISSUE REPOSITORY")
-	issueRepository := project.NewProjectRepository(eg, ctx, databaseConnection)
-	sm.StartComponent(iservice.ComponentTypeProjectRepository, issueRepository)
+	projectRepository := project.NewProjectRepository(eg, ctx, databaseConnection)
+	sm.StartComponent(iservice.ComponentTypeProjectRepository, projectRepository)
 
 	log.Println("Starting ISSUE SERVICE")
-	projetcsService := project.NewProjectService(eg, ctx, issueRepository)
+	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
 	sm.StartComponent(iservice.ComponentTypeProjectService, projetcsService)
 
 	log.Println("Starting AUTH REPOSITORY")
