@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"errors"
+	"gosi/coreapi"
 	"gosi/coreapi/service"
 
 	"golang.org/x/sync/errgroup"
@@ -10,7 +11,7 @@ import (
 
 type IAuthService interface {
 	service.IComponent
-	login(username, password string) (AuthCredentials, error)
+	login(username, password string) coreapi.Result[AuthCredentials]
 }
 
 type authenticationService struct {
@@ -32,15 +33,15 @@ func (service *authenticationService) StartComponent() {
 
 }
 
-func (service authenticationService) login(username, pass string) (AuthCredentials, error) {
+func (service authenticationService) login(username, pass string) coreapi.Result[AuthCredentials] {
 	userName, err := NewUserName(username)
 	if err != nil {
-		return AuthCredentials{}, err
+		return coreapi.NewResult[AuthCredentials](AuthCredentials{}, err)
 	}
 	password, err := NewPassword(pass)
 	if err != nil {
-		return AuthCredentials{}, err
+		return coreapi.NewResult[AuthCredentials](AuthCredentials{}, err)
 	}
 	authCredentials := NewAuthCredentials(userName, password)
-	return authCredentials, errors.New("not implemented")
+	return coreapi.NewResult[AuthCredentials](authCredentials, errors.New("not implemented"))
 }

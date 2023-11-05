@@ -60,12 +60,12 @@ func (handler authHandler) login(c *gin.Context) {
 func (handler authHandler) loginSubmit(c *gin.Context) {
 	password := c.PostForm("username")
 	username := c.PostForm("password")
-	uc, err := handler.authService.login(username, password)
-	if err != nil {
-		displayLoginError(err, c, handler.FileSystem)
+	loginResult := handler.authService.login(username, password)
+	if !loginResult.Sucess() {
+		displayLoginError(loginResult.Error(), c, handler.FileSystem)
 		return
 	}
-	log.Println(uc)
+	log.Println(loginResult.Data())
 	sessionToken := uuid.NewString()
 	c.SetCookie("session_token", sessionToken, 120, "", "gosi", false, true)
 	c.HTML(http.StatusOK, "home", gin.H{
