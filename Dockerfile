@@ -11,7 +11,7 @@
 #BUILD APP
 ############################################################################
 
-FROM golang:1.21.1 as appBuilder
+FROM golang:1.21.3 as appBuilder
 WORKDIR /app/src/gosi/
 COPY . .
 WORKDIR /app/src/gosi/
@@ -30,7 +30,7 @@ WORKDIR /app/josi
 
 #COPY APP
 COPY --from=appBuilder /app/src/gosi/app /app/gosi/app
-COPY --from=appBuilder /app/src/gosi/gosi.db /app/gosi/gosi.db
+#COPY --from=appBuilder /app/src/gosi/gosi.db /app/gosi/gosi.db
 
 WORKDIR /app/gosi
 CMD ["./app"]

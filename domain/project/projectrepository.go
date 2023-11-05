@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"gosi/coreapi"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
 	"log"
@@ -13,9 +14,9 @@ import (
 type IProjectRepository interface {
 	service.IComponent
 	GetProjects() []Project
-	GetProject(projectId string) (Project, error)
-	StoreProject(project Project) (Project, error)
-	UpdateProject(project Project) (Project, error)
+	GetProject(projectId string) coreapi.Result[Project]
+	StoreProject(project Project) coreapi.Result[Project]
+	UpdateProject(project Project) coreapi.Result[Project]
 	GetProjectState() (ProjectState, error)
 }
 
@@ -63,14 +64,14 @@ func (repo *projectRepository) GetProjects() []Project {
 
 }
 
-func (repo projectRepository) GetProject(projectId string) (Project, error) {
+func (repo projectRepository) GetProject(projectId string) coreapi.Result[Project] {
 	repo.lockDb.RLock()
 	defer repo.lockDb.RUnlock()
 
-	return Project{}, nil
+	return coreapi.NewResult[Project](Project{}, nil)
 }
 
-func (repo *projectRepository) StoreProject(project Project) (Project, error) {
+func (repo *projectRepository) StoreProject(project Project) coreapi.Result[Project] {
 	repo.lockDb.Lock()
 	defer repo.lockDb.Unlock()
 	dao := &ProjectRow{
@@ -85,16 +86,16 @@ func (repo *projectRepository) StoreProject(project Project) (Project, error) {
 	res, err := repo.db.NewInsert().Model(dao).Returning("id").Exec(repo.ctx)
 	if err != nil {
 		log.Println("ERROR when insert project", err.Error())
-		return Project{}, err
+		return coreapi.NewResult[Project](Project{}, err)
 	}
 	id, err := res.LastInsertId()
 	log.Println("RES :: ", id, " :: ", err)
-	return Project{}, nil
+	return coreapi.NewResult[Project](Project{}, nil)
 }
 
-func (repo *projectRepository) UpdateProject(p Project) (Project, error) {
+func (repo *projectRepository) UpdateProject(p Project) coreapi.Result[Project] {
 	log.Fatal("Not Implemented")
-	return Project{}, nil
+	return coreapi.NewResult[Project](Project{}, nil)
 }
 
 func (repo *projectRepository) GetProjectState() (ProjectState, error) {

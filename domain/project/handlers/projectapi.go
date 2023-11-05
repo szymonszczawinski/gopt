@@ -16,13 +16,13 @@ func (handler projectHandler) getProjects(c *gin.Context) {
 func (handler projectHandler) getProject(c *gin.Context) {
 	projectId := c.Param("issueId")
 
-	project, err := handler.projectService.GetProject(projectId)
-	if err != nil {
+	result := handler.projectService.GetProject(projectId)
+	if !result.Sucess() {
 		data := make(map[string]string)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error(), "data": data})
 		return
 	}
-	c.JSON(http.StatusOK, gin.H{"data": project, "error": ""})
+	c.JSON(http.StatusOK, gin.H{"data": result.Data(), "error": ""})
 
 }
 
@@ -34,12 +34,12 @@ func (handler projectHandler) addProjectAPI(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
 		return
 	}
-	createdProject, err := handler.projectService.CreateProject(newProject)
-	if err != nil {
+	result := handler.projectService.CreateProject(newProject)
+	if !result.Sucess() {
 		data := make(map[string]string)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error(), "data": data})
 		return
 	}
-	c.IndentedJSON(http.StatusCreated, gin.H{"data": createdProject, "error": ""})
+	c.IndentedJSON(http.StatusCreated, gin.H{"data": result.Data(), "error": ""})
 
 }

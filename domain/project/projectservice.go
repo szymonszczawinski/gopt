@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"gosi/coreapi"
 	"log"
 
 	"golang.org/x/sync/errgroup"
@@ -9,9 +10,9 @@ import (
 
 type IProjectService interface {
 	GetProjects() []ProjectListItem
-	GetProject(projectId string) (ProjectDetails, error)
-	CreateProject(newProject CreateProjectCommand) (ProjectListItem, error)
-	CloseProject(projectId string) (ProjectDetails, error)
+	GetProject(projectId string) coreapi.Result[ProjectDetails]
+	CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectListItem]
+	CloseProject(projectId string) coreapi.Result[ProjectDetails]
 }
 
 type projectService struct {
@@ -41,30 +42,31 @@ func (service projectService) GetProjects() []ProjectListItem {
 	return projectList
 }
 
-func (service projectService) GetProject(projectId string) (ProjectDetails, error) {
-	project, err := service.repository.GetProject(projectId)
-	if err != nil {
-		return ProjectDetails{}, err
+func (service projectService) GetProject(projectId string) coreapi.Result[ProjectDetails] {
+	result := service.repository.GetProject(projectId)
+	if !result.Sucess() {
+		return coreapi.NewResult(ProjectDetails{}, result.Error())
+
 	}
-	return NewProjectDetails(project), nil
+	return coreapi.NewResult(NewProjectDetails(result.Data()), nil)
 
 }
-func (service projectService) CreateProject(newProject CreateProjectCommand) (ProjectListItem, error) {
+func (service projectService) CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectListItem] {
 	projectState, err := service.repository.GetProjectState()
 	if err != nil {
 		log.Println(err.Error())
-		return ProjectListItem{}, err
+		return coreapi.NewResult[ProjectListItem](ProjectListItem{}, err)
 	}
 	project := NewProject(newProject.IssueKey, newProject.Name, projectState)
-	stored, err := service.repository.StoreProject(project)
-	if err != nil {
+	result := service.repository.StoreProject(project)
+	if !result.Sucess() {
 		log.Println("Could not create Project", err.Error())
-		return ProjectListItem{}, err
+		return coreapi.NewResult[ProjectListItem](ProjectListItem{}, result.Error())
 	}
-	return NewProjectListItem(stored), nil
+	return coreapi.NewResult[ProjectListItem](NewProjectListItem(result.Data()), nil)
 }
 
-func (service *projectService) CloseProject(projectId string) (ProjectDetails, error) {
+func (service *projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {
 	//TODO: to implement
-	return ProjectDetails{}, nil
+	return coreapi.NewResult[ProjectDetails](ProjectDetails{}, nil)
 }

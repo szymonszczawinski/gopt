@@ -7,24 +7,23 @@ import (
 	"gosi/domain/auth"
 	"gosi/domain/home"
 	"gosi/domain/project"
+	"strconv"
 
 	"gosi/core/service"
 	iservice "gosi/coreapi/service"
 	project_handlers "gosi/domain/project/handlers"
 
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
-	"plugin"
 	"syscall"
 
 	"golang.org/x/sync/errgroup"
 )
 
 const (
-	HttpServerPort = 8081
+	DefaultHttpServerPort = 8081
 )
 
 var systemStartParameters map[string]any
@@ -32,6 +31,7 @@ var systemStartParameters map[string]any
 func Start(cla map[string]any, staticContent http.StaticContent) {
 	log.Println("START CORE")
 	systemStartParameters = cla
+	log.Panicln("Start Parameters:", systemStartParameters)
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
@@ -64,11 +64,11 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	databaseConnection := bun.NewBunDatabase(eg, ctx)
 	sm.StartComponent(iservice.ComponentTypeBunDatabase, databaseConnection)
 
-	log.Println("Starting ISSUE REPOSITORY")
+	log.Println("Starting PROJECT REPOSITORY")
 	projectRepository := project.NewProjectRepository(eg, ctx, databaseConnection)
 	sm.StartComponent(iservice.ComponentTypeProjectRepository, projectRepository)
 
-	log.Println("Starting ISSUE SERVICE")
+	log.Println("Starting PROJECT SERVICE")
 	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
 	sm.StartComponent(iservice.ComponentTypeProjectService, projetcsService)
 
@@ -84,7 +84,12 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	projectsController := project_handlers.NewProjectHandler(projetcsService, staticContent.PublicDir)
 	authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
 
-	httpServer := http.NewHttpServer(ctx, eg, HttpServerPort, staticContent)
+	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
+	if err != nil {
+		httpPort = DefaultHttpServerPort
+	}
+
+	httpServer := http.NewHttpServer(ctx, eg, httpPort, staticContent)
 	httpServer.AddHandler(homeController)
 	httpServer.AddHandler(projectsController)
 	httpServer.AddHandler(authController)
@@ -96,30 +101,30 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 
 }
 
-func createPluginService(serviceLocation string, serviceName string) iservice.IComponent {
-	plug, err := plugin.Open(serviceLocation)
-	if err != nil {
-		log.Println("Could not load: ", serviceName, "Error: ", err)
-		return nil
-	}
-	createMethod, err := plug.Lookup(iservice.NEW_FUNCTION)
-	if err != nil {
-		log.Println("Could not get New from: ", serviceName)
-		return nil
-	}
-	createFunction, isCreateFunction := createMethod.(func() any)
-	if !isCreateFunction {
-		log.Println(fmt.Sprintf("Not ceate function %T", createMethod))
-		return nil
-	}
-	instance := createFunction()
-	serviceInstance, isInstance := instance.(iservice.IComponent)
-	if !isInstance {
-		log.Println("Instance is not IModService")
-		return nil
-	}
-	return serviceInstance
-}
+// func createPluginService(serviceLocation string, serviceName string) iservice.IComponent {
+// 	plug, err := plugin.Open(serviceLocation)
+// 	if err != nil {
+// 		log.Println("Could not load: ", serviceName, "Error: ", err)
+// 		return nil
+// 	}
+// 	createMethod, err := plug.Lookup(iservice.NEW_FUNCTION)
+// 	if err != nil {
+// 		log.Println("Could not get New from: ", serviceName)
+// 		return nil
+// 	}
+// 	createFunction, isCreateFunction := createMethod.(func() any)
+// 	if !isCreateFunction {
+// 		log.Printf("Not ceate function %T", createMethod)
+// 		return nil
+// 	}
+// 	instance := createFunction()
+// 	serviceInstance, isInstance := instance.(iservice.IComponent)
+// 	if !isInstance {
+// 		log.Println("Instance is not IModService")
+// 		return nil
+// 	}
+// 	return serviceInstance
+// }
 
 func registerShutdownHook(cancel context.CancelFunc) chan os.Signal {
 	sigCh := make(chan os.Signal, 1)

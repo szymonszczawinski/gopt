@@ -32,9 +32,9 @@ func (handler projectHandler) addProject(c *gin.Context) {
 		displayeError2(err, c)
 		return
 	}
-	_, err = handler.projectService.CreateProject(newProject)
-	if err != nil {
-		displayeError(err, newProject, c)
+	result := handler.projectService.CreateProject(newProject)
+	if !result.Sucess() {
+		displayeError(result.Error(), newProject, c)
 		return
 	}
 	log.Println("Project Created")
@@ -44,17 +44,17 @@ func (handler projectHandler) addProject(c *gin.Context) {
 
 func (handler projectHandler) projectDetails(c *gin.Context) {
 	projectId := c.Param("issueId")
-	project, err := handler.projectService.GetProject(projectId)
-	if err != nil {
-		log.Println(err.Error())
+	result := handler.projectService.GetProject(projectId)
+	if !result.Sucess() {
+		log.Println(result.Error())
 		data := make(map[string]string)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error(), "data": data})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error(), "data": data})
 		return
 	}
-	log.Println("PROJECT DETAILS", project)
+	log.Println("PROJECT DETAILS", result.Data())
 	c.HTML(http.StatusOK, "project_details", gin.H{
 		"title": "Project Details",
-		"data":  project, "error": ""})
+		"data":  result.Data(), "error": ""})
 
 }
 
