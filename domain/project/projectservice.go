@@ -52,18 +52,18 @@ func (service projectService) GetProject(projectId string) coreapi.Result[Projec
 
 }
 func (service projectService) CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectListItem] {
-	projectState, err := service.repository.GetProjectState()
-	if err != nil {
-		log.Println(err.Error())
-		return coreapi.NewResult[ProjectListItem](ProjectListItem{}, err)
+	resultState := service.repository.GetProjectState()
+	if !resultState.Sucess() {
+		log.Println(resultState.Error())
+		return coreapi.NewResult[ProjectListItem](ProjectListItem{}, resultState.Error())
 	}
-	project := NewProject(newProject.IssueKey, newProject.Name, projectState)
-	result := service.repository.StoreProject(project)
-	if !result.Sucess() {
-		log.Println("Could not create Project", err.Error())
-		return coreapi.NewResult[ProjectListItem](ProjectListItem{}, result.Error())
+	project := NewProject(newProject.IssueKey, newProject.Name, resultState.Data())
+	resultProject := service.repository.StoreProject(project)
+	if !resultProject.Sucess() {
+		log.Println("Could not create Project", resultProject.Error())
+		return coreapi.NewResult[ProjectListItem](ProjectListItem{}, resultProject.Error())
 	}
-	return coreapi.NewResult[ProjectListItem](NewProjectListItem(result.Data()), nil)
+	return coreapi.NewResult[ProjectListItem](NewProjectListItem(resultProject.Data()), nil)
 }
 
 func (service *projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {

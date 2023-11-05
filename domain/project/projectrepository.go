@@ -17,7 +17,7 @@ type IProjectRepository interface {
 	GetProject(projectId string) coreapi.Result[Project]
 	StoreProject(project Project) coreapi.Result[Project]
 	UpdateProject(project Project) coreapi.Result[Project]
-	GetProjectState() (ProjectState, error)
+	GetProjectState() coreapi.Result[ProjectState]
 }
 
 type projectRepository struct {
@@ -54,10 +54,10 @@ func (repo *projectRepository) GetProjects() []Project {
 		log.Fatal(err)
 	}
 	//TODO: tio implement
-	projectState, _ := repo.GetProjectState()
+	resultState := repo.GetProjectState()
 	for _, row := range projectsRows {
 		projects = append(projects, NewProjectFromRepo(row.Id, row.Created, row.Updated, row.ProjectKey, row.Name,
-			row.Description, projectState))
+			row.Description, resultState.Data()))
 		log.Println(projects)
 	}
 	return projects
@@ -98,7 +98,7 @@ func (repo *projectRepository) UpdateProject(p Project) coreapi.Result[Project] 
 	return coreapi.NewResult[Project](Project{}, nil)
 }
 
-func (repo *projectRepository) GetProjectState() (ProjectState, error) {
+func (repo *projectRepository) GetProjectState() coreapi.Result[ProjectState] {
 	//TODO: to implement
-	return NewProjectState(1, 1, "Open"), nil
+	return coreapi.NewResult[ProjectState](NewProjectState(1, 1, "Open"), nil)
 }
