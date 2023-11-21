@@ -6,8 +6,10 @@ import (
 	"github.com/uptrace/bun"
 )
 
-type RepositoryType int
-type DatabaseDialect string
+type (
+	RepositoryType  int
+	DatabaseDialect string
+)
 
 const (
 	RepositoryTypeMemory    RepositoryType  = 1
@@ -22,4 +24,5 @@ type IBunDatabase interface {
 	service.IComponent
 	NewSelect() *bun.SelectQuery
 	NewInsert() *bun.InsertQuery
+	NewRaw(sql string, args ...interface{}) *bun.RawQuery
 }

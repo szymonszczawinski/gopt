@@ -17,5 +17,8 @@ type ProjectRow struct {
 	StateId       int
 	LifecycleId   int
 	CreatedById   int
+	CreatorName   string
 	OwnerId       int
+	OwnerName     string
+	StateName     string
 }

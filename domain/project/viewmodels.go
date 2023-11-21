@@ -49,7 +49,7 @@ func NewProjectListElement(id int, projectKey, name, projectState, owner string,
 		ProjectKey: projectKey,
 		Name:       name,
 		State:      projectState,
-		Owner:      "",
+		Owner:      owner,
 		Created:    projectCreationTime.Format(DDMMYYYYhhmmss),
 		Updated:    projectLastUpdateTime.Format(DDMMYYYYhhmmss),
 	}

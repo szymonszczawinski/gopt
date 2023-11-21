@@ -3,7 +3,6 @@ package domain
 import (
 	"fmt"
 	"gosi/domain/common/model"
-	"gosi/domain/user"
 	"time"
 )
 
@@ -12,7 +11,20 @@ type Comment struct {
 	model.TimeTracked
 	parentItemId int
 	content      string
-	author       user.User
+	author       CommentAuthor
+}
+
+func NewComment(parentItemId int, content string) Comment {
+	comment := Comment{
+		Entity: model.Entity{},
+		TimeTracked: model.TimeTracked{
+			Created: time.Now(),
+			Updated: time.Now(),
+		},
+		parentItemId: parentItemId,
+		content:      content,
+	}
+	return comment
 }
 
 func (self Comment) GetContent() string {
@@ -27,15 +39,6 @@ func (self Comment) GetParentItemId() int {
 	return self.parentItemId
 }
 
-func NewComment(parentItemId int, content string) Comment {
-	comment := Comment{
-		Entity: model.Entity{},
-		TimeTracked: model.TimeTracked{
-			Created: time.Now(),
-			Updated: time.Now(),
-		},
-		parentItemId: parentItemId,
-		content:      content,
-	}
-	return comment
+type CommentAuthor struct {
+	Name string
 }

@@ -45,12 +45,9 @@ func (service projectService) GetProject(projectId string) coreapi.Result[Projec
 }
 
 func (service projectService) CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectDetails] {
-	resultState := service.repository.GetProjectState()
-	if !resultState.Sucess() {
-		log.Println(resultState.Error())
-		return coreapi.NewResult[ProjectDetails](ProjectDetails{}, resultState.Error())
-	}
-	project := NewProject(newProject.IssueKey, newProject.Name, resultState.Data())
+	newProjectState := NewProjectState(1, 1, "Open")
+	project := NewProject(newProject.IssueKey, newProject.Name, newProjectState)
+
 	resultProject := service.repository.StoreProject(project)
 	if !resultProject.Sucess() {
 		log.Println("Could not create Project", resultProject.Error())

@@ -13,6 +13,7 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
+	"github.com/uptrace/bun/extra/bundebug"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -57,7 +58,10 @@ func (self *bunDatabase) NewSelect() *bun.SelectQuery {
 
 func (self *bunDatabase) NewInsert() *bun.InsertQuery {
 	return self.db.NewInsert()
+}
 
+func (db *bunDatabase) NewRaw(sql string, args ...interface{}) *bun.RawQuery {
+	return db.db.NewRaw(sql, args)
 }
 
 func openDatabase(dialect storage.DatabaseDialect, ctx context.Context) (*bun.DB, error) {
@@ -79,8 +83,12 @@ func mustOpenPostgresDatabase() *bun.DB {
 		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
 	)
 	sqldb := sql.OpenDB(pgconn)
-
-	return bun.NewDB(sqldb, pgdialect.New())
+	bundb := bun.NewDB(sqldb, pgdialect.New())
+	bundb.AddQueryHook(bundebug.NewQueryHook(
+		bundebug.WithVerbose(true),
+		bundebug.FromEnv("BUNDEBUG"),
+	))
+	return bundb
 }
 
 func mustOpenAndInitPostgresDb(ctx context.Context) *bun.DB {

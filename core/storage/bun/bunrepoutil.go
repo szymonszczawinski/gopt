@@ -4,12 +4,16 @@ import (
 	"context"
 	"gosi/domain/lifecycle"
 	"gosi/domain/project"
+	"gosi/domain/user"
 	"log"
 
 	"github.com/uptrace/bun"
 )
 
 func mustInitDatabase(db *bun.DB, ctx context.Context) {
+	if err := initUsers(db, ctx); err != nil {
+		return
+	}
 	if err := initStates(db, ctx); err != nil {
 		return
 	}
@@ -24,6 +28,25 @@ func mustInitDatabase(db *bun.DB, ctx context.Context) {
 	initTransitions(db, ctx)
 }
 
+func initUsers(db *bun.DB, ctx context.Context) error {
+	_, err := db.NewCreateTable().
+		Model((*user.UserRow)(nil)).
+		IfNotExists().
+		Exec(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	user := user.UserRow{Id: 1, FirstName: "Szymon", LastName: "Szczawinski", Email: "szymon.szczawinski@mail.com"}
+	_, err = db.NewInsert().Model(&user).Exec(ctx)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	return nil
+}
+
 func initTransitions(db *bun.DB, ctx context.Context) {
 	_, err := db.NewCreateTable().
 		Model((*lifecycle.StateTransition)(nil)).
@@ -32,7 +55,7 @@ func initTransitions(db *bun.DB, ctx context.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	//Project :: DRAFT -> NEW -> ANALISYS -> DESIGN -> DEV -> CLOSED
+	// Project :: DRAFT -> NEW -> ANALISYS -> DESIGN -> DEV -> CLOSED
 	transitions := []lifecycle.StateTransition{
 		{LifecycleId: 1, FromStateId: 1, ToStateId: 2},
 		{LifecycleId: 1, FromStateId: 2, ToStateId: 4},
@@ -44,7 +67,6 @@ func initTransitions(db *bun.DB, ctx context.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-
 }
 
 func initProjects(db *bun.DB, ctx context.Context) error {
@@ -91,7 +113,6 @@ func initLifecycles(db *bun.DB, ctx context.Context) error {
 		return err
 	}
 	return nil
-
 }
 
 func initStates(db *bun.DB, ctx context.Context) error {

@@ -2,6 +2,7 @@ package project
 
 import (
 	"context"
+	"errors"
 	"gosi/coreapi"
 	"gosi/coreapi/service"
 	"gosi/coreapi/storage"
@@ -11,13 +12,21 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	PROJECTS_SELECT_ALL = "SELECT project_row.*, lifecyclestate.name as state_name, CONCAT(users.last_name,', ',users.first_name) as owner_name " +
+		" FROM project AS project_row " +
+		" JOIN lifecyclestate ON lifecyclestate.id = project_row.state_id" +
+		" JOIN users ON users.id = project_row.owner_id"
+)
+
+var ErrorCouldNotInsertProject = errors.New("could not insert project")
+
 type IProjectRepository interface {
 	service.IComponent
 	GetProjects() coreapi.Result[[]ProjectListElement]
 	GetProject(projectId string) coreapi.Result[Project]
 	StoreProject(project Project) coreapi.Result[Project]
 	UpdateProject(project Project) coreapi.Result[Project]
-	GetProjectState() coreapi.Result[ProjectState]
 }
 
 type projectRepository struct {
@@ -49,18 +58,18 @@ func (repo *projectRepository) GetProjects() coreapi.Result[[]ProjectListElement
 	repo.lockDb.RLock()
 	defer repo.lockDb.RUnlock()
 
-	err := repo.db.NewSelect().Model(&projectsRows).Scan(repo.ctx)
+	err := repo.db.NewRaw(PROJECTS_SELECT_ALL).Scan(repo.ctx, &projectsRows)
 	if err != nil {
 		log.Println(err)
 		return coreapi.NewResult([]ProjectListElement{}, err)
 	}
-	// TODO: to implement
-	resultState := repo.GetProjectState()
 	for _, row := range projectsRows {
 		projects = append(projects,
 			NewProjectListElement(row.Id, row.ProjectKey, row.Name,
-				row.Description, resultState.Data().name, row.Created, row.Updated))
+				row.StateName, row.OwnerName, row.Created, row.Updated))
 	}
+	log.Println("======", projectsRows)
+	log.Println("------", projects)
 	return coreapi.NewResult(projects, nil)
 }
 
@@ -85,8 +94,8 @@ func (repo *projectRepository) StoreProject(project Project) coreapi.Result[Proj
 	}
 	res, err := repo.db.NewInsert().Model(dao).Returning("id").Exec(repo.ctx)
 	if err != nil {
-		log.Println("ERROR when insert project", err.Error())
-		return coreapi.NewResult[Project](Project{}, err)
+		log.Println(errors.Join(ErrorCouldNotInsertProject, err))
+		return coreapi.NewResult[Project](Project{}, errors.Join(ErrorCouldNotInsertProject, err))
 	}
 	id, err := res.LastInsertId()
 	log.Println("RES :: ", id, " :: ", err)
@@ -98,7 +107,7 @@ func (repo *projectRepository) UpdateProject(p Project) coreapi.Result[Project] 
 	return coreapi.NewResult[Project](Project{}, coreapi.ErrorNotImplemented)
 }
 
-func (repo *projectRepository) GetProjectState() coreapi.Result[ProjectState] {
+func (repo *projectRepository) getProjectState() coreapi.Result[ProjectState] {
 	// TODO: to implement GetProjectState
 	return coreapi.NewResult[ProjectState](NewProjectState(1, 1, "Open"), nil)
 }
