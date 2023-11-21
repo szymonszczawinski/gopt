@@ -12,23 +12,7 @@ type Project struct {
 	ProjectKey  string
 	Description string
 	State       ProjectState
-}
-type ProjectState struct {
-	id          int
-	lifecycleId int
-	name        string
-}
-
-func (state ProjectState) String() string {
-	return state.name
-}
-
-func NewProjectState(id, lifecycleId int, name string) ProjectState {
-	return ProjectState{
-		id:          id,
-		lifecycleId: lifecycleId,
-		name:        name,
-	}
+	Items       []ProjectItem
 }
 
 func NewProject(projectKey string, name string, state ProjectState) Project {
@@ -47,7 +31,8 @@ func NewProject(projectKey string, name string, state ProjectState) Project {
 }
 
 func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey, name, description string,
-	state ProjectState) Project {
+	state ProjectState, items []ProjectItem,
+) Project {
 	project := Project{
 		Entity: model.Entity{
 			Id: id,
@@ -60,6 +45,31 @@ func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey
 		ProjectKey:  projectKey,
 		Name:        name,
 		Description: description,
+		Items:       items,
 	}
 	return project
+}
+
+type ProjectState struct {
+	id          int
+	lifecycleId int
+	name        string
+}
+
+func (state ProjectState) String() string {
+	return state.name
+}
+
+func NewProjectState(id, lifecycleId int, name string) ProjectState {
+	return ProjectState{
+		id:          id,
+		lifecycleId: lifecycleId,
+		name:        name,
+	}
+}
+
+type ProjectItem struct {
+	model.Entity
+	Name    string
+	ItemKey string
 }

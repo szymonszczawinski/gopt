@@ -10,12 +10,12 @@ type Entity struct {
 	Id int
 }
 
-func (self Entity) GetId() int {
-	return self.Id
+func (e Entity) GetId() int {
+	return e.Id
 }
 
-func (self *Entity) SetId(id int) {
-	self.Id = id
+func (e *Entity) SetId(id int) {
+	e.Id = id
 }
 
 type TimeTracked struct {
@@ -23,14 +23,14 @@ type TimeTracked struct {
 	Updated time.Time
 }
 
-func (self TimeTracked) GetCreationTime() time.Time {
-	return self.Created
+func (tt TimeTracked) GetCreationTime() time.Time {
+	return tt.Created
 }
 
-func (self TimeTracked) GetLastUpdateTime() time.Time {
-	return self.Updated
+func (tt TimeTracked) GetLastUpdateTime() time.Time {
+	return tt.Updated
 }
 
-func (self *TimeTracked) SetLastUpdateTime(lastUpdated time.Time) {
-	self.Updated = lastUpdated
+func (tt *TimeTracked) SetLastUpdateTime(lastUpdated time.Time) {
+	tt.Updated = lastUpdated
 }

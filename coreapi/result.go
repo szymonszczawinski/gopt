@@ -13,7 +13,7 @@ func NewResult[T any](data T, err error) Result[T] {
 }
 
 func (r Result[T]) Sucess() bool {
-	return r.err != nil
+	return r.err == nil
 }
 
 func (r Result[T]) Error() error {

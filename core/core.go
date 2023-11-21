@@ -1,23 +1,22 @@
 package core
 
 import (
+	"context"
 	"gosi/core/http"
 	"gosi/core/messenger"
+	"gosi/core/service"
 	"gosi/core/storage/bun"
 	"gosi/domain/auth"
 	"gosi/domain/home"
 	"gosi/domain/project"
-	"strconv"
-
-	"gosi/core/service"
-	iservice "gosi/coreapi/service"
-	project_handlers "gosi/domain/project/handlers"
-
-	"context"
 	"log"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
+
+	iservice "gosi/coreapi/service"
+	project_handlers "gosi/domain/project/handlers"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -31,12 +30,12 @@ var systemStartParameters map[string]any
 func Start(cla map[string]any, staticContent http.StaticContent) {
 	log.Println("START CORE")
 	systemStartParameters = cla
-	log.Panicln("Start Parameters:", systemStartParameters)
+	log.Println("Start Parameters:", systemStartParameters)
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
 	service.NewServiceManager(mainGroup, groupContext)
-	//some simple comment
+	// some simple comment
 	startServices(mainGroup, groupContext, staticContent)
 	// time.Sleep(time.Second * 5)
 	if err := mainGroup.Wait(); err == nil {
@@ -98,7 +97,6 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	// log.Println("Starting HTTP SERVER SERVICE")
 	// httpServerService := http.NewHttpServerService(eg, ctx, staticContent)
 	// sm.StartComponent(iservice.ComponentTypeHttpServerService, httpServerService)
-
 }
 
 // func createPluginService(serviceLocation string, serviceName string) iservice.IComponent {
@@ -137,5 +135,4 @@ func registerShutdownHook(cancel context.CancelFunc) chan os.Signal {
 	}()
 
 	return sigCh
-
 }

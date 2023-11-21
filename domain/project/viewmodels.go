@@ -17,7 +17,7 @@ type AddCommentCommand struct {
 	ParentIssueKey string `json:"parrentIssueKey"`
 	Content        string `json:"content"`
 }
-type ProjectListItem struct {
+type ProjectListElement struct {
 	Id         int    `json:"id"`
 	ProjectKey string `json:"projectKey"`
 	Name       string `json:"name"`
@@ -43,17 +43,18 @@ type ProjectComment struct {
 	Content string    `json:"content"`
 }
 
-func NewProjectListItem(project Project) ProjectListItem {
-	return ProjectListItem{
-		Id:         project.GetId(),
-		ProjectKey: project.ProjectKey,
-		Name:       project.Name,
-		State:      project.State.String(),
+func NewProjectListElement(id int, projectKey, name, projectState, owner string, projectCreationTime, projectLastUpdateTime time.Time) ProjectListElement {
+	return ProjectListElement{
+		Id:         id,
+		ProjectKey: projectKey,
+		Name:       name,
+		State:      projectState,
 		Owner:      "",
-		Created:    project.GetCreationTime().Format(DDMMYYYYhhmmss),
-		Updated:    project.GetLastUpdateTime().Format(DDMMYYYYhhmmss),
+		Created:    projectCreationTime.Format(DDMMYYYYhhmmss),
+		Updated:    projectLastUpdateTime.Format(DDMMYYYYhhmmss),
 	}
 }
+
 func NewProjectDetails(project Project) ProjectDetails {
 	projectDetails := ProjectDetails{
 		Id:         project.GetId(),
@@ -66,5 +67,4 @@ func NewProjectDetails(project Project) ProjectDetails {
 	}
 
 	return projectDetails
-
 }

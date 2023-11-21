@@ -13,7 +13,7 @@ import (
 
 type IProjectRepository interface {
 	service.IComponent
-	GetProjects() []Project
+	GetProjects() coreapi.Result[[]ProjectListElement]
 	GetProject(projectId string) coreapi.Result[Project]
 	StoreProject(project Project) coreapi.Result[Project]
 	UpdateProject(project Project) coreapi.Result[Project]
@@ -41,34 +41,34 @@ func NewProjectRepository(eg *errgroup.Group, ctx context.Context, db storage.IB
 func (repo *projectRepository) StartComponent() {
 }
 
-func (repo *projectRepository) GetProjects() []Project {
+func (repo *projectRepository) GetProjects() coreapi.Result[[]ProjectListElement] {
 	var (
 		projectsRows []ProjectRow
-		projects     []Project = []Project{}
+		projects     []ProjectListElement
 	)
 	repo.lockDb.RLock()
 	defer repo.lockDb.RUnlock()
 
 	err := repo.db.NewSelect().Model(&projectsRows).Scan(repo.ctx)
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
+		return coreapi.NewResult([]ProjectListElement{}, err)
 	}
-	//TODO: tio implement
+	// TODO: to implement
 	resultState := repo.GetProjectState()
 	for _, row := range projectsRows {
-		projects = append(projects, NewProjectFromRepo(row.Id, row.Created, row.Updated, row.ProjectKey, row.Name,
-			row.Description, resultState.Data()))
-		log.Println(projects)
+		projects = append(projects,
+			NewProjectListElement(row.Id, row.ProjectKey, row.Name,
+				row.Description, resultState.Data().name, row.Created, row.Updated))
 	}
-	return projects
-
+	return coreapi.NewResult(projects, nil)
 }
 
 func (repo projectRepository) GetProject(projectId string) coreapi.Result[Project] {
 	repo.lockDb.RLock()
 	defer repo.lockDb.RUnlock()
-
-	return coreapi.NewResult[Project](Project{}, nil)
+	// TODO: to implement
+	return coreapi.NewResult[Project](Project{}, coreapi.ErrorNotImplemented)
 }
 
 func (repo *projectRepository) StoreProject(project Project) coreapi.Result[Project] {
@@ -94,11 +94,11 @@ func (repo *projectRepository) StoreProject(project Project) coreapi.Result[Proj
 }
 
 func (repo *projectRepository) UpdateProject(p Project) coreapi.Result[Project] {
-	log.Fatal("Not Implemented")
-	return coreapi.NewResult[Project](Project{}, nil)
+	// TODO: to omplement UpdateProject
+	return coreapi.NewResult[Project](Project{}, coreapi.ErrorNotImplemented)
 }
 
 func (repo *projectRepository) GetProjectState() coreapi.Result[ProjectState] {
-	//TODO: to implement
+	// TODO: to implement GetProjectState
 	return coreapi.NewResult[ProjectState](NewProjectState(1, 1, "Open"), nil)
 }
