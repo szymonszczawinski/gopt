@@ -56,7 +56,6 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 func (s *httpServer) Start() {
 	s.router.HTMLRender = s.renderrer
 	s.group.Go(func() error {
-
 		s.group.Go(func() error {
 			// service connections
 			if err := s.server.ListenAndServe(); err != nil {
@@ -73,6 +72,8 @@ func (s *httpServer) Start() {
 		defer cancel()
 		if err := s.server.Shutdown(ctx); err != nil {
 			log.Fatal("Server Shutdown:", err)
+		} else {
+			log.Println("Server Shutdown OK")
 		}
 		// catching ctx.Done(). timeout of 5 seconds.
 		// select {
@@ -92,7 +93,8 @@ func (s *httpServer) AddHandler(vh viewhandlers.IViewHandler) {
 func createGinRouter(fs embed.FS) *gin.Engine {
 	engine := gin.Default()
 	engine.StaticFS("/public", http.FS(fs))
-	cookieOptions := sessions.Options{Path: "/",
+	cookieOptions := sessions.Options{
+		Path:     "/",
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,
 		Domain:   "",

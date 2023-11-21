@@ -13,7 +13,6 @@ import (
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
 	"github.com/uptrace/bun/driver/pgdriver"
-	"github.com/uptrace/bun/extra/bundebug"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -84,10 +83,10 @@ func mustOpenPostgresDatabase() *bun.DB {
 	)
 	sqldb := sql.OpenDB(pgconn)
 	bundb := bun.NewDB(sqldb, pgdialect.New())
-	bundb.AddQueryHook(bundebug.NewQueryHook(
-		bundebug.WithVerbose(true),
-		bundebug.FromEnv("BUNDEBUG"),
-	))
+	// bundb.AddQueryHook(bundebug.NewQueryHook(
+	// bundebug.WithVerbose(true),
+	// bundebug.FromEnv("BUNDEBUG"),
+	// ))
 	return bundb
 }
 

@@ -51,12 +51,8 @@ func (repo *projectRepository) StartComponent() {
 }
 
 func (repo *projectRepository) GetProjects() coreapi.Result[[]ProjectListElement] {
-	var (
-		projectsRows []ProjectRow
-		projects     []ProjectListElement
-	)
-	repo.lockDb.RLock()
-	defer repo.lockDb.RUnlock()
+	var projectsRows []ProjectRow
+	var projects []ProjectListElement
 
 	err := repo.db.NewRaw(PROJECTS_SELECT_ALL).Scan(repo.ctx, &projectsRows)
 	if err != nil {
@@ -68,14 +64,10 @@ func (repo *projectRepository) GetProjects() coreapi.Result[[]ProjectListElement
 			NewProjectListElement(row.Id, row.ProjectKey, row.Name,
 				row.StateName, row.OwnerName, row.Created, row.Updated))
 	}
-	log.Println("======", projectsRows)
-	log.Println("------", projects)
 	return coreapi.NewResult(projects, nil)
 }
 
 func (repo projectRepository) GetProject(projectId string) coreapi.Result[Project] {
-	repo.lockDb.RLock()
-	defer repo.lockDb.RUnlock()
 	// TODO: to implement
 	return coreapi.NewResult[Project](Project{}, coreapi.ErrorNotImplemented)
 }
