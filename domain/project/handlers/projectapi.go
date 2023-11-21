@@ -14,7 +14,7 @@ func (handler projectHandler) getProjects(c *gin.Context) {
 }
 
 func (handler projectHandler) getProject(c *gin.Context) {
-	projectId := c.Param("issueId")
+	projectId := c.Param("itemId")
 
 	result := handler.projectService.GetProject(projectId)
 	if !result.Sucess() {

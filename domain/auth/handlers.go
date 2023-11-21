@@ -15,12 +15,9 @@ import (
 	"github.com/google/uuid"
 )
 
-const (
-	LoginErrorTemplate     = "public/auth/login_error.html"
-	LoginErrorTemplateName = "login_error"
-)
-
 var (
+	LoginView                = viewhandlers.View{Name: "login", Template: "public/auth/login.html"}
+	LoginErrorView           = viewhandlers.View{Name: "login_error", Template: "public/auth/login.html"}
 	ErrorInvalidSessionToken = errors.New("invalid session token")
 	ErrorFailedSaveSession   = errors.New("faield to save session")
 )
@@ -47,7 +44,7 @@ func (handler *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 }
 
 func (handler *authHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, "login", "public/auth/login.html", viewhandlers.GetSimpleLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, LoginView.Name, LoginView.Template, viewhandlers.GetSimpleLayouts(), handler.FileSystem)
 	return r
 }
 
@@ -91,8 +88,8 @@ func (handler authHandler) logout(c *gin.Context) {
 
 func displayLoginError(err error, c *gin.Context, fs embed.FS) {
 	log.Println("Login Error", err.Error())
-	tmpl := template.Must(template.ParseFS(fs, LoginErrorTemplate))
-	tmplerr := tmpl.ExecuteTemplate(c.Writer, LoginErrorTemplateName, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
+	tmpl := template.Must(template.ParseFS(fs, LoginErrorView.Template))
+	tmplerr := tmpl.ExecuteTemplate(c.Writer, LoginErrorView.Name, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
 	if tmplerr != nil {
 		log.Println("TEMPLATE ERROR: ", tmplerr.Error())
 	}

@@ -13,12 +13,12 @@ import (
 
 func (handler projectHandler) projectsPage(c *gin.Context) {
 	log.Println("PROJECTS PAGE")
-	c.HTML(http.StatusOK, "projects", gin.H{
+	c.HTML(http.StatusOK, ProjectsView.Name, gin.H{
 		"title": "Projects",
 		"data":  handler.projectService.GetProjects(), "error": ""})
 }
 func (handler projectHandler) newProject(c *gin.Context) {
-	c.HTML(http.StatusOK, "projects/newproject.html", gin.H{"title": "Add Project"})
+	c.HTML(http.StatusOK, ProjectNewView.Name, gin.H{"title": "Add Project"})
 }
 
 func (handler projectHandler) addProject(c *gin.Context) {
@@ -43,7 +43,7 @@ func (handler projectHandler) addProject(c *gin.Context) {
 }
 
 func (handler projectHandler) projectDetails(c *gin.Context) {
-	projectId := c.Param("issueId")
+	projectId := c.Param("itemId")
 	result := handler.projectService.GetProject(projectId)
 	if !result.Sucess() {
 		log.Println(result.Error())
@@ -52,7 +52,7 @@ func (handler projectHandler) projectDetails(c *gin.Context) {
 		return
 	}
 	log.Println("PROJECT DETAILS", result.Data())
-	c.HTML(http.StatusOK, "project_details", gin.H{
+	c.HTML(http.StatusOK, ProjectDetailsView.Name, gin.H{
 		"title": "Project Details",
 		"data":  result.Data(), "error": ""})
 
@@ -74,12 +74,12 @@ func validateProject(p project.CreateProjectCommand) error {
 }
 
 func displayeError(err error, p project.CreateProjectCommand, c *gin.Context) {
-	c.HTML(http.StatusBadRequest, "projects/newproject.html",
+	c.HTML(http.StatusBadRequest, ProjectNewView.Name,
 		gin.H{"title": "Add Project", "error": err.Error(), "projectName": p.Name, "projectKey": p.IssueKey})
 
 }
 func displayeError2(err error, c *gin.Context) {
 	log.Println("Could not create a Project: ", err.Error())
-	tmpl := template.Must(template.ParseFiles("public/projects/newproject.html"))
+	tmpl := template.Must(template.ParseFiles(ProjectNewView.Template))
 	tmpl.ExecuteTemplate(c.Writer, "create-project-error", gin.H{"error": fmt.Sprintf("Could not create a project: %v", err.Error())})
 }

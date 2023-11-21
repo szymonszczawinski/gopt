@@ -12,6 +12,10 @@ type Page struct {
 	Template *template.Template
 	Layout   string
 }
+type View struct {
+	Name     string
+	Template string
+}
 
 // Add a new composite AddCompositeView
 // View is composed from given layouts templates and given viewPath that is the template for main content

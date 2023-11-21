@@ -2,8 +2,9 @@ package queue
 
 import (
 	"context"
-	"golang.org/x/sync/errgroup"
 	"log"
+
+	"golang.org/x/sync/errgroup"
 )
 
 type Job struct {
@@ -23,7 +24,11 @@ type jobQueue struct {
 
 func NeqJobQueue(name string, g *errgroup.Group) IJobQueue {
 	log.Println("NewJobQueue::", name)
-	return &jobQueue{jobs: make(chan *Job), g: g, name: name}
+	return &jobQueue{
+		jobs: make(chan *Job),
+		g:    g,
+		name: name,
+	}
 }
 
 // Start starts a dispatcher.

@@ -78,8 +78,8 @@ func mustOpenPostgresDatabase() *bun.DB {
 		pgdriver.WithPassword(os.Getenv("DB_PASS")),
 		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
 	)
-
 	sqldb := sql.OpenDB(pgconn)
+
 	return bun.NewDB(sqldb, pgdialect.New())
 }
 

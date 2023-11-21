@@ -8,6 +8,12 @@ import (
 	"github.com/gin-contrib/multitemplate"
 )
 
+var (
+	ProjectsView       = viewhandlers.View{Name: "projects", Template: "public/project/projects.html"}
+	ProjectDetailsView = viewhandlers.View{Name: "project_details", Template: "public/project/details.html"}
+	ProjectNewView     = viewhandlers.View{Name: "project_new", Template: "public/project/newproject.html"}
+)
+
 type projectHandler struct {
 	viewhandlers.BaseHandler
 	projectService project.IProjectService
@@ -30,20 +36,21 @@ func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 		pagesProjects.GET("/", handler.projectsPage)
 		pagesProjects.GET("/new", handler.newProject)
 		pagesProjects.POST("/new", handler.addProject)
-		pagesProjects.GET("/:issueId", handler.projectDetails)
+		pagesProjects.GET("/:itemId", handler.projectDetails)
 	}
 }
 func (handler *projectHandler) ConfigureApiRoutes(routes viewhandlers.Routes) {
 	apiProjects := routes.Apis().Group("/project")
 
 	apiProjects.GET("/", handler.getProjects)
-	apiProjects.GET("/:issueId", handler.getProject)
+	apiProjects.GET("/:itemId", handler.getProject)
 	apiProjects.POST("/add", handler.addProjectAPI)
 
 }
 
 func (handler *projectHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, "projects", "public/project/projects.html", viewhandlers.GetLayouts(), handler.FileSystem)
-	viewhandlers.AddCompositeView(r, "project_details", "public/project/details.html", viewhandlers.GetLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, ProjectsView.Name, ProjectsView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, ProjectDetailsView.Name, ProjectDetailsView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, ProjectNewView.Name, ProjectNewView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
 	return r
 }

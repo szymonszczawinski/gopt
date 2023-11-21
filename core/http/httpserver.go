@@ -17,10 +17,6 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-const (
-	layoutsDir = "public/layouts"
-)
-
 type StaticContent struct {
 	PublicDir embed.FS
 }
@@ -40,8 +36,7 @@ type httpServer struct {
 }
 
 func NewHttpServer(context context.Context, group *errgroup.Group, port int, staticContent StaticContent) *httpServer {
-	renderrer := multitemplate.NewRenderer()
-	ginRouter := createGinRouter(staticContent.PublicDir, renderrer)
+	ginRouter := createGinRouter(staticContent.PublicDir)
 	routes := configureMainRoutes(ginRouter)
 	instance := httpServer{
 		server: &http.Server{
@@ -50,7 +45,7 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 		},
 		router:     ginRouter,
 		routes:     routes,
-		renderrer:  renderrer,
+		renderrer:  multitemplate.NewRenderer(),
 		fileSystem: staticContent.PublicDir,
 		group:      group,
 		ctx:        context,
@@ -58,37 +53,44 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 	return &instance
 }
 
-func (self *httpServer) Start() {
-	self.router.HTMLRender = self.renderrer
-	self.group.Go(func() error {
+func (s *httpServer) Start() {
+	s.router.HTMLRender = s.renderrer
+	s.group.Go(func() error {
 
-		self.group.Go(func() error {
+		s.group.Go(func() error {
 			// service connections
-			if err := self.server.ListenAndServe(); err != nil {
+			if err := s.server.ListenAndServe(); err != nil {
 				log.Printf("Listen: %s\n", err)
 				return err
 			}
 			return nil
 		})
-		<-self.ctx.Done()
-		ctx, cancel := context.WithTimeout(self.ctx, 5*time.Second)
+		<-s.ctx.Done()
+		// Wait for interrupt signal to gracefully shutdown the server with
+		// a timeout of 5 seconds.
+		ctx, cancel := context.WithTimeout(s.ctx, 5*time.Second)
 		// Listen for the interrupt signal.
 		defer cancel()
-		if err := self.server.Shutdown(ctx); err != nil {
+		if err := s.server.Shutdown(ctx); err != nil {
 			log.Fatal("Server Shutdown:", err)
 		}
+		// catching ctx.Done(). timeout of 5 seconds.
+		// select {
+		// case <-ctx.Done():
+		// 	log.Println("timeout of 5 seconds.")
+		// }
 		log.Println("Server exiting")
 		return nil
 	})
 }
 
-func (self *httpServer) AddHandler(c viewhandlers.IViewHandler) {
-	c.ConfigureRoutes(*self.routes)
-	self.renderrer = c.LoadViews(self.renderrer)
+func (s *httpServer) AddHandler(vh viewhandlers.IViewHandler) {
+	vh.ConfigureRoutes(*s.routes)
+	s.renderrer = vh.LoadViews(s.renderrer)
 }
-func createGinRouter(fs embed.FS, renderrer multitemplate.Renderer) *gin.Engine {
+
+func createGinRouter(fs embed.FS) *gin.Engine {
 	engine := gin.Default()
-	// engine.HTMLRender = loadTemplates(fs, renderrer)
 	engine.StaticFS("/public", http.FS(fs))
 	cookieOptions := sessions.Options{Path: "/",
 		HttpOnly: true,
@@ -111,19 +113,4 @@ func configureMainRoutes(router *gin.Engine) *viewhandlers.Routes {
 	// viewsRoute.Use(auth.SessionAuth)
 	routes := viewhandlers.NewRoutes(rootRoute, viewsRoute, apiRoute)
 	return routes
-}
-
-func root(router *gin.Engine) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		routes := router.Routes()
-		routesMap := map[string]string{}
-
-		log.Println(routes)
-		for _, r := range routes {
-			routesMap[r.Path] = r.Handler
-		}
-		log.Println(routesMap)
-
-		c.String(http.StatusOK, "Welcome GOSI Server\nAvailable Routes:\n%v", routesMap)
-	}
 }

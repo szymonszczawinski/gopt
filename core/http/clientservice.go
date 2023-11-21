@@ -2,7 +2,6 @@ package http
 
 import (
 	"context"
-	"fmt"
 	"gosi/core/messenger"
 	"gosi/core/service"
 	imessenger "gosi/coreapi/messenger"
@@ -49,8 +48,8 @@ func (s *httpClientService) StartComponent() {
 }
 
 func (s *httpClientService) OnPublish(t imessenger.Topic, m imessenger.Message, l imessenger.PublishListener) {
-	log.Println(fmt.Sprintf("Message: %v published on topic: %v", m, t))
+	log.Printf("Message: %v published on topic: %v\n", m, t)
 }
 func (s *httpClientService) OnSubscribe(t imessenger.Topic, listener imessenger.SubscribeListener) {
-	log.Println(fmt.Sprintf("Subscribe request on topic: %v", t))
+	log.Printf("Subscribe request on topic: %v\n", t)
 }

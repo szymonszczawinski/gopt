@@ -9,6 +9,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	HomeView  = viewhandlers.View{Name: "home", Template: "public/home/home.html"}
+	ErrorView = viewhandlers.View{Name: "error", Template: "public/error/error.html"}
+)
+
 type homeHandler struct {
 	viewhandlers.BaseHandler
 }
@@ -22,18 +27,18 @@ func NewHomeHandler(fs embed.FS) *homeHandler {
 	return &instance
 }
 
-func (self *homeHandler) ConfigureRoutes(routes viewhandlers.Routes) {
-	routes.Root().GET("/", self.homePage)
+func (handler *homeHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+	routes.Root().GET("/", handler.homePage)
 }
 
-func (self *homeHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, "home", "public/home/home.html", viewhandlers.GetLayouts(), self.FileSystem)
-	viewhandlers.AddCompositeView(r, "error", "public/error/error.html", viewhandlers.GetLayouts(), self.FileSystem)
+func (handler *homeHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
+	viewhandlers.AddCompositeView(r, HomeView.Name, HomeView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, ErrorView.Name, ErrorView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
 	return r
 }
 
-func (self *homeHandler) homePage(c *gin.Context) {
-	c.HTML(http.StatusOK, "home", gin.H{
+func (handler *homeHandler) homePage(c *gin.Context) {
+	c.HTML(http.StatusOK, HomeView.Name, gin.H{
 		"title": "HOME",
 	})
 }

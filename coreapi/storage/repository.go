@@ -1,20 +1,18 @@
 package storage
 
 import (
-	"github.com/uptrace/bun"
 	"gosi/coreapi/service"
+
+	"github.com/uptrace/bun"
 )
 
 type RepositoryType int
 type DatabaseDialect string
 
 const (
-	RepositoryTypeMemory RepositoryType = 1
-	RepositoryTypeSql    RepositoryType = 2
-	RepositoryTypeBun    RepositoryType = 3
-)
-
-const (
+	RepositoryTypeMemory    RepositoryType  = 1
+	RepositoryTypeSql       RepositoryType  = 2
+	RepositoryTypeBun       RepositoryType  = 3
 	DatabaseDialectSqlite3  DatabaseDialect = "sqlite3"
 	DatabaseDialectMySql    DatabaseDialect = "mysql"
 	DatabaseDialectPostgres DatabaseDialect = "postgres"
