@@ -40,21 +40,18 @@ func (repo projectRepositorySql) GetProjects() coreapi.Result[[]ProjectListEleme
 	}
 	defer rows.Close()
 	projects := []ProjectListElement{}
-	var row ProjectListElement
-	var created, updated time.Time
-	for rows.Next() {
-		err := rows.Scan(&row.Id, &row.ProjectKey, &row.Name, &created, &updated, &row.State, &row.Owner)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		log.Println(row)
+	var row struct {
+		id                             int
+		projectKey, name, state, owner string
+		created, updated               time.Time
 	}
-	// pgx.ForEachRow(rows, []any{&row.Id, &row.ProjectKey, &row.Name, &row.Created, &row.Updated, &row.State, &row.Owner}, func() error {
-	// 	log.Printf("====== ROW: %v\v", row)
-	// 	projects = append(projects, row)
-	// 	return nil
-	// })
+	var created, updated time.Time
+
+	pgx.ForEachRow(rows, []any{&row.id, &row.projectKey, &row.name, &created, &updated, &row.state, &row.owner}, func() error {
+		log.Printf("====== ROW: %v\v", row)
+		projects = append(projects, NewProjectListElement(row.id, row.projectKey, row.name, row.state, row.owner, row.created, row.updated))
+		return nil
+	})
 
 	return coreapi.NewResult(projects, nil)
 }
