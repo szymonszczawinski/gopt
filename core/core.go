@@ -60,7 +60,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 
 	log.Println("Starting DATABASE")
 	// databaseConnection := bun.NewBunDatabase(eg, ctx)
-	databaseConnection := sql.NewSqlDatabase(eg, ctx)
+	databaseConnection := sql.NewPostgresSqlDatabase(eg, ctx)
 	sm.StartComponent(iservice.ComponentTypeSqlDatabase, databaseConnection)
 
 	log.Println("Starting PROJECT REPOSITORY")

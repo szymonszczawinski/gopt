@@ -8,6 +8,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -45,10 +46,8 @@ func (repo projectRepositorySql) GetProjects() coreapi.Result[[]ProjectListEleme
 		projectKey, name, state, owner string
 		created, updated               time.Time
 	}
-	var created, updated time.Time
 
-	pgx.ForEachRow(rows, []any{&row.id, &row.projectKey, &row.name, &created, &updated, &row.state, &row.owner}, func() error {
-		log.Printf("====== ROW: %v\v", row)
+	pgx.ForEachRow(rows, []any{&row.id, &row.projectKey, &row.name, &row.created, &row.updated, &row.state, &row.owner}, func() error {
 		projects = append(projects, NewProjectListElement(row.id, row.projectKey, row.name, row.state, row.owner, row.created, row.updated))
 		return nil
 	})

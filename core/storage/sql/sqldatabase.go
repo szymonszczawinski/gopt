@@ -22,7 +22,7 @@ type postgresDatabase struct {
 	eg     *errgroup.Group
 }
 
-func NewSqlDatabase(eg *errgroup.Group, ctx context.Context) IPostgresDatabase {
+func NewPostgresSqlDatabase(eg *errgroup.Group, ctx context.Context) IPostgresDatabase {
 	return &postgresDatabase{
 		eg:  eg,
 		ctx: ctx,
