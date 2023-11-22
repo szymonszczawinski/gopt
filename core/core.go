@@ -64,7 +64,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeBunDatabase, databaseConnection)
 
 	log.Println("Starting PROJECT REPOSITORY")
-	projectRepository := project.NewProjectRepository(eg, ctx, databaseConnection)
+	projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
 	sm.StartComponent(iservice.ComponentTypeProjectRepository, projectRepository)
 
 	log.Println("Starting PROJECT SERVICE")

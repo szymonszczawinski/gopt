@@ -1,11 +1,5 @@
 package storage
 
-import (
-	"gosi/coreapi/service"
-
-	"github.com/uptrace/bun"
-)
-
 type (
 	RepositoryType  int
 	DatabaseDialect string
@@ -19,10 +13,3 @@ const (
 	DatabaseDialectMySql    DatabaseDialect = "mysql"
 	DatabaseDialectPostgres DatabaseDialect = "postgres"
 )
-
-type IBunDatabase interface {
-	service.IComponent
-	NewSelect() *bun.SelectQuery
-	NewInsert() *bun.InsertQuery
-	NewRaw(sql string, args ...interface{}) *bun.RawQuery
-}
