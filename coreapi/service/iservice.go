@@ -10,6 +10,7 @@ const (
 	ComponentTypeHttpServerService  = "HttpServerService"
 	ComponentTypeHttpClientService  = "HttpClientService"
 	ComponentTypeBunDatabase        = "BunDatabase"
+	ComponentTypeSqlDatabase        = "SqlDatabase"
 	ComponentTypeProjectRepository  = "ProjectRepository"
 	ComponentTypeProjectService     = "ProjectService"
 	ComponentTypeAuthRepository     = "AuthRepository"

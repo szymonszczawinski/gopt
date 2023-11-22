@@ -12,7 +12,3 @@ type IBunDatabase interface {
 	NewInsert() *bun.InsertQuery
 	NewRaw(sql string, args ...interface{}) *bun.RawQuery
 }
-
-type ISqlDatabase interface {
-	service.IComponent
-}

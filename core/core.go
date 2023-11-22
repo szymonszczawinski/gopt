@@ -5,8 +5,7 @@ import (
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/service"
-	"gosi/core/storage/bun"
-	"gosi/domain/auth"
+	"gosi/core/storage/sql"
 	"gosi/domain/home"
 	"gosi/domain/project"
 	"log"
@@ -60,28 +59,30 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeMessenger, messengerService)
 
 	log.Println("Starting DATABASE")
-	databaseConnection := bun.NewBunDatabase(eg, ctx)
-	sm.StartComponent(iservice.ComponentTypeBunDatabase, databaseConnection)
+	// databaseConnection := bun.NewBunDatabase(eg, ctx)
+	databaseConnection := sql.NewSqlDatabase(eg, ctx)
+	sm.StartComponent(iservice.ComponentTypeSqlDatabase, databaseConnection)
 
 	log.Println("Starting PROJECT REPOSITORY")
-	projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
+	// projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
+	projectRepository := project.NewProjectRepositorySql(eg, ctx, databaseConnection)
 	sm.StartComponent(iservice.ComponentTypeProjectRepository, projectRepository)
 
 	log.Println("Starting PROJECT SERVICE")
 	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
 	sm.StartComponent(iservice.ComponentTypeProjectService, projetcsService)
 
-	log.Println("Starting AUTH REPOSITORY")
-	authRepository := auth.NewAuthRepository(eg, ctx, databaseConnection)
-	sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
+	// log.Println("Starting AUTH REPOSITORY")
+	// authRepository := auth.NewAuthRepository(eg, ctx, databaseConnection)
+	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
-	log.Println("Starting AUTH SERVICE")
-	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
-	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
+	// log.Println("Starting AUTH SERVICE")
+	// authService := auth.NewAuthenticationService(eg, ctx, authRepository)
+	// sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
 	homeController := home.NewHomeHandler(staticContent.PublicDir)
 	projectsController := project_handlers.NewProjectHandler(projetcsService, staticContent.PublicDir)
-	authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
+	// authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
@@ -91,7 +92,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	httpServer := http.NewHttpServer(ctx, eg, httpPort, staticContent)
 	httpServer.AddHandler(homeController)
 	httpServer.AddHandler(projectsController)
-	httpServer.AddHandler(authController)
+	// httpServer.AddHandler(authController)
 	httpServer.Start()
 
 	// log.Println("Starting HTTP SERVER SERVICE")

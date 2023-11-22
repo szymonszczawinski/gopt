@@ -21,10 +21,10 @@ type ProjectListElement struct {
 	Id         int    `json:"id"`
 	ProjectKey string `json:"projectKey"`
 	Name       string `json:"name"`
-	State      string `json:"state"`
-	Owner      string `json:"owner"`
 	Created    string `json:"created"`
 	Updated    string `json:"updated"`
+	State      string `json:"state"`
+	Owner      string `json:"owner"`
 }
 
 type ProjectDetails struct {
