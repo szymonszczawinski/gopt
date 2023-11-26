@@ -10,7 +10,7 @@ import (
 
 func (handler projectHandler) getProjects(c *gin.Context) {
 	log.Println("getProjetcs")
-	c.JSON(http.StatusOK, gin.H{"data": handler.projectService.GetProjects(), "error": ""})
+	c.JSON(http.StatusOK, gin.H{"data": handler.readRepo.GetProjects(), "error": ""})
 }
 
 func (handler projectHandler) getProject(c *gin.Context) {
@@ -23,7 +23,6 @@ func (handler projectHandler) getProject(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"data": result.Data(), "error": ""})
-
 }
 
 func (handler projectHandler) addProjectAPI(c *gin.Context) {
@@ -41,5 +40,4 @@ func (handler projectHandler) addProjectAPI(c *gin.Context) {
 		return
 	}
 	c.IndentedJSON(http.StatusCreated, gin.H{"data": result.Data(), "error": ""})
-
 }

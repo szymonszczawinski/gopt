@@ -7,7 +7,6 @@ import (
 	"gosi/coreapi/storage"
 	"log"
 	"sync"
-	"time"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -20,6 +19,7 @@ type projectRepositoryBun struct {
 	ctx context.Context
 }
 
+// Do not use it for now as 10x slower than pure pgx SQL
 func NewProjectRepositoryBun(eg *errgroup.Group, ctx context.Context, db storage.IBunDatabase) *projectRepositoryBun {
 	instance := projectRepositoryBun{
 		lockDb: &sync.RWMutex{},
@@ -33,12 +33,9 @@ func NewProjectRepositoryBun(eg *errgroup.Group, ctx context.Context, db storage
 func (repo *projectRepositoryBun) StartComponent() {
 }
 
-var maxSQLtime int64 = 0
-
 func (repo *projectRepositoryBun) GetProjects() coreapi.Result[[]ProjectListElement] {
 	var projectsRows []ProjectRow
 	var projects []ProjectListElement
-	start := time.Now()
 	err := repo.db.NewRaw(PROJECTS_SELECT_ALL).Scan(repo.ctx, &projectsRows)
 	if err != nil {
 		log.Println(err)
@@ -49,14 +46,6 @@ func (repo *projectRepositoryBun) GetProjects() coreapi.Result[[]ProjectListElem
 			NewProjectListElement(row.Id, row.ProjectKey, row.Name,
 				row.StateName, row.OwnerName, row.Created, row.Updated))
 	}
-	end := time.Now()
-	diff := end.UnixMilli() - start.UnixMilli()
-	log.Println("Sql TIME", diff)
-	if maxSQLtime < diff {
-		maxSQLtime = diff
-	}
-
-	log.Println("MAX SQL", maxSQLtime)
 	return coreapi.NewResult(projects, nil)
 }
 

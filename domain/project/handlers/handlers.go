@@ -17,14 +17,16 @@ var (
 type projectHandler struct {
 	viewhandlers.BaseHandler
 	projectService project.IProjectService
+	readRepo       project.IProjectQueryRepository
 }
 
-func NewProjectHandler(projectService project.IProjectService, fs embed.FS) *projectHandler {
+func NewProjectHandler(projectService project.IProjectService, readRepo project.IProjectQueryRepository, fs embed.FS) *projectHandler {
 	instance := projectHandler{
 		BaseHandler: viewhandlers.BaseHandler{
 			FileSystem: fs,
 		},
 		projectService: projectService,
+		readRepo:       readRepo,
 	}
 	return &instance
 }
@@ -39,13 +41,13 @@ func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 		pagesProjects.GET("/:itemId", handler.projectDetails)
 	}
 }
+
 func (handler *projectHandler) ConfigureApiRoutes(routes viewhandlers.Routes) {
 	apiProjects := routes.Apis().Group("/project")
 
 	apiProjects.GET("/", handler.getProjects)
 	apiProjects.GET("/:itemId", handler.getProject)
 	apiProjects.POST("/add", handler.addProjectAPI)
-
 }
 
 func (handler *projectHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {

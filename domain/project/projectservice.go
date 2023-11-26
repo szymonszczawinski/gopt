@@ -9,7 +9,7 @@ import (
 )
 
 type IProjectService interface {
-	GetProjects() coreapi.Result[[]ProjectListElement]
+	// GetProjects() coreapi.Result[[]ProjectListElement]
 	GetProject(projectId string) coreapi.Result[ProjectDetails]
 	CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectDetails]
 	CloseProject(projectId string) coreapi.Result[ProjectDetails]
@@ -32,9 +32,9 @@ func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProj
 func (service *projectService) StartComponent() {
 }
 
-func (service projectService) GetProjects() coreapi.Result[[]ProjectListElement] {
-	return service.repository.GetProjects()
-}
+// func (service projectService) GetProjects() coreapi.Result[[]ProjectListElement] {
+// 	return service.repository.GetProjects()
+// }
 
 func (service projectService) GetProject(projectId string) coreapi.Result[ProjectDetails] {
 	result := service.repository.GetProject(projectId)

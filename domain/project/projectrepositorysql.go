@@ -42,9 +42,9 @@ func (repo projectRepositorySql) GetProjects() coreapi.Result[[]ProjectListEleme
 	defer rows.Close()
 	projects := []ProjectListElement{}
 	var row struct {
-		id                             int
-		projectKey, name, state, owner string
 		created, updated               time.Time
+		projectKey, name, state, owner string
+		id                             int
 	}
 
 	pgx.ForEachRow(rows, []any{&row.id, &row.projectKey, &row.name, &row.created, &row.updated, &row.state, &row.owner}, func() error {

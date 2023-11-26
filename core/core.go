@@ -81,7 +81,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	// sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
 	homeController := home.NewHomeHandler(staticContent.PublicDir)
-	projectsController := project_handlers.NewProjectHandler(projetcsService, staticContent.PublicDir)
+	projectsController := project_handlers.NewProjectHandler(projetcsService, projectRepository, staticContent.PublicDir)
 	// authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))

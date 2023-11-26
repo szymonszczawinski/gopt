@@ -15,7 +15,7 @@ func (handler projectHandler) projectsPage(c *gin.Context) {
 	log.Println("PROJECTS PAGE")
 	c.HTML(http.StatusOK, ProjectsView.Name, gin.H{
 		"title": "Projects",
-		"data":  handler.projectService.GetProjects().Data(), "error": "",
+		"data":  handler.readRepo.GetProjects().Data(), "error": "",
 	})
 }
 

@@ -2,7 +2,6 @@ package bun
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"gosi/coreapi/service"
@@ -10,9 +9,10 @@ import (
 	"log"
 	"os"
 
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/uptrace/bun"
 	"github.com/uptrace/bun/dialect/pgdialect"
-	"github.com/uptrace/bun/driver/pgdriver"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -22,6 +22,7 @@ type bunDatabase struct {
 	eg  *errgroup.Group
 }
 
+// Do not use it for now as 10x slower than pure pgx SQL
 func NewBunDatabase(eg *errgroup.Group, ctx context.Context) storage.IBunDatabase {
 	instance := new(bunDatabase)
 	instance.ctx = ctx
@@ -74,14 +75,20 @@ func openDatabase(dialect storage.DatabaseDialect, ctx context.Context) (*bun.DB
 func mustOpenPostgresDatabase() *bun.DB {
 	dsn := os.Getenv("DB_URL")
 	log.Println("DSN", dsn)
-	pgconn := pgdriver.NewConnector(
-		pgdriver.WithNetwork("tcp"),
-		pgdriver.WithAddr(os.Getenv("DB_HOST_PORT")),
-		pgdriver.WithUser(os.Getenv("DB_USER")),
-		pgdriver.WithPassword(os.Getenv("DB_PASS")),
-		pgdriver.WithDatabase(os.Getenv("DB_NAME")),
-	)
-	sqldb := sql.OpenDB(pgconn)
+	config, err := pgx.ParseConfig(dsn + "?sslmode=disable")
+	if err != nil {
+		panic(err)
+	}
+	sqldb := stdlib.OpenDB(*config)
+	// config.PreferSimpleProtocol = true
+	// pgconn := pgdriver.NewConnector(
+	// 	pgdriver.WithNetwork("tcp"),
+	// 	pgdriver.WithAddr(os.Getenv("DB_HOST_PORT")),
+	// 	pgdriver.WithUser(os.Getenv("DB_USER")),
+	// 	pgdriver.WithPassword(os.Getenv("DB_PASS")),
+	// 	pgdriver.WithDatabase(os.Getenv("DB_NAME")),
+	// )
+	// sqldb := sql.OpenDB(pgconn)
 	bundb := bun.NewDB(sqldb, pgdialect.New())
 	// bundb.AddQueryHook(bundebug.NewQueryHook(
 	// bundebug.WithVerbose(true),
