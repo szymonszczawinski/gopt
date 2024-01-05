@@ -1,0 +1,104 @@
+package project
+
+import (
+	"gosi/domain/project"
+	"gosi/public/layouts"
+)
+
+templ Projects(projects []project.ProjectListElement) {
+	@layout.PageAll("Projects") {
+		<div>
+			<div class="bg-gray-700 text-white p-4">
+				<a
+					href="/gosi/views/projects/new"
+					class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+				>Add Project</a>
+			</div>
+			<div>
+				<table class="shadow-lg bg-white border-collapse" id="project-list">
+					<tr>
+						<th class="bg-blue-100 border text-left px-8 py-4">ID</th>
+						<th class="bg-blue-100 border text-left px-8 py-4">Name</th>
+						<th class="bg-blue-100 border text-left px-8 py-4">State</th>
+						<th class="bg-blue-100 border text-left px-8 py-4">Owner</th>
+						<th class="bg-blue-100 border text-left px-8 py-4">Created</th>
+						<th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
+					</tr>
+					for _,elem :=range projects {
+						<tr class="hover:bg-gray-50">
+							<td class="border px-8 py-4"><a href={ templ.URL("/gosi/views/projects/" + elem.ProjectKey) } class="text-blue-600">{ elem.ProjectKey }</a></td>
+							<td class="border px-8 py-4">{ elem.Name }</td>
+							<td class="border px-8 py-4">{ elem.State }</td>
+							<td class="border px-8 py-4">{ elem.Owner }</td>
+							<td class="border px-8 py-4">{ elem.Created }</td>
+							<td class="border px-8 py-4">{ elem.Updated }</td>
+						</tr>
+					}
+				</table>
+			</div>
+		</div>
+	}
+}
+
+templ ProjectDetails(p project.ProjectDetails) {
+	@layout.PageAll("Project Details") {
+		<div>
+			p
+		</div>
+	}
+}
+
+templ NewProject() {
+	@layout.PageAll("Add Project 2") {
+		@NewProjectForm()
+		@ProjectAddError("")
+	}
+}
+
+templ NewProjectForm() {
+	<div>
+		<form hx-post="/gosi/views/projects/new" hx-target="#error-message">
+			<div>
+				<label
+					for="project-name"
+					class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
+				>Project Name</label>
+				<input
+					type="text"
+					name="project-name"
+					id="project-name"
+					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+					value=""
+				/>
+			</div>
+			<div>
+				<label
+					for="project-key"
+					class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
+				>Project Key</label>
+				<input
+					type="text"
+					name="project-key"
+					id="project-key"
+					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+					value=""
+				/>
+			</div>
+			<div>
+				<button
+					type="submit"
+					class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2"
+				>
+					SAVE
+				</button>
+			</div>
+		</form>
+	</div>
+}
+
+templ ProjectAddError(message string) {
+	<label
+		id="error-message"
+		class="block mb-2 text-sm font-medium text-rose-900"
+	>{ message }</label>
+}

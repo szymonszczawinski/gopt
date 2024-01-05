@@ -3,7 +3,6 @@ package viewhandlers
 import (
 	"embed"
 
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,29 +13,30 @@ type Routes struct {
 }
 
 func NewRoutes(root, views, apis *gin.RouterGroup) *Routes {
-	return &Routes{root: root,
+	return &Routes{
+		root:  root,
 		views: views,
-		apis:  apis}
+		apis:  apis,
+	}
 }
 
-func (self Routes) Root() *gin.RouterGroup {
-	return self.root
+func (r Routes) Root() *gin.RouterGroup {
+	return r.root
 }
 
-func (self Routes) Views() *gin.RouterGroup {
-	return self.views
+func (r Routes) Views() *gin.RouterGroup {
+	return r.views
 }
 
-func (self Routes) Apis() *gin.RouterGroup {
-	return self.apis
+func (r Routes) Apis() *gin.RouterGroup {
+	return r.apis
 }
 
 type Action func(c *gin.Context)
 
 type IViewHandler interface {
-	Perform(a Action) gin.HandlerFunc
+	// Perform(a Action) gin.HandlerFunc
 	ConfigureRoutes(routes Routes)
-	LoadViews(r multitemplate.Renderer) multitemplate.Renderer
 }
 
 type ApiHandler interface {
@@ -47,7 +47,7 @@ type BaseHandler struct {
 	FileSystem embed.FS
 }
 
-func (self *BaseHandler) Perform(a Action) gin.HandlerFunc {
+func (h *BaseHandler) Perform(a Action) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		a(c)
 	}

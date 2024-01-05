@@ -1,0 +1,11 @@
+package errors
+
+import "gosi/public/layouts"
+
+templ Error(message string) {
+	@layout.PageAll("ERROR") {
+		<p class="text-center text-xl font-medium">
+			ERROR: <label class="font-medium text-red-900">{ message }</label>
+		</p>
+	}
+}

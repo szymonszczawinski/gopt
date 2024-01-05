@@ -1,44 +1,29 @@
 package home
 
 import (
-	"embed"
 	"gosi/coreapi/viewhandlers"
-	"net/http"
+	errors "gosi/public/error"
+	"gosi/public/home"
 
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 )
 
-var (
-	HomeView  = viewhandlers.View{Name: "home", Template: "public/home/home.html"}
-	ErrorView = viewhandlers.View{Name: "error", Template: "public/error/error.html"}
-)
+type homeHandler struct{}
 
-type homeHandler struct {
-	viewhandlers.BaseHandler
-}
-
-func NewHomeHandler(fs embed.FS) *homeHandler {
-	instance := homeHandler{
-		BaseHandler: viewhandlers.BaseHandler{
-			FileSystem: fs,
-		},
-	}
+func NewHomeHandler() *homeHandler {
+	instance := homeHandler{}
 	return &instance
 }
 
 func (handler *homeHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 	routes.Root().GET("/", handler.homePage)
-}
-
-func (handler *homeHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, HomeView.Name, HomeView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
-	viewhandlers.AddCompositeView(r, ErrorView.Name, ErrorView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
-	return r
+	routes.Root().GET("/error", handler.errorPage)
 }
 
 func (handler *homeHandler) homePage(c *gin.Context) {
-	c.HTML(http.StatusOK, HomeView.Name, gin.H{
-		"title": "HOME",
-	})
+	home.Home().Render(c.Request.Context(), c.Writer)
+}
+
+func (handler *homeHandler) errorPage(c *gin.Context) {
+	errors.Error("SUPER ERROR").Render(c.Request.Context(), c.Writer)
 }

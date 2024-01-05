@@ -1,30 +1,19 @@
 package handlers
 
 import (
-	"embed"
 	"gosi/coreapi/viewhandlers"
 	"gosi/domain/project"
 
 	"github.com/gin-contrib/multitemplate"
 )
 
-var (
-	ProjectsView       = viewhandlers.View{Name: "projects", Template: "public/project/projects.html"}
-	ProjectDetailsView = viewhandlers.View{Name: "project_details", Template: "public/project/details.html"}
-	ProjectNewView     = viewhandlers.View{Name: "project_new", Template: "public/project/newproject.html"}
-)
-
 type projectHandler struct {
-	viewhandlers.BaseHandler
 	projectService project.IProjectService
 	readRepo       project.IProjectQueryRepository
 }
 
-func NewProjectHandler(projectService project.IProjectService, readRepo project.IProjectQueryRepository, fs embed.FS) *projectHandler {
+func NewProjectHandler(projectService project.IProjectService, readRepo project.IProjectQueryRepository) *projectHandler {
 	instance := projectHandler{
-		BaseHandler: viewhandlers.BaseHandler{
-			FileSystem: fs,
-		},
 		projectService: projectService,
 		readRepo:       readRepo,
 	}
@@ -51,8 +40,5 @@ func (handler *projectHandler) ConfigureApiRoutes(routes viewhandlers.Routes) {
 }
 
 func (handler *projectHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, ProjectsView.Name, ProjectsView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
-	viewhandlers.AddCompositeView(r, ProjectDetailsView.Name, ProjectDetailsView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
-	viewhandlers.AddCompositeView(r, ProjectNewView.Name, ProjectNewView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
 	return r
 }

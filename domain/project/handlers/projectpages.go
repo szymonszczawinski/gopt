@@ -2,41 +2,38 @@ package handlers
 
 import (
 	"errors"
-	"fmt"
 	"gosi/domain/project"
 	"log"
-	"net/http"
-	"text/template"
+
+	view_errors "gosi/public/error"
+	view_project "gosi/public/project"
 
 	"github.com/gin-gonic/gin"
 )
 
-func (handler projectHandler) projectsPage(c *gin.Context) {
+func (h projectHandler) projectsPage(c *gin.Context) {
 	log.Println("PROJECTS PAGE")
-	c.HTML(http.StatusOK, ProjectsView.Name, gin.H{
-		"title": "Projects",
-		"data":  handler.readRepo.GetProjects().Data(), "error": "",
-	})
+	view_project.Projects(h.readRepo.GetProjects().Data()).Render(c.Request.Context(), c.Writer)
 }
 
-func (handler projectHandler) newProject(c *gin.Context) {
-	c.HTML(http.StatusOK, ProjectNewView.Name, gin.H{"title": "Add Project"})
+func (h projectHandler) newProject(c *gin.Context) {
+	view_project.NewProject().Render(c.Request.Context(), c.Writer)
 }
 
-func (handler projectHandler) addProject(c *gin.Context) {
+func (h projectHandler) addProject(c *gin.Context) {
 	log.Println("addProject")
-	newProject := project.CreateProjectCommand{
+	command := project.CreateProjectCommand{
 		IssueKey: c.PostForm("project-key"),
 		Name:     c.PostForm("project-name"),
 	}
-	err := validateProject(newProject)
+	err := validateProject(command)
 	if err != nil {
-		displayeError2(err, c)
+		view_project.ProjectAddError(err.Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
-	result := handler.projectService.CreateProject(newProject)
+	result := h.projectService.CreateProject(command)
 	if !result.Sucess() {
-		displayeError(result.Error(), newProject, c)
+		view_project.ProjectAddError(result.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
 	log.Println("Project Created")
@@ -44,28 +41,24 @@ func (handler projectHandler) addProject(c *gin.Context) {
 	// c.Redirect(http.StatusFound, "/gosi/projects")
 }
 
-func (handler projectHandler) projectDetails(c *gin.Context) {
+func (h projectHandler) projectDetails(c *gin.Context) {
 	projectId := c.Param("itemId")
-	result := handler.projectService.GetProject(projectId)
+	result := h.projectService.GetProject(projectId)
 	if !result.Sucess() {
 		log.Println("EEEEEEE", result.Error())
-		data := make(map[string]string)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error().Error(), "data": data})
+		view_errors.Error(result.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
 	log.Println("PROJECT DETAILS", result.Data())
-	c.HTML(http.StatusOK, ProjectDetailsView.Name, gin.H{
-		"title": "Project Details",
-		"data":  result.Data(), "error": "",
-	})
+	view_project.ProjectDetails(result.Data()).Render(c.Request.Context(), c.Writer)
 }
 
-func validateProject(p project.CreateProjectCommand) error {
+func validateProject(command project.CreateProjectCommand) error {
 	var result string
-	if len(p.Name) == 0 {
+	if len(command.Name) == 0 {
 		result = "Name must not be empty.\n"
 	}
-	if len(p.IssueKey) == 0 {
+	if len(command.IssueKey) == 0 {
 		result += "Key must not be empty"
 	}
 	if len(result) != 0 {
@@ -73,15 +66,4 @@ func validateProject(p project.CreateProjectCommand) error {
 	} else {
 		return nil
 	}
-}
-
-func displayeError(err error, p project.CreateProjectCommand, c *gin.Context) {
-	c.HTML(http.StatusBadRequest, ProjectNewView.Name,
-		gin.H{"title": "Add Project", "error": err.Error(), "projectName": p.Name, "projectKey": p.IssueKey})
-}
-
-func displayeError2(err error, c *gin.Context) {
-	log.Println("Could not create a Project: ", err.Error())
-	tmpl := template.Must(template.ParseFiles(ProjectNewView.Template))
-	tmpl.ExecuteTemplate(c.Writer, "create-project-error", gin.H{"error": fmt.Sprintf("Could not create a project: %v", err.Error())})
 }

@@ -87,7 +87,6 @@ func (s *httpServer) Start() {
 
 func (s *httpServer) AddHandler(vh viewhandlers.IViewHandler) {
 	vh.ConfigureRoutes(*s.routes)
-	s.renderrer = vh.LoadViews(s.renderrer)
 }
 
 func createGinRouter(fs embed.FS) *gin.Engine {
