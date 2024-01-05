@@ -322,7 +322,7 @@ func NewProjectForm() templ.Component {
 			templ_7745c5c3_Var22 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><form hx-post=\"/gosi/views/projects/new\" hx-target=\"#error-message\"><div><label for=\"project-name\" class=\"block mb-2 text-sm font-medium text-gray-900 mx-2 my-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><form hx-post=\"/gosi/views/projects/new\" hx-target=\"#project-add-error-pane\"><div><label for=\"project-name\" class=\"block mb-2 text-sm font-medium text-gray-900 mx-2 my-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -349,7 +349,15 @@ func NewProjectForm() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></div></form></div>")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</button></div></form></div><div id=\"project-add-error-pane\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = ProjectAddError("").Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("</div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -373,14 +381,14 @@ func ProjectAddError(message string) templ.Component {
 			templ_7745c5c3_Var26 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label id=\"error-message\" class=\"block mb-2 text-sm font-medium text-rose-900\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<label id=\"error-mess:wageage\" class=\"block mb-2 text-sm font-medium text-rose-900\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var27 string
 		templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(message)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `public/project/projects.templ`, Line: 102, Col: 11}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `public/project/projects.templ`, Line: 105, Col: 11}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
 		if templ_7745c5c3_Err != nil {

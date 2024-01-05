@@ -57,7 +57,7 @@ templ NewProject() {
 
 templ NewProjectForm() {
 	<div>
-		<form hx-post="/gosi/views/projects/new" hx-target="#error-message">
+		<form hx-post="/gosi/views/projects/new" hx-target="#project-add-error-pane">
 			<div>
 				<label
 					for="project-name"
@@ -94,11 +94,14 @@ templ NewProjectForm() {
 			</div>
 		</form>
 	</div>
+	<div id="project-add-error-pane">
+		@ProjectAddError("")
+	</div>
 }
 
 templ ProjectAddError(message string) {
 	<label
-		id="error-message"
+		id="error-mess:wageage"
 		class="block mb-2 text-sm font-medium text-rose-900"
 	>{ message }</label>
 }

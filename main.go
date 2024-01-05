@@ -11,13 +11,14 @@ import (
 	"github.com/joho/godotenv"
 )
 
-//go:embed public/* static/*
+//go:embed static/*
 var publicDir embed.FS
 
 func init() {
 	godotenv.Load()
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
 }
+
 func main() {
 	log.Println("GOSI :: START")
 	staticContent := http.StaticContent{

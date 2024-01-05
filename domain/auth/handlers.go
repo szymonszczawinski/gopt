@@ -1,65 +1,50 @@
 package auth
 
 import (
-	"embed"
 	"errors"
-	"fmt"
 	"gosi/coreapi/viewhandlers"
+	"gosi/public/auth"
 	"log"
 	"net/http"
-	"text/template"
 
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 var (
-	LoginView                = viewhandlers.View{Name: "login", Template: "public/auth/login.html"}
-	LoginErrorView           = viewhandlers.View{Name: "login_error", Template: "public/auth/login.html"}
 	ErrorInvalidSessionToken = errors.New("invalid session token")
 	ErrorFailedSaveSession   = errors.New("faield to save session")
 )
 
 type authHandler struct {
-	viewhandlers.BaseHandler
 	authService IAuthService
 }
 
-func NewAuthHandler(authService IAuthService, fs embed.FS) *authHandler {
+func NewAuthHandler(authService IAuthService) *authHandler {
 	instance := authHandler{
-		BaseHandler: viewhandlers.BaseHandler{
-			FileSystem: fs,
-		},
 		authService: authService,
 	}
 	return &instance
 }
+
 func (handler *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 	routes.Root().GET("login", handler.login)
 	routes.Root().POST("login", handler.loginSubmit)
 	routes.Root().GET("logout", handler.logout)
-
-}
-
-func (handler *authHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, LoginView.Name, LoginView.Template, viewhandlers.GetSimpleLayouts(), handler.FileSystem)
-	return r
 }
 
 func (handler authHandler) login(c *gin.Context) {
-	c.HTML(http.StatusOK, "login", gin.H{
-		"title": "LOGIN",
-	})
+	auth.Login().Render(c.Request.Context(), c.Writer)
 }
 
 func (handler authHandler) loginSubmit(c *gin.Context) {
+	log.Println("login submit")
 	password := c.PostForm("username")
 	username := c.PostForm("password")
 	loginResult := handler.authService.login(username, password)
 	if !loginResult.Sucess() {
-		displayLoginError(loginResult.Error(), c, handler.FileSystem)
+		auth.LoginError(loginResult.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
 	log.Println(loginResult.Data())
@@ -84,13 +69,4 @@ func (handler authHandler) logout(c *gin.Context) {
 	}
 	c.Redirect(http.StatusFound, "/gosi")
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
-}
-
-func displayLoginError(err error, c *gin.Context, fs embed.FS) {
-	log.Println("Login Error", err.Error())
-	tmpl := template.Must(template.ParseFS(fs, LoginErrorView.Template))
-	tmplerr := tmpl.ExecuteTemplate(c.Writer, LoginErrorView.Name, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
-	if tmplerr != nil {
-		log.Println("TEMPLATE ERROR: ", tmplerr.Error())
-	}
 }
