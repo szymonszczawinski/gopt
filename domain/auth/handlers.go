@@ -5,9 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"gosi/coreapi/viewhandlers"
+	"html/template"
 	"log"
 	"net/http"
-	"text/template"
 
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-contrib/sessions"
@@ -17,7 +17,7 @@ import (
 
 var (
 	LoginView                = viewhandlers.View{Name: "login", Template: "public/auth/login.html"}
-	LoginErrorView           = viewhandlers.View{Name: "login_error", Template: "public/auth/login.html"}
+	LoginErrorView           = viewhandlers.View{Name: "login_error", Template: "public/auth/login_error.html"}
 	ErrorInvalidSessionToken = errors.New("invalid session token")
 	ErrorFailedSaveSession   = errors.New("faield to save session")
 )
@@ -36,21 +36,22 @@ func NewAuthHandler(authService IAuthService, fs embed.FS) *authHandler {
 	}
 	return &instance
 }
+
 func (handler *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 	routes.Root().GET("login", handler.login)
 	routes.Root().POST("login", handler.loginSubmit)
 	routes.Root().GET("logout", handler.logout)
-
 }
 
 func (handler *authHandler) LoadViews(r multitemplate.Renderer) multitemplate.Renderer {
-	viewhandlers.AddCompositeView(r, LoginView.Name, LoginView.Template, viewhandlers.GetSimpleLayouts(), handler.FileSystem)
+	viewhandlers.AddCompositeView(r, LoginView.Name, LoginView.Template, viewhandlers.GetLayouts(), handler.FileSystem)
+	viewhandlers.AddSimpleView(r, LoginErrorView.Name, LoginErrorView.Template, handler.FileSystem)
 	return r
 }
 
 func (handler authHandler) login(c *gin.Context) {
-	c.HTML(http.StatusOK, "login", gin.H{
-		"title": "LOGIN",
+	c.HTML(http.StatusOK, LoginView.Name, gin.H{
+		"title": "LOGIN 2",
 	})
 }
 
@@ -88,6 +89,8 @@ func (handler authHandler) logout(c *gin.Context) {
 
 func displayLoginError(err error, c *gin.Context, fs embed.FS) {
 	log.Println("Login Error", err.Error())
+	// c.HTML(http.StatusOK, LoginErrorView.Name, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
+
 	tmpl := template.Must(template.ParseFS(fs, LoginErrorView.Template))
 	tmplerr := tmpl.ExecuteTemplate(c.Writer, LoginErrorView.Name, gin.H{"error": fmt.Sprintf("Login ERROR: %v", err.Error())})
 	if tmplerr != nil {

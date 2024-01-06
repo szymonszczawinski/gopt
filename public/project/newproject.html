@@ -1,54 +1,34 @@
 {{ define "content" }}
 <div>
-  <div>
-    <form hx-post="/gosi/projects/new" hx-target="#error-message">
-      <div>
-        <label
-          for="project-name"
-          class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
-          >Project Name</label
-        >
-        <input
-          type="text"
-          name="project-name"
-          id="project-name"
-          class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-          value="{{.projectName}}"
-        />
-      </div>
-      <div>
-        <label
-          for="project-key"
-          class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
-          >Project Key</label
-        >
-        <input
-          type="text"
-          name="project-key"
-          id="project-key"
-          class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-          value="{{.projectKey}}"
-        />
-      </div>
-      <div>
-        <button
-          type="submit"
-          class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2"
-        >
-          SAVE
-        </button>
-      </div>
-    </form>
-  </div>
-  <div>
-    {{ block "create-project-error" .}}
-    <label
-      id="error-message"
-      class="block mb-2 text-sm font-medium text-red-900"
-      >{{ .error }}</label
-    >
-    {{end}}
-  </div>
+    <div>
+        <form hx-post="/gosi/views/projects/new" hx-target="#project-add-error-pane">
+            <div>
+                <label for="project-name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project
+                    Name</label>
+                <input type="text" name="project-name" id="project-name"
+                    class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+                    value="{{.projectName}}" />
+            </div>
+            <div>
+                <label for="project-key" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project
+                    Key</label>
+                <input type="text" name="project-key" id="project-key"
+                    class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+                    value="{{.projectKey}}" />
+            </div>
+            <div>
+                <button type="submit"
+                    class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2">
+                    SAVE
+                </button>
+            </div>
+        </form>
+    </div>
+    <div id="project-add-error-pane">
+        {{ block "create-project-error" .}}
+        <label id="error-message" class="block mb-2 text-sm font-medium text-red-900">{{ .error }}</label>
+        {{end}}
+    </div>
 </div>
 
 {{end}}

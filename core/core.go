@@ -6,6 +6,7 @@ import (
 	"gosi/core/messenger"
 	"gosi/core/service"
 	"gosi/core/storage/sql"
+	"gosi/domain/auth"
 	"gosi/domain/home"
 	"gosi/domain/project"
 	"log"
@@ -72,17 +73,17 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
 	sm.StartComponent(iservice.ComponentTypeProjectService, projetcsService)
 
-	// log.Println("Starting AUTH REPOSITORY")
-	// authRepository := auth.NewAuthRepository(eg, ctx, databaseConnection)
-	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
+	log.Println("Starting AUTH REPOSITORY")
+	authRepository := auth.NewAuthRepository(eg, ctx, databaseConnection)
+	sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
-	// log.Println("Starting AUTH SERVICE")
-	// authService := auth.NewAuthenticationService(eg, ctx, authRepository)
-	// sm.StartComponent(iservice.ComponentTypeAuthService, authService)
+	log.Println("Starting AUTH SERVICE")
+	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
+	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
 
 	homeController := home.NewHomeHandler(staticContent.PublicDir)
 	projectsController := project_handlers.NewProjectHandler(projetcsService, projectRepository, staticContent.PublicDir)
-	// authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
+	authController := auth.NewAuthHandler(authService, staticContent.PublicDir)
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
@@ -92,7 +93,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	httpServer := http.NewHttpServer(ctx, eg, httpPort, staticContent)
 	httpServer.AddHandler(homeController)
 	httpServer.AddHandler(projectsController)
-	// httpServer.AddHandler(authController)
+	httpServer.AddHandler(authController)
 	httpServer.Start()
 
 	// log.Println("Starting HTTP SERVER SERVICE")

@@ -21,7 +21,6 @@ type View struct {
 // View is composed from given layouts templates and given viewPath that is the template for main content
 // View is registerred with the 'name'
 func AddCompositeView(r multitemplate.Renderer, name string, viewPath string, layouts []string, fs embed.FS) multitemplate.Renderer {
-
 	layouts = append(layouts, viewPath)
 	tmpl, _ := template.ParseFS(fs, layouts...)
 	log.Println("AddCompositeView", name, viewPath, tmpl, layouts)
@@ -31,6 +30,7 @@ func AddCompositeView(r multitemplate.Renderer, name string, viewPath string, la
 
 func AddSimpleView(r multitemplate.Renderer, name string, path string, fs embed.FS) multitemplate.Renderer {
 	tmpl, _ := template.ParseFS(fs, path)
+	log.Println("AddSimpleView", name, path, tmpl)
 	r.Add(name, tmpl)
 	return r
 }
@@ -49,15 +49,17 @@ func AddSimpleView(r multitemplate.Renderer, name string, path string, fs embed.
 //	|       FOOTER       |
 //	______________________
 func GetLayouts() []string {
-	layouts := []string{"public/layouts/base.html",
+	layouts := []string{
+		"public/layouts/base.html",
 		"public/fragments/head.html",
 		"public/fragments/header.html",
 		"public/fragments/footer.html",
-		"public/fragments/nav.html"}
+		"public/fragments/nav.html",
+	}
 	return layouts
 }
 
-//Get simple layout of application.
+// Get simple layout of application.
 //  ----------------------
 //  |        HEADER      |
 //  ----------------------
@@ -69,9 +71,11 @@ func GetLayouts() []string {
 //  ----------------------
 
 func GetSimpleLayouts() []string {
-	layouts := []string{"public/layouts/basesimple.html",
+	layouts := []string{
+		"public/layouts/basesimple.html",
 		"public/fragments/head.html",
 		"public/fragments/header.html",
-		"public/fragments/footer.html"}
+		"public/fragments/footer.html",
+	}
 	return layouts
 }
