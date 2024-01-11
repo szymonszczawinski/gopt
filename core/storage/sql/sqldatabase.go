@@ -3,7 +3,10 @@ package sql
 import (
 	"context"
 	"fmt"
+	"gosi/core/config"
 	"gosi/coreapi/service"
+	"gosi/coreapi/storage/sql/query"
+	"gosi/coreapi/storage/sql/schema"
 	"log"
 	"os"
 
@@ -36,6 +39,10 @@ func (db *postgresDatabase) Close() {
 func (db *postgresDatabase) StartComponent() {
 	log.Println("Starting", service.ComponentTypeSqlDatabase)
 	db.dbpool = openDatabase(db.ctx)
+	if config.GetSystemConfig(config.INIT_DB) == config.INIT_DB_TRUE {
+		mustInitDatabase(db)
+	}
+	mustHealthCheck(db.dbpool, db.ctx)
 }
 
 func (db *postgresDatabase) NewSelect(sql string, args ...any) (pgx.Rows, error) {
@@ -55,4 +62,30 @@ func openDatabase(ctx context.Context) *pgxpool.Pool {
 		os.Exit(1)
 	}
 	return dbpool
+}
+
+func mustInitDatabase(db *postgresDatabase) {
+	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_LIFECYCLE_STATE); err != nil {
+		log.Fatalln("ERROR :: error  creating table lifecyclestate", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_LIFECYCLE); err != nil {
+		log.Fatalln("ERROR :: error  creating table lifecycle", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_STATE_TRANSITION); err != nil {
+		log.Fatalln("ERROR :: error  creating table state transition", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_PROJECT); err != nil {
+		log.Fatalln("ERROR :: error  creating table project", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_USER); err != nil {
+		log.Fatalln("ERROR :: error  creating table user", err)
+	}
+}
+
+func mustHealthCheck(pool *pgxpool.Pool, ctx context.Context) {
+	rows, err := pool.Query(ctx, query.PROJECT_SELECT_ALL)
+	if err != nil {
+		log.Panicln("ERROR :: DB healthceck", err)
+	}
+	defer rows.Close()
 }

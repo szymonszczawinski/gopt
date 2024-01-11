@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"gosi/core/config"
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/service"
@@ -25,12 +26,10 @@ const (
 	DefaultHttpServerPort = 8081
 )
 
-var systemStartParameters map[string]any
-
 func Start(cla map[string]any, staticContent http.StaticContent) {
 	log.Println("START CORE")
-	systemStartParameters = cla
-	log.Println("Start Parameters:", systemStartParameters)
+	config.InitSystemConfiguration(cla)
+	log.Println("Start Parameters:", cla)
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)

@@ -13,13 +13,27 @@ const (
 	RUN_MODE      string = "-runmode"
 	RUN_MODE_DEV  string = "dev"
 	RUN_MODE_PLUG string = "plug"
+	INIT_DB       string = "-initdb"
+	INIT_DB_TRUE  string = "true"
+	INIT_DB_FALSE string = "false"
 )
 
-var configuredServices ServiceConfigItems
+var (
+	configuredServices ServiceConfigItems
+
+	systemStartParameters map[string]any
+)
+
+func InitSystemConfiguration(config map[string]any) {
+	systemStartParameters = config
+}
+
+func GetSystemConfig(key string) any {
+	return systemStartParameters[key]
+}
 
 func GetConfiguredServices() (*ServiceConfigItems, error) {
 	cwd, err := os.Getwd()
-
 	if err != nil {
 		log.Fatal(err)
 		return nil, err
