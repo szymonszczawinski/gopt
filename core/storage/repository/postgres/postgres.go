@@ -1,4 +1,4 @@
-package sql
+package postgres
 
 import (
 	"context"
@@ -68,17 +68,32 @@ func mustInitDatabase(db *postgresDatabase) {
 	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_LIFECYCLE_STATE); err != nil {
 		log.Fatalln("ERROR :: error  creating table lifecyclestate", err)
 	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.INIT_LIFECYCLESTATE); err != nil {
+		log.Fatalln("ERROR :: error  init table lifecyclestate", err)
+	}
 	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_LIFECYCLE); err != nil {
 		log.Fatalln("ERROR :: error  creating table lifecycle", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.INIT_LIFECYCLE); err != nil {
+		log.Fatalln("ERROR :: error  init table lifecycle", err)
 	}
 	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_STATE_TRANSITION); err != nil {
 		log.Fatalln("ERROR :: error  creating table state transition", err)
 	}
-	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_PROJECT); err != nil {
-		log.Fatalln("ERROR :: error  creating table project", err)
+	if _, err := db.dbpool.Exec(db.ctx, schema.INIT_STATE_TRANSITION); err != nil {
+		log.Fatalln("ERROR :: error  init table state transition", err)
 	}
 	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_USER); err != nil {
 		log.Fatalln("ERROR :: error  creating table user", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.INIT_USERS); err != nil {
+		log.Fatalln("ERROR :: error  init table users", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.CREATE_TABLE_PROJECT); err != nil {
+		log.Fatalln("ERROR :: error  creating table project", err)
+	}
+	if _, err := db.dbpool.Exec(db.ctx, schema.INIT_PROJECT); err != nil {
+		log.Fatalln("ERROR :: error  init table projects", err)
 	}
 }
 

@@ -2,14 +2,16 @@ package home
 
 import "gosi/public/layouts"
 
-templ Home(name string) {
-@layout.PageAll("Home XXX") {
-<p class="text-center text-xl font-medium">
-    Welcome to G-OSI
-    <a href="/gosi/logout"
-        class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
-        LOGOUT
-    </a>
-</p>
-}
+templ Home() {
+	@layout.PageAll("Home XXX") {
+		<p class="text-center text-xl font-medium">
+			Welcome to G-OSI
+			<a
+				href="/gosi/logout"
+				class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+			>
+				LOGOUT
+			</a>
+		</p>
+	}
 }

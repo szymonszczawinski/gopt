@@ -1,26 +1,21 @@
-package auth
+package postgres
 
 import (
 	"context"
-	"gosi/core/storage/sql"
-	"gosi/coreapi/service"
+	"gosi/core/domain/auth"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
 )
 
-type IAuthRepository interface {
-	service.IComponent
-}
-
 type authRepository struct {
 	lockDb *sync.RWMutex
-	db     sql.IPostgresDatabase
+	db     IPostgresDatabase
 	eg     *errgroup.Group
 	ctx    context.Context
 }
 
-func NewAuthRepository(eg *errgroup.Group, ctx context.Context, db sql.IPostgresDatabase) IAuthRepository {
+func NewAuthRepository(eg *errgroup.Group, ctx context.Context, db IPostgresDatabase) auth.IAuthRepository {
 	instance := authRepository{
 		lockDb: &sync.RWMutex{},
 		db:     db,

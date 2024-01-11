@@ -1,7 +1,7 @@
 package project
 
 import (
-	"gosi/domain/common/model"
+	"gosi/core/domain/common/model"
 	"time"
 )
 

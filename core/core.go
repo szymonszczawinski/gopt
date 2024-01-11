@@ -3,21 +3,21 @@ package core
 import (
 	"context"
 	"gosi/core/config"
+	"gosi/core/domain/auth"
+	"gosi/core/domain/home"
+	"gosi/core/domain/project"
 	"gosi/core/http"
 	"gosi/core/messenger"
 	"gosi/core/service"
-	"gosi/core/storage/sql"
-	"gosi/domain/auth"
-	"gosi/domain/home"
-	"gosi/domain/project"
+	"gosi/core/storage/repository/postgres"
 	"log"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
 
+	project_handlers "gosi/core/domain/project/handlers"
 	iservice "gosi/coreapi/service"
-	project_handlers "gosi/domain/project/handlers"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -33,9 +33,9 @@ func Start(cla map[string]any, staticContent http.StaticContent) {
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
-	service.NewServiceManager(mainGroup, groupContext)
+	sm := service.NewServiceManager(mainGroup, groupContext)
 	// some simple comment
-	startServices(mainGroup, groupContext, staticContent)
+	startServices(sm, mainGroup, groupContext, staticContent)
 	// time.Sleep(time.Second * 5)
 	if err := mainGroup.Wait(); err == nil {
 		log.Println("FINISH CORE")
@@ -44,15 +44,8 @@ func Start(cla map[string]any, staticContent http.StaticContent) {
 	defer close(signalChannel)
 }
 
-func startServices(eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
+func startServices(sm iservice.IServiceManager, eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
 	log.Println("START CORE :: START SERVICES")
-
-	startCoreServices(eg, ctx, staticContent)
-}
-
-func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
-	log.Println("START CORE :: START CORE SERVICES")
-	sm, _ := service.GetServiceManager()
 
 	log.Println("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
@@ -60,12 +53,12 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 
 	log.Println("Starting DATABASE")
 	// databaseConnection := bun.NewBunDatabase(eg, ctx)
-	databaseConnection := sql.NewPostgresSqlDatabase(eg, ctx)
+	databaseConnection := postgres.NewPostgresSqlDatabase(eg, ctx)
 	sm.StartComponent(iservice.ComponentTypeSqlDatabase, databaseConnection)
 
 	log.Println("Starting PROJECT REPOSITORY")
 	// projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
-	projectRepository := project.NewProjectRepositorySql(eg, ctx, databaseConnection)
+	projectRepository := postgres.NewProjectRepositoryPostgres(eg, ctx, databaseConnection)
 	sm.StartComponent(iservice.ComponentTypeProjectRepository, projectRepository)
 
 	log.Println("Starting PROJECT SERVICE")
@@ -73,7 +66,7 @@ func startCoreServices(eg *errgroup.Group, ctx context.Context, staticContent ht
 	sm.StartComponent(iservice.ComponentTypeProjectService, projetcsService)
 
 	log.Println("Starting AUTH REPOSITORY")
-	authRepository := auth.NewAuthRepository(eg, ctx, databaseConnection)
+	authRepository := postgres.NewAuthRepository(eg, ctx, databaseConnection)
 	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
 	log.Println("Starting AUTH SERVICE")

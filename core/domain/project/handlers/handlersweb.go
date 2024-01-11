@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"errors"
-	"gosi/domain/project"
+	"gosi/core/domain/project"
 	"log"
 
 	view_errors "gosi/public/error"

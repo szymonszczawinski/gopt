@@ -1,12 +1,10 @@
 package lifecycle
 
-import "gosi/domain/common/model"
-
-const ()
+import "gosi/core/domain/common/model"
 
 type LifecycleState struct {
-	model.Entity
 	name string
+	model.Entity
 }
 
 func NewLifecycleState(id int, name string) LifecycleState {
@@ -16,26 +14,27 @@ func NewLifecycleState(id int, name string) LifecycleState {
 	}
 	return state
 }
-func (self LifecycleState) GetValue() string {
-	return self.name
+
+func (ls LifecycleState) GetValue() string {
+	return ls.name
 }
 
 type Lifecycle struct {
-	model.Entity
 	name        string
-	startState  LifecycleState
 	transitions map[LifecycleState][]LifecycleState
+	startState  LifecycleState
+	model.Entity
 }
 
-func (self Lifecycle) GetStartState() LifecycleState {
-	return self.startState
+func (l Lifecycle) GetStartState() LifecycleState {
+	return l.startState
 }
 
 type LifecycleBuilder struct {
-	id          int
 	name        string
-	startState  LifecycleState
 	transitions map[LifecycleState][]LifecycleState
+	startState  LifecycleState
+	id          int
 }
 
 func NewLifeCycleBuilder(id int, name string, start LifecycleState) *LifecycleBuilder {
@@ -48,6 +47,7 @@ func NewLifeCycleBuilder(id int, name string, start LifecycleState) *LifecycleBu
 	return &builder
 }
 
+// TODO: FIX
 func (lcb *LifecycleBuilder) AddTransition(from LifecycleState, to LifecycleState) *LifecycleBuilder {
 	transitions, exists := lcb.transitions[from]
 	if !exists {
@@ -68,19 +68,19 @@ func (lcb LifecycleBuilder) Build() Lifecycle {
 	return lifecycle
 }
 
-func (self Lifecycle) GetName() string {
-	return self.name
+func (l Lifecycle) GetName() string {
+	return l.name
 }
 
 type LivecycleManaged struct {
-	Lifecycle Lifecycle
 	State     LifecycleState
+	Lifecycle Lifecycle
 }
 
-func (self LivecycleManaged) GetLifecycle() Lifecycle {
-	return self.Lifecycle
+func (lm LivecycleManaged) GetLifecycle() Lifecycle {
+	return lm.Lifecycle
 }
 
-func (self LivecycleManaged) GetState() LifecycleState {
-	return self.State
+func (lm LivecycleManaged) GetState() LifecycleState {
+	return lm.State
 }

@@ -22,35 +22,7 @@ type serviceManager struct {
 	looper     queue.IJobQueue
 }
 
-// Get Service of given serviceType or return error if service is not registerred
-func (self *serviceManager) MustGetComponent(componentType service.ComponentType) service.IComponent {
-	component, componentExists := self.components[componentType]
-	if componentExists {
-		log.Println("Return component of type: ", componentType)
-		return component
-	}
-	log.Fatal(fmt.Sprintf("Componnent %v does not exists", componentType))
-	return nil
-}
-
-// Register given service for a given ServiceType as a key and start service
-func (self *serviceManager) StartComponent(componentType service.ComponentType, component service.IComponent) error {
-	_, componentExists := self.components[componentType]
-	if componentExists {
-		return errors.New(fmt.Sprintf("Component %v already registerred", componentType))
-	}
-	self.RegisterComponent(componentType, component)
-	component.StartComponent()
-	return nil
-}
-
-// Register given service for a given ServiceType
-func (self *serviceManager) RegisterComponent(componentType service.ComponentType, component service.IComponent) {
-	log.Println("Register Component: ", componentType)
-	self.components[componentType] = component
-}
-
-func NewServiceManager(eg *errgroup.Group, ctx context.Context) *serviceManager {
+func NewServiceManager(eg *errgroup.Group, ctx context.Context) service.IServiceManager {
 	smLock.Lock()
 	defer smLock.Unlock()
 	instance := new(serviceManager)
@@ -65,7 +37,35 @@ func GetServiceManager() (service.IServiceManager, error) {
 	smLock.Lock()
 	defer smLock.Unlock()
 	if singleInstance == nil {
-		return nil, errors.New("No Service Manager created")
+		return nil, errors.New("no Service Manager created")
 	}
 	return singleInstance, nil
+}
+
+// Get Service of given serviceType or return error if service is not registerred
+func (sm *serviceManager) MustGetComponent(componentType service.ComponentType) service.IComponent {
+	component, componentExists := sm.components[componentType]
+	if componentExists {
+		log.Println("Return component of type: ", componentType)
+		return component
+	}
+	log.Fatalf("Componnent %v does not exists", componentType)
+	return nil
+}
+
+// Register given service for a given ServiceType as a key and start service
+func (sm *serviceManager) StartComponent(componentType service.ComponentType, component service.IComponent) error {
+	_, componentExists := sm.components[componentType]
+	if componentExists {
+		return fmt.Errorf("component %v already registerred", componentType)
+	}
+	sm.RegisterComponent(componentType, component)
+	component.StartComponent()
+	return nil
+}
+
+// Register given service for a given ServiceType
+func (sm *serviceManager) RegisterComponent(componentType service.ComponentType, component service.IComponent) {
+	log.Println("Register Component: ", componentType)
+	sm.components[componentType] = component
 }

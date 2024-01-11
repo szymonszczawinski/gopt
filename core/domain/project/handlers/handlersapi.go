@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"gosi/domain/project"
+	"gosi/core/domain/project"
 	"log"
 	"net/http"
 

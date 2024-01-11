@@ -1,6 +1,6 @@
 package domain
 
-import "gosi/domain/common/model"
+import "gosi/core/domain/common/model"
 
 type IssueType string
 
@@ -12,31 +12,34 @@ const (
 	RelationTypeIsChildOf  RelationType = "IsChildOf"
 	RelationTypeIsParentOf RelationType = "IsParentOf"
 )
+
 const (
 	IssueTypeRequirement IssueType = "Requirement"
 	IssueTypeBug         IssueType = "Bug"
 )
 
-type ParentProject struct {
-}
+type (
+	ParentProject struct{}
 
-type Issue struct {
-	model.Entity
-	model.TimeTracked
+	Issue struct {
+		model.TimeTracked
 
-	itemKey     string
-	itemNumber  int
-	name        string
-	description string
-	project     ParentProject
-	issueType   IssueType
-	comments    []Comment
-	relations   []Relation
-}
+		issueType   IssueType
+		project     ParentProject
+		itemKey     string
+		name        string
+		description string
+		comments    []Comment
+		relations   []Relation
+		itemNumber  int
+		model.Entity
+	}
+)
 
 func (issue Issue) GetItemKey() string {
 	return issue.itemKey
 }
+
 func (issue Issue) GetItemNumber() int {
 	return issue.itemNumber
 }
@@ -63,9 +66,9 @@ func (issue *Issue) AddComment(comment Comment) {
 }
 
 type Requirement struct {
-	Issue
 	project   ParentProject
 	issueType IssueType
+	Issue
 }
 
 type Bug struct {
@@ -74,8 +77,8 @@ type Bug struct {
 }
 
 type Relation struct {
-	model.Entity
 	relationType RelationType
 	fromIssue    Issue
 	toIssue      Issue
+	model.Entity
 }

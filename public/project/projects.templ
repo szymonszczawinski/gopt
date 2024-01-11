@@ -1,7 +1,7 @@
 package project
 
 import (
-	"gosi/domain/project"
+	"gosi/core/domain/project"
 	"gosi/public/layouts"
 )
 
@@ -12,7 +12,10 @@ templ Projects(projects []project.ProjectListElement) {
 				<a
 					href="/gosi/views/projects/new"
 					class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-				>Add Project</a>
+				>
+					Add
+					Project
+				</a>
 			</div>
 			<div>
 				<table class="shadow-lg bg-white border-collapse" id="project-list">
@@ -26,7 +29,12 @@ templ Projects(projects []project.ProjectListElement) {
 					</tr>
 					for _,elem :=range projects {
 						<tr class="hover:bg-gray-50">
-							<td class="border px-8 py-4"><a href={ templ.URL("/gosi/views/projects/" + elem.ProjectKey) } class="text-blue-600">{ elem.ProjectKey }</a></td>
+							<td class="border px-8 py-4">
+								<a
+									href={ templ.URL("/gosi/views/projects/" + elem.ProjectKey) }
+									class="text-blue-600"
+								>{ elem.ProjectKey }</a>
+							</td>
 							<td class="border px-8 py-4">{ elem.Name }</td>
 							<td class="border px-8 py-4">{ elem.State }</td>
 							<td class="border px-8 py-4">{ elem.Owner }</td>
@@ -59,10 +67,10 @@ templ NewProjectForm() {
 	<div>
 		<form hx-post="/gosi/views/projects/new" hx-target="#project-add-error-pane">
 			<div>
-				<label
-					for="project-name"
-					class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
-				>Project Name</label>
+				<label for="project-name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
+					Project
+					Name
+				</label>
 				<input
 					type="text"
 					name="project-name"
@@ -72,10 +80,7 @@ templ NewProjectForm() {
 				/>
 			</div>
 			<div>
-				<label
-					for="project-key"
-					class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2"
-				>Project Key</label>
+				<label for="project-key" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project Key</label>
 				<input
 					type="text"
 					name="project-key"
@@ -100,8 +105,5 @@ templ NewProjectForm() {
 }
 
 templ ProjectAddError(message string) {
-	<label
-		id="error-mess:wageage"
-		class="block mb-2 text-sm font-medium text-rose-900"
-	>{ message }</label>
+	<label id="error-mess:wageage" class="block mb-2 text-sm font-medium text-rose-900">{ message }</label>
 }

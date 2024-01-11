@@ -3,12 +3,14 @@ package project
 import (
 	"context"
 	"gosi/coreapi"
+	"gosi/coreapi/service"
 	"log"
 
 	"golang.org/x/sync/errgroup"
 )
 
 type IProjectService interface {
+	service.IComponent
 	// GetProjects() coreapi.Result[[]ProjectListElement]
 	GetProject(projectId string) coreapi.Result[ProjectDetails]
 	CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectDetails]
@@ -21,7 +23,7 @@ type projectService struct {
 	repository IProjectRepository
 }
 
-func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository) *projectService {
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository) IProjectService {
 	instance := new(projectService)
 	instance.repository = repository
 	instance.ctx = ctx
