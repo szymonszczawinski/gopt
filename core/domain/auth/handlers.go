@@ -2,8 +2,8 @@ package auth
 
 import (
 	"errors"
-	"gosi/coreapi/viewhandlers"
-	"gosi/public/auth"
+	"gopt/coreapi/viewhandlers"
+	"gopt/public/auth"
 	"log"
 	"net/http"
 
@@ -49,7 +49,7 @@ func (handler authHandler) loginSubmit(c *gin.Context) {
 	}
 	log.Println(loginResult.Data())
 	sessionToken := uuid.NewString()
-	c.SetCookie("session_token", sessionToken, 120, "", "gosi", false, true)
+	c.SetCookie("session_token", sessionToken, 120, "", "gopt", false, true)
 	c.HTML(http.StatusOK, "home", gin.H{
 		"title": "HOME",
 	})
@@ -67,6 +67,6 @@ func (handler authHandler) logout(c *gin.Context) {
 		c.HTML(http.StatusInternalServerError, "error", gin.H{"error": ErrorFailedSaveSession})
 		return
 	}
-	c.Redirect(http.StatusFound, "/gosi")
+	c.Redirect(http.StatusFound, "/gopt")
 	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }

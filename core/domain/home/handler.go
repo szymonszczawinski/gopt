@@ -1,9 +1,9 @@
 package home
 
 import (
-	"gosi/coreapi/viewhandlers"
-	errors "gosi/public/error"
-	"gosi/public/home"
+	"gopt/coreapi/viewhandlers"
+	errors "gopt/public/error"
+	"gopt/public/home"
 
 	"github.com/gin-gonic/gin"
 )

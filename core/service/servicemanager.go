@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"gosi/coreapi/queue"
-	"gosi/coreapi/service"
+	"gopt/coreapi/queue"
+	"gopt/coreapi/service"
 	"log"
 	"sync"
 

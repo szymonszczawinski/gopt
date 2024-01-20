@@ -1,9 +1,12 @@
-package postgres
+package project
 
 import (
 	"context"
-	"gosi/core/domain/project"
-	"gosi/coreapi"
+	"errors"
+	"gopt/core/domain/project"
+	"gopt/core/storage/repository/postgres"
+	"gopt/coreapi"
+	"gopt/coreapi/storage/sql/command"
 	"log"
 	"sync"
 	"time"
@@ -21,15 +24,17 @@ const (
 		" JOIN users ON users.id = project_row.created_by_id"
 )
 
+var ErrorProjectNotCreated = errors.New("project not created")
+
 type projectRepositoryPostgres struct {
 	lockDb *sync.RWMutex
-	db     IPostgresDatabase
+	db     postgres.IPostgresDatabase
 
 	eg  *errgroup.Group
 	ctx context.Context
 }
 
-func NewProjectRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db IPostgresDatabase) project.IProjectRepository {
+func NewProjectRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) project.IProjectRepository {
 	instance := projectRepositoryPostgres{
 		lockDb: &sync.RWMutex{},
 		db:     db,
@@ -69,7 +74,22 @@ func (repo projectRepositoryPostgres) GetProject(projectId string) coreapi.Resul
 }
 
 func (repo projectRepositoryPostgres) StoreProject(p project.Project) coreapi.Result[project.Project] {
-	return coreapi.NewResult(project.Project{}, coreapi.ErrorNotImplemented)
+	args := pgx.NamedArgs{
+		"created":       time.Now(),
+		"updated":       time.Now(),
+		"name":          p.GetName(),
+		"project_key":   p.GetKey(),
+		"description":   p.GetDescription(),
+		"state_id":      p.GetStateId(),
+		"lifecycle_id":  p.GetLifecycleId(),
+		"created_by_id": p.GetOwnerId(),
+	}
+	id, err := repo.db.NewInsertReturninId(command.INSERT_PROJECT_RETURN_ID, args)
+	if err != nil {
+		return coreapi.NewResult[project.Project](project.Project{}, errors.Join(ErrorProjectNotCreated, err))
+	}
+	p.SetId(id)
+	return coreapi.NewResult(p, nil)
 }
 
 func (repo projectRepositoryPostgres) UpdateProject(p project.Project) coreapi.Result[project.Project] {

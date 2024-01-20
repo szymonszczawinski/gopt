@@ -1,6 +1,6 @@
 package messenger
 
-import "gosi/coreapi/service"
+import "gopt/coreapi/service"
 
 type Message any
 type Feedback any

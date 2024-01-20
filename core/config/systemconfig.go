@@ -2,7 +2,7 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 )
@@ -13,6 +13,8 @@ const (
 	RUN_MODE      string = "-runmode"
 	RUN_MODE_DEV  string = "dev"
 	RUN_MODE_PLUG string = "plug"
+
+	// application cmd arg to drop and recreate database schema
 	INIT_DB       string = "-initdb"
 	INIT_DB_TRUE  string = "true"
 	INIT_DB_FALSE string = "false"
@@ -47,7 +49,7 @@ func GetConfiguredServices() (*ServiceConfigItems, error) {
 		return nil, err
 	}
 	log.Println("Successfully Opened services_config.json")
-	byteValue, _ := ioutil.ReadAll(jsonFile)
+	byteValue, _ := io.ReadAll(jsonFile)
 	json.Unmarshal(byteValue, &configuredServices)
 	// defer the closing of our jsonFile so that we can parse it later on
 	defer jsonFile.Close()

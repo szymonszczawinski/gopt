@@ -1,8 +1,9 @@
-package postgres
+package lifecycle
 
 import (
 	"context"
-	"gosi/core/domain/lifecycle"
+	"gopt/core/domain/lifecycle"
+	"gopt/core/storage/repository/postgres"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -15,7 +16,7 @@ type disctionaryData struct {
 
 type lifecycleRepository struct {
 	lockDb     *sync.RWMutex
-	db         IPostgresDatabase
+	db         postgres.IPostgresDatabase
 	dictionary disctionaryData
 
 	eg  *errgroup.Group

@@ -18,7 +18,7 @@ func Root(router *gin.Engine) gin.HandlerFunc {
 		}
 		log.Println(routesMap)
 
-		c.String(http.StatusOK, "Welcome GOSI Client\nAvailable Routes:\n%v", routesMap)
+		c.String(http.StatusOK, "Welcome gopt Client\nAvailable Routes:\n%v", routesMap)
 	}
 }
 
@@ -29,7 +29,7 @@ func Hello(c *gin.Context) {
 func Api(c *gin.Context) {
 	api := map[string]any{}
 	library := map[string]any{}
-	library["/gosi/api/books/showall"] = "Show All Books"
+	library["/gopt/api/books/showall"] = "Show All Books"
 	api["library"] = library
 
 	c.JSON(http.StatusOK, gin.H{"api": api})

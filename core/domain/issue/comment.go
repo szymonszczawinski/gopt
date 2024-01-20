@@ -2,7 +2,7 @@ package domain
 
 import (
 	"fmt"
-	"gosi/core/domain/common/model"
+	"gopt/core/domain/common/model"
 	"time"
 )
 
@@ -16,11 +16,8 @@ type Comment struct {
 
 func NewComment(parentItemId int, content string) Comment {
 	comment := Comment{
-		Entity: model.Entity{},
-		TimeTracked: model.TimeTracked{
-			Created: time.Now(),
-			Updated: time.Now(),
-		},
+		Entity:       model.Entity{},
+		TimeTracked:  model.NewTimeTracked(time.Now(), time.Now()),
 		parentItemId: parentItemId,
 		content:      content,
 	}

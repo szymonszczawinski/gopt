@@ -4,7 +4,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"gosi/coreapi/viewhandlers"
+	"gopt/coreapi/viewhandlers"
 	"log"
 	"net/http"
 	"os"
@@ -106,7 +106,7 @@ func createGinRouter(fs embed.FS) *gin.Engine {
 }
 
 func configureMainRoutes(router *gin.Engine) *viewhandlers.Routes {
-	rootRoute := router.Group("/gosi")
+	rootRoute := router.Group("/gopt")
 	apiRoute := rootRoute.Group("/api")
 	viewsRoute := rootRoute.Group("/views")
 

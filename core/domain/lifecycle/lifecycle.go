@@ -1,6 +1,6 @@
 package lifecycle
 
-import "gosi/core/domain/common/model"
+import "gopt/core/domain/common/model"
 
 type LifecycleState struct {
 	name string

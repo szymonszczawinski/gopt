@@ -2,8 +2,8 @@ package main
 
 import (
 	"context"
-	"gosi/client/config"
-	"gosi/client/connector/http/"
+	"gopt/client/config"
+	"gopt/client/connector/http/"
 	"log"
 	"os"
 	"os/signal"
@@ -14,7 +14,7 @@ import (
 
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.Println("GOSI :: CLIENT :: START")
+	log.Println("gopt :: CLIENT :: START")
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)

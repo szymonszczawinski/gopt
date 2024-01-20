@@ -24,7 +24,7 @@ func SessionAuth(c *gin.Context) {
 	log.Println("Session AUTH")
 	session := sessions.Default(c)
 	if session.Get(AUTH_KEY) == nil {
-		c.Redirect(http.StatusFound, "/gosi/login")
+		c.Redirect(http.StatusFound, "/gopt/login")
 		c.Abort()
 		return
 	}

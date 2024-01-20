@@ -3,7 +3,7 @@ package http
 import (
 	"context"
 	"fmt"
-	"gosi/client/connector/http/controllers"
+	"gopt/client/connector/http/controllers"
 	"log"
 	"net/http"
 	"time"
@@ -34,9 +34,9 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int) *Ht
 	return instance
 }
 func configureRoutes(router *gin.Engine) {
-	router.GET("/gosi", controllers.Root(router))
-	router.GET("/gosi/hello", controllers.Hello)
-	router.GET("/gosi/api", controllers.Api)
+	router.GET("/gopt", controllers.Root(router))
+	router.GET("/gopt/hello", controllers.Hello)
+	router.GET("/gopt/api", controllers.Api)
 
 }
 func (s *HttpServer) Start() {

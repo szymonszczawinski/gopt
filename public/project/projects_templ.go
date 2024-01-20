@@ -11,8 +11,8 @@ import "io"
 import "bytes"
 
 import (
-	"gosi/core/domain/project"
-	"gosi/public/layouts"
+	"gopt/core/domain/project"
+	"gopt/public/layouts"
 )
 
 func Projects(projects []project.ProjectListElement) templ.Component {
@@ -34,7 +34,7 @@ func Projects(projects []project.ProjectListElement) templ.Component {
 				templ_7745c5c3_Buffer = templ.GetBuffer()
 				defer templ.ReleaseBuffer(templ_7745c5c3_Buffer)
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><div class=\"bg-gray-700 text-white p-4\"><a href=\"/gosi/views/projects/new\" class=\"text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium\">")
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><div class=\"bg-gray-700 text-white p-4\"><a href=\"/gopt/views/projects/new\" class=\"text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium\">")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -115,7 +115,7 @@ func Projects(projects []project.ProjectListElement) templ.Component {
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
 				}
-				var templ_7745c5c3_Var11 templ.SafeURL = templ.URL("/gosi/views/projects/" + elem.ProjectKey)
+				var templ_7745c5c3_Var11 templ.SafeURL = templ.URL("/gopt/views/projects/" + elem.ProjectKey)
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(string(templ_7745c5c3_Var11)))
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -331,7 +331,7 @@ func NewProjectForm() templ.Component {
 			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><form hx-post=\"/gosi/views/projects/new\" hx-target=\"#project-add-error-pane\"><div><label for=\"project-name\" class=\"block mb-2 text-sm font-medium text-gray-900 mx-2 my-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><form hx-post=\"/gopt/views/projects/new\" hx-target=\"#project-add-error-pane\"><div><label for=\"project-name\" class=\"block mb-2 text-sm font-medium text-gray-900 mx-2 my-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

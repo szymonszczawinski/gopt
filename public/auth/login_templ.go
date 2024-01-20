@@ -10,7 +10,7 @@ import "context"
 import "io"
 import "bytes"
 
-import "gosi/public/layouts"
+import "gopt/public/layouts"
 
 func Login() templ.Component {
 	return templ.ComponentFunc(func(ctx context.Context, templ_7745c5c3_W io.Writer) (templ_7745c5c3_Err error) {
@@ -64,7 +64,7 @@ func loginForm() templ.Component {
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><form hx-post=\"/gosi/login\" hx-target=\"#login-error-pane\"><div><label for=\"username\" class=\"block mb-2 text-sm font-medium text-gray-900 mx-2 my-2\">")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString("<div><form hx-post=\"/gopt/login\" hx-target=\"#login-error-pane\"><div><label for=\"username\" class=\"block mb-2 text-sm font-medium text-gray-900 mx-2 my-2\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

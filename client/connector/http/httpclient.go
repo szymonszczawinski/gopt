@@ -2,7 +2,7 @@ package http
 
 import (
 	"encoding/json"
-	"gosi/client/connector"
+	"gopt/client/connector"
 	"io/ioutil"
 	"log"
 	"net/http"

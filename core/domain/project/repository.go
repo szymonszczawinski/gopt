@@ -2,8 +2,8 @@ package project
 
 import (
 	"errors"
-	"gosi/coreapi"
-	"gosi/coreapi/service"
+	"gopt/coreapi"
+	"gopt/coreapi/service"
 )
 
 var ErrorCouldNotInsertProject = errors.New("could not insert project")

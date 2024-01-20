@@ -1,75 +1,103 @@
 package project
 
 import (
-	"gosi/core/domain/common/model"
+	"gopt/core/domain/common/model"
 	"time"
 )
 
 type Project struct {
-	model.Entity
 	model.TimeTracked
-	Name        string
-	ProjectKey  string
-	Description string
-	State       ProjectState
-	Items       []ProjectItem
+	name        string
+	projectKey  string
+	description string
+	items       []ProjectItem
+	owner       projectOwner
+	state       projectState
+	model.Entity
 }
 
-func NewProject(projectKey string, name string, state ProjectState) Project {
+func NewProject(projectKey string, name string, state projectState) Project {
 	project := Project{
-		Entity: model.Entity{},
-		TimeTracked: model.TimeTracked{
-			Created: time.Now(),
-			Updated: time.Now(),
+		Entity:      model.Entity{},
+		TimeTracked: model.NewTimeTracked(time.Now(), time.Now()),
+		state:       state,
+		name:        name,
+		projectKey:  projectKey,
+		description: "",
+		owner: projectOwner{
+			id:   1,
+			name: "Szymon",
 		},
-		State:       state,
-		Name:        name,
-		ProjectKey:  projectKey,
-		Description: "",
 	}
 	return project
 }
 
 func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey, name, description string,
-	state ProjectState, items []ProjectItem,
+	state projectState, items []ProjectItem,
 ) Project {
 	project := Project{
 		Entity: model.Entity{
 			Id: id,
 		},
-		TimeTracked: model.TimeTracked{
-			Created: created,
-			Updated: updated,
-		},
-		State:       state,
-		ProjectKey:  projectKey,
-		Name:        name,
-		Description: description,
-		Items:       items,
+		TimeTracked: model.NewTimeTracked(created, updated),
+		state:       state,
+		projectKey:  projectKey,
+		name:        name,
+		description: description,
+		items:       items,
 	}
 	return project
 }
 
-type ProjectState struct {
+func (p Project) GetName() string {
+	return p.name
+}
+
+func (p Project) GetKey() string {
+	return p.projectKey
+}
+
+func (p Project) GetDescription() string {
+	return p.description
+}
+
+func (p Project) GetStateId() int {
+	return p.state.id
+}
+
+func (p Project) GetLifecycleId() int {
+	return p.state.lifecycleId
+}
+
+func (p Project) GetOwnerId() int {
+	return p.owner.id
+}
+
+type projectState struct {
+	name        string
 	id          int
 	lifecycleId int
-	name        string
 }
 
-func (state ProjectState) String() string {
-	return state.name
-}
-
-func NewProjectState(id, lifecycleId int, name string) ProjectState {
-	return ProjectState{
+func NewProjectState(id, lifecycleId int, name string) projectState {
+	return projectState{
 		id:          id,
 		lifecycleId: lifecycleId,
 		name:        name,
 	}
 }
 
+func (state projectState) String() string {
+	return state.name
+}
+
 type ProjectItem struct {
-	model.Entity
 	Name    string
 	ItemKey string
+	model.Entity
+}
+
+type projectOwner struct {
+	id   int
+	name string
 }

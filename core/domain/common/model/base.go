@@ -19,18 +19,25 @@ func (e *Entity) SetId(id int) {
 }
 
 type TimeTracked struct {
-	Created time.Time
-	Updated time.Time
+	created time.Time
+	updated time.Time
+}
+
+func NewTimeTracked(created, updated time.Time) TimeTracked {
+	return TimeTracked{
+		created: created,
+		updated: updated,
+	}
 }
 
 func (tt TimeTracked) GetCreationTime() time.Time {
-	return tt.Created
+	return tt.created
 }
 
 func (tt TimeTracked) GetLastUpdateTime() time.Time {
-	return tt.Updated
+	return tt.updated
 }
 
 func (tt *TimeTracked) SetLastUpdateTime(lastUpdated time.Time) {
-	tt.Updated = lastUpdated
+	tt.updated = lastUpdated
 }

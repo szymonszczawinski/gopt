@@ -3,8 +3,8 @@ package auth
 import (
 	"context"
 	"errors"
-	"gosi/coreapi"
-	"gosi/coreapi/service"
+	"gopt/coreapi"
+	"gopt/coreapi/service"
 
 	"golang.org/x/sync/errgroup"
 )

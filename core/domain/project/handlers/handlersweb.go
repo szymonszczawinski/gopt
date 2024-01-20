@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"errors"
-	"gosi/core/domain/project"
+	"gopt/core/domain/project"
 	"log"
 
-	view_errors "gosi/public/error"
-	view_project "gosi/public/project"
+	view_errors "gopt/public/error"
+	view_project "gopt/public/project"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,8 +37,8 @@ func (h projectHandler) addProject(c *gin.Context) {
 		return
 	}
 	log.Println("Project Created")
-	c.Writer.Header().Add("HX-Redirect", "/gosi/projects")
-	// c.Redirect(http.StatusFound, "/gosi/projects")
+	c.Writer.Header().Add("HX-Redirect", "/gopt/views/projects")
+	// c.Redirect(http.StatusFound, "/gopt/projects")
 }
 
 func (h projectHandler) projectDetails(c *gin.Context) {

@@ -2,22 +2,25 @@ package core
 
 import (
 	"context"
-	"gosi/core/config"
-	"gosi/core/domain/auth"
-	"gosi/core/domain/home"
-	"gosi/core/domain/project"
-	"gosi/core/http"
-	"gosi/core/messenger"
-	"gosi/core/service"
-	"gosi/core/storage/repository/postgres"
+	"gopt/core/config"
+	"gopt/core/domain/auth"
+	"gopt/core/domain/home"
+	"gopt/core/domain/project"
+	"gopt/core/http"
+	"gopt/core/messenger"
+	"gopt/core/service"
+	"gopt/core/storage/repository/postgres"
 	"log"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
 
-	project_handlers "gosi/core/domain/project/handlers"
-	iservice "gosi/coreapi/service"
+	repo_auth "gopt/core/storage/repository/postgres/auth"
+	repo_project "gopt/core/storage/repository/postgres/project"
+
+	project_handlers "gopt/core/domain/project/handlers"
+	api_service "gopt/coreapi/service"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -44,34 +47,34 @@ func Start(cla map[string]any, staticContent http.StaticContent) {
 	defer close(signalChannel)
 }
 
-func startServices(sm iservice.IServiceManager, eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
+func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
 	log.Println("START CORE :: START SERVICES")
 
 	log.Println("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
-	sm.StartComponent(iservice.ComponentTypeMessenger, messengerService)
+	sm.StartComponent(api_service.ComponentTypeMessenger, messengerService)
 
 	log.Println("Starting DATABASE")
 	// databaseConnection := bun.NewBunDatabase(eg, ctx)
 	databaseConnection := postgres.NewPostgresSqlDatabase(eg, ctx)
-	sm.StartComponent(iservice.ComponentTypeSqlDatabase, databaseConnection)
+	sm.StartComponent(api_service.ComponentTypeSqlDatabase, databaseConnection)
 
 	log.Println("Starting PROJECT REPOSITORY")
 	// projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
-	projectRepository := postgres.NewProjectRepositoryPostgres(eg, ctx, databaseConnection)
-	sm.StartComponent(iservice.ComponentTypeProjectRepository, projectRepository)
+	projectRepository := repo_project.NewProjectRepositoryPostgres(eg, ctx, databaseConnection)
+	sm.StartComponent(api_service.ComponentTypeProjectRepository, projectRepository)
 
 	log.Println("Starting PROJECT SERVICE")
 	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
-	sm.StartComponent(iservice.ComponentTypeProjectService, projetcsService)
+	sm.StartComponent(api_service.ComponentTypeProjectService, projetcsService)
 
 	log.Println("Starting AUTH REPOSITORY")
-	authRepository := postgres.NewAuthRepository(eg, ctx, databaseConnection)
+	authRepository := repo_auth.NewAuthRepository(eg, ctx, databaseConnection)
 	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
 	log.Println("Starting AUTH SERVICE")
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
-	sm.StartComponent(iservice.ComponentTypeAuthService, authService)
+	sm.StartComponent(api_service.ComponentTypeAuthService, authService)
 
 	homeController := home.NewHomeHandler()
 	projectsController := project_handlers.NewProjectHandler(projetcsService, projectRepository)

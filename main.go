@@ -3,10 +3,10 @@ package main
 import (
 	"embed"
 	"fmt"
-	"gosi/core"
-	"gosi/core/config"
-	domain "gosi/core/domain/issue"
-	"gosi/core/http"
+	"gopt/core"
+	"gopt/core/config"
+	domain "gopt/core/domain/issue"
+	"gopt/core/http"
 	"log"
 	"os"
 	"reflect"
@@ -24,14 +24,14 @@ func init() {
 }
 
 func main() {
-	log.Println("GOSI :: START")
+	log.Println("gopt :: START")
 	staticContent := http.StaticContent{
 		PublicDir: publicDir,
 	}
 	cla := parseCLA(os.Args)
 	core.Start(cla, staticContent)
 
-	log.Println("GOSI :: FINISH")
+	log.Println("gopt :: FINISH")
 	// sqlite.GetSqliteRepository()
 	// RunTests()
 }

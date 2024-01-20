@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"gosi/core/domain/project"
-	"gosi/coreapi/viewhandlers"
+	"gopt/core/domain/project"
+	"gopt/coreapi/viewhandlers"
 
 	"github.com/gin-contrib/multitemplate"
 )

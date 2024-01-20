@@ -2,8 +2,8 @@ package http
 
 import (
 	"context"
-	"gosi/coreapi/queue"
-	"gosi/coreapi/service"
+	"gopt/coreapi/queue"
+	"gopt/coreapi/service"
 	"log"
 
 	"golang.org/x/sync/errgroup"

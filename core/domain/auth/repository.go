@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"gosi/coreapi/service"
+	"gopt/coreapi/service"
 )
 
 type IAuthRepository interface {

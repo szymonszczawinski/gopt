@@ -2,10 +2,10 @@ package messenger
 
 import (
 	"context"
-	"gosi/core/service"
-	imessenger "gosi/coreapi/messenger"
-	"gosi/coreapi/queue"
-	iservice "gosi/coreapi/service"
+	"gopt/core/service"
+	imessenger "gopt/coreapi/messenger"
+	"gopt/coreapi/queue"
+	iservice "gopt/coreapi/service"
 	"log"
 
 	"golang.org/x/sync/errgroup"

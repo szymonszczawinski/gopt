@@ -1,8 +1,8 @@
 package project
 
 import (
-	"gosi/core/domain/project"
-	"gosi/public/layouts"
+	"gopt/core/domain/project"
+	"gopt/public/layouts"
 )
 
 templ Projects(projects []project.ProjectListElement) {
@@ -10,7 +10,7 @@ templ Projects(projects []project.ProjectListElement) {
 		<div>
 			<div class="bg-gray-700 text-white p-4">
 				<a
-					href="/gosi/views/projects/new"
+					href="/gopt/views/projects/new"
 					class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
 				>
 					Add
@@ -31,7 +31,7 @@ templ Projects(projects []project.ProjectListElement) {
 						<tr class="hover:bg-gray-50">
 							<td class="border px-8 py-4">
 								<a
-									href={ templ.URL("/gosi/views/projects/" + elem.ProjectKey) }
+									href={ templ.URL("/gopt/views/projects/" + elem.ProjectKey) }
 									class="text-blue-600"
 								>{ elem.ProjectKey }</a>
 							</td>
@@ -65,7 +65,7 @@ templ NewProject() {
 
 templ NewProjectForm() {
 	<div>
-		<form hx-post="/gosi/views/projects/new" hx-target="#project-add-error-pane">
+		<form hx-post="/gopt/views/projects/new" hx-target="#project-add-error-pane">
 			<div>
 				<label for="project-name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
 					Project

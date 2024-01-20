@@ -3,10 +3,10 @@ package storage
 //
 // import (
 // 	"context"
-// 	"gosi/coreapi/queue"
-// 	"gosi/coreapi/service"
-// 	"gosi/coreapi/storage"
-// 	"gosi/project/domain"
+// 	"gopt/coreapi/queue"
+// 	"gopt/coreapi/service"
+// 	"gopt/coreapi/storage"
+// 	"gopt/project/domain"
 // 	"log"
 //
 // 	"golang.org/x/sync/errgroup"

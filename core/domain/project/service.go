@@ -2,8 +2,8 @@ package project
 
 import (
 	"context"
-	"gosi/coreapi"
-	"gosi/coreapi/service"
+	"gopt/coreapi"
+	"gopt/coreapi/service"
 	"log"
 
 	"golang.org/x/sync/errgroup"
