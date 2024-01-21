@@ -22,9 +22,26 @@ const (
 		" FROM project AS project_row " +
 		" JOIN lifecyclestate ON lifecyclestate.id = project_row.state_id" +
 		" JOIN users ON users.id = project_row.created_by_id"
+
+	PROJECT_SELECT_BY_KEY = "SELECT p.id, p.created, p.updated, p.name, p.project_key, p.description, p.lifecycle_id, " +
+		" lcs.id as state_id, lcs.name as state_name, u.id as owner_id, CONCAT(u.last_name,', ',u.first_name) as owner_name " +
+		" from project p " +
+		" JOIN lifecyclestate lcs ON lcs.id = p.state_id" +
+		" JOIN users u ON u.id = p.created_by_id" +
+		" WHERE p.project_key = $1"
+
+	PROJECT_ITEMS_SELECT_BY_PROJECT_ID = "SELECT p.id, p.created, p.updated, p.name, p.project_key, p.description, p.lifecycle_id, " +
+		" lcs.id as state_id, lcs.name as state_name, u.id as owner_id, CONCAT(users.last_name,', ',users.first_name) as owner_name " +
+		" from project p " +
+		" JOIN lifecyclestate lcs ON lcs.id = p.state_id" +
+		" JOIN users u ON u.id = p.created_by_id" +
+		" WHERE p.project_key = $1"
 )
 
-var ErrorProjectNotCreated = errors.New("project not created")
+var (
+	ErrorProjectNotCreated = errors.New("project not created")
+	ErrProjectNotFound     = errors.New("project not found")
+)
 
 type projectRepositoryPostgres struct {
 	lockDb *sync.RWMutex
@@ -70,7 +87,28 @@ func (repo projectRepositoryPostgres) GetProjects() coreapi.Result[[]project.Pro
 }
 
 func (repo projectRepositoryPostgres) GetProject(projectId string) coreapi.Result[project.Project] {
-	return coreapi.NewResult(project.Project{}, coreapi.ErrorNotImplemented)
+	result := repo.db.NewSelectOne(PROJECT_SELECT_BY_KEY, projectId)
+	if result == nil {
+		return coreapi.NewResult[project.Project](project.Project{}, ErrProjectNotFound)
+	}
+	// p.id, p.created, p.updated, p.name, p.project_key, p.description, p.lifecycle_id
+	var row struct {
+		created, updated                                    time.Time
+		projectKey, name, ownerName, description, stateName string
+		id, lifecycleId, stateId, ownerId                   int
+	}
+
+	err := result.Scan(&row.id, &row.created, &row.updated, &row.name, &row.projectKey, &row.description, &row.lifecycleId,
+		&row.stateId, &row.stateName, &row.ownerId, &row.ownerName)
+	if err != nil {
+		// FIXME: remove log
+		log.Println("ERROR:", err, row)
+	}
+	p := project.NewProjectFromRepo(row.id, row.created, row.updated, row.projectKey, row.name, row.description,
+		project.NewProjectState(row.stateId, row.lifecycleId, row.stateName),
+		[]project.ProjectItem{},
+		project.NewProjectOwner(row.ownerId, row.ownerName))
+	return coreapi.NewResult(p, nil)
 }
 
 func (repo projectRepositoryPostgres) StoreProject(p project.Project) coreapi.Result[project.Project] {

@@ -40,6 +40,8 @@ func (service *projectService) StartComponent() {
 
 func (service projectService) GetProject(projectId string) coreapi.Result[ProjectDetails] {
 	result := service.repository.GetProject(projectId)
+	// FIXME: remove log
+	log.Println("projectService GetProject", result)
 	if !result.Sucess() {
 		return coreapi.NewResult(ProjectDetails{}, result.Error())
 	}

@@ -32,8 +32,8 @@ func NewProject(projectKey string, name string, state projectState) Project {
 	return project
 }
 
-func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey, name, description string,
-	state projectState, items []ProjectItem,
+func NewProjectFromRepo(id int, created, updated time.Time, projectKey, name, description string,
+	state projectState, items []ProjectItem, owner projectOwner,
 ) Project {
 	project := Project{
 		Entity: model.Entity{
@@ -45,6 +45,7 @@ func NewProjectFromRepo(id int, created time.Time, updated time.Time, projectKey
 		name:        name,
 		description: description,
 		items:       items,
+		owner:       owner,
 	}
 	return project
 }
@@ -73,6 +74,10 @@ func (p Project) GetOwnerId() int {
 	return p.owner.id
 }
 
+func (p Project) GetOwner() string {
+	return p.owner.name
+}
+
 type projectState struct {
 	name        string
 	id          int
@@ -92,12 +97,29 @@ func (state projectState) String() string {
 }
 
 type ProjectItem struct {
-	Name    string
-	ItemKey string
+	name    string
+	itemKey string
 	model.Entity
 }
 
+func NewProjectItem(id int, name, itemKey string) ProjectItem {
+	return ProjectItem{
+		name:    name,
+		itemKey: itemKey,
+		Entity: model.Entity{
+			Id: id,
+		},
+	}
+}
+
 type projectOwner struct {
-	id   int
 	name string
+	id   int
+}
+
+func NewProjectOwner(id int, name string) projectOwner {
+	return projectOwner{
+		id:   id,
+		name: name,
+	}
 }

@@ -45,7 +45,6 @@ func (h projectHandler) projectDetails(c *gin.Context) {
 	projectId := c.Param("itemId")
 	result := h.projectService.GetProject(projectId)
 	if !result.Sucess() {
-		log.Println("EEEEEEE", result.Error())
 		view_errors.Error(result.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}

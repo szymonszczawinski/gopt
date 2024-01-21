@@ -61,7 +61,7 @@ func NewProjectDetails(project Project) ProjectDetails {
 		ProjectKey: project.projectKey,
 		Name:       project.name,
 		State:      project.state.String(),
-		Owner:      "",
+		Owner:      project.GetOwner(),
 		Created:    project.GetCreationTime().String(),
 		Updated:    project.GetLastUpdateTime().String(),
 	}

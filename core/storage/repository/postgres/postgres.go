@@ -18,6 +18,7 @@ import (
 type IPostgresDatabase interface {
 	service.IComponent
 	NewSelect(sql string, args ...any) (pgx.Rows, error)
+	NewSelectOne(sql string, args any) pgx.Row
 	NewInsert(sql string, args ...any) (pgconn.CommandTag, error)
 	NewInsertReturninId(sql string, args any) (int, error)
 }
@@ -52,12 +53,15 @@ func (db *postgresDatabase) NewSelect(sql string, args ...any) (pgx.Rows, error)
 	return db.dbpool.Query(db.ctx, sql, args...)
 }
 
+func (db *postgresDatabase) NewSelectOne(sql string, args any) pgx.Row {
+	return db.dbpool.QueryRow(db.ctx, sql, args)
+}
+
 func (db *postgresDatabase) NewInsert(sql string, args ...any) (pgconn.CommandTag, error) {
 	return db.dbpool.Exec(db.ctx, sql, args...)
 }
 
 func (db *postgresDatabase) NewInsertReturninId(sql string, args any) (int, error) {
-	log.Println(sql, args)
 	var id int
 	err := db.dbpool.QueryRow(db.ctx, sql, args).Scan(&id)
 	return id, err
