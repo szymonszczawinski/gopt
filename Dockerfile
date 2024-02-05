@@ -12,9 +12,9 @@
 ############################################################################
 
 FROM golang:1.21.3 as appBuilder
-WORKDIR /app/src/gosi/
+WORKDIR /app/src/gopt/
 COPY . .
-WORKDIR /app/src/gosi/
+WORKDIR /app/src/gopt/
 RUN go build --trimpath -o app main.go
 
 
@@ -29,10 +29,10 @@ WORKDIR /app/josi
 # COPY --from=pluginBuilder /app/src/josi/mod/rpc/rpc.so /app/josi/mod/rpc/rpc.so
 
 #COPY APP
-COPY --from=appBuilder /app/src/gosi/app /app/gosi/app
-#COPY --from=appBuilder /app/src/gosi/gosi.db /app/gosi/gosi.db
+COPY --from=appBuilder /app/src/gopt/app /app/gopt/app
+#COPY --from=appBuilder /app/src/gopt/gopt.db /app/gopt/gopt.db
 
-WORKDIR /app/gosi
+WORKDIR /app/gopt
 CMD ["./app"]
 
 #EXPOSE 8080

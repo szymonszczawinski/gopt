@@ -5,14 +5,22 @@ import (
 	"fmt"
 	"gopt/core/config"
 	"gopt/coreapi/service"
-	"gopt/coreapi/storage/sql/query"
 	"log"
 	"os"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/jackc/pgx/v5/tracelog"
 	"golang.org/x/sync/errgroup"
+)
+
+const (
+	PROJECT_SELECT_ALL string = "SELECT id, created, updated, name, project_key, description, state_id," +
+		"lifecycle_id, created_by_id FROM project;"
+
+	LIFECYCLE_SELECT_ALL       string = "SELECT id, name, start_state_id FROM lifecycle;"
+	LIFECYCLE_STATE_SELECT_ALL string = "SELECT id, name FROM lifecyclestate;"
 )
 
 type IPostgresDatabase interface {
@@ -67,8 +75,27 @@ func (db *postgresDatabase) NewInsertReturninId(sql string, args any) (int, erro
 	return id, err
 }
 
+type myLogger struct{}
+
+func (ll myLogger) Log(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]any) {
+	log.Println("PGX", "level=", level, "msg=", msg, "args=", data)
+}
+
 func openDatabase(ctx context.Context) *pgxpool.Pool {
-	dbpool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL"))
+	tracer := &tracelog.TraceLog{
+		Logger:   myLogger{},
+		LogLevel: tracelog.LogLevelTrace,
+	}
+
+	dbConfig, err := pgxpool.ParseConfig(os.Getenv("DB_URL"))
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Unable to parse connString: %v\n", err)
+		os.Exit(1)
+	}
+
+	dbConfig.ConnConfig.Tracer = tracer
+	dbpool, err := pgxpool.NewWithConfig(ctx, dbConfig)
+	// dbpool, err := pgxpool.New(context.Background(), os.Getenv("DB_URL"))
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Unable to create connection pool: %v\n", err)
 		os.Exit(1)
@@ -83,7 +110,7 @@ func openDatabase(ctx context.Context) *pgxpool.Pool {
 }
 
 func mustHealthCheck(pool *pgxpool.Pool, ctx context.Context) {
-	rows, err := pool.Query(ctx, query.PROJECT_SELECT_ALL)
+	rows, err := pool.Query(ctx, PROJECT_SELECT_ALL)
 	if err != nil {
 		log.Panicln("ERROR :: DB healthceck", err)
 	}

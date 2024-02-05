@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"gopt/client/config"
-	"gopt/client/connector/http/"
+	"gopt/client/connector/http"
 	"log"
 	"os"
 	"os/signal"
@@ -34,7 +34,6 @@ func main() {
 	}
 
 	defer close(signalChannel)
-
 }
 
 func registerShutdownHook(cancel context.CancelFunc) chan os.Signal {
@@ -49,5 +48,4 @@ func registerShutdownHook(cancel context.CancelFunc) chan os.Signal {
 	}()
 
 	return sigCh
-
 }

@@ -1,15 +1,15 @@
 package lifecycle
 
-import "gopt/core/domain/common/model"
+import common "gopt/core/domain/common"
 
 type LifecycleState struct {
 	name string
-	model.Entity
+	common.Entity
 }
 
 func NewLifecycleState(id int, name string) LifecycleState {
 	state := LifecycleState{
-		Entity: model.Entity{Id: id},
+		Entity: common.Entity{Id: id},
 		name:   name,
 	}
 	return state
@@ -23,7 +23,7 @@ type Lifecycle struct {
 	name        string
 	transitions map[LifecycleState][]LifecycleState
 	startState  LifecycleState
-	model.Entity
+	common.Entity
 }
 
 func (l Lifecycle) GetStartState() LifecycleState {
@@ -60,7 +60,7 @@ func (lcb *LifecycleBuilder) AddTransition(from LifecycleState, to LifecycleStat
 
 func (lcb LifecycleBuilder) Build() Lifecycle {
 	lifecycle := Lifecycle{
-		Entity:      model.Entity{Id: lcb.id},
+		Entity:      common.Entity{Id: lcb.id},
 		name:        lcb.name,
 		startState:  lcb.startState,
 		transitions: lcb.transitions,

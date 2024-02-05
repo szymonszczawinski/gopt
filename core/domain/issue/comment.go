@@ -2,22 +2,22 @@ package domain
 
 import (
 	"fmt"
-	"gopt/core/domain/common/model"
+	"gopt/core/domain/common"
 	"time"
 )
 
 type Comment struct {
-	author            CommentAuthor // 4
-	model.TimeTracked               // 2
-	content           string        // 3
-	parentItemId      int           // 1
-	model.Entity                    // 5
+	author             CommentAuthor // 4
+	common.TimeTracked               // 2
+	content            string        // 3
+	parentItemId       int           // 1
+	common.Entity                    // 5
 }
 
 func NewComment(parentItemId int, content string) Comment {
 	comment := Comment{
-		Entity:       model.Entity{},
-		TimeTracked:  model.NewTimeTracked(time.Now(), time.Now()),
+		Entity:       common.Entity{},
+		TimeTracked:  common.NewTimeTracked(time.Now(), time.Now()),
 		parentItemId: parentItemId,
 		content:      content,
 	}

@@ -27,6 +27,7 @@ type ProjectListElement struct {
 	Id         int    `json:"id"`
 }
 
+// Read-only view of a project
 type ProjectDetails struct {
 	ProjectKey string `json:"projectKey"`
 	Name       string `json:"name"`
@@ -34,7 +35,16 @@ type ProjectDetails struct {
 	Owner      string `json:"owner"`
 	Created    string `json:"created"`
 	Updated    string `json:"updated"`
-	Id         int    `json:"id"`
+	Items      []ProjectDetailsItem
+	Id         int `json:"id"`
+}
+
+// Read-only view of project related items: Tasks, Bugs, etc
+type ProjectDetailsItem struct {
+	ItemType string
+	Name     string
+	ItemKey  string
+	State    string
 }
 
 type ProjectComment struct {

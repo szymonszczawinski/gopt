@@ -1,25 +1,25 @@
 package project
 
 import (
-	"gopt/core/domain/common/model"
+	common "gopt/core/domain/common"
 	"time"
 )
 
 type Project struct {
-	model.TimeTracked
+	common.TimeTracked
 	name        string
 	projectKey  string
 	description string
 	items       []ProjectItem
 	owner       projectOwner
 	state       projectState
-	model.Entity
+	common.Entity
 }
 
 func NewProject(projectKey string, name string, state projectState) Project {
 	project := Project{
-		Entity:      model.Entity{},
-		TimeTracked: model.NewTimeTracked(time.Now(), time.Now()),
+		Entity:      common.Entity{},
+		TimeTracked: common.NewTimeTracked(time.Now(), time.Now()),
 		state:       state,
 		name:        name,
 		projectKey:  projectKey,
@@ -36,10 +36,10 @@ func NewProjectFromRepo(id int, created, updated time.Time, projectKey, name, de
 	state projectState, items []ProjectItem, owner projectOwner,
 ) Project {
 	project := Project{
-		Entity: model.Entity{
+		Entity: common.Entity{
 			Id: id,
 		},
-		TimeTracked: model.NewTimeTracked(created, updated),
+		TimeTracked: common.NewTimeTracked(created, updated),
 		state:       state,
 		projectKey:  projectKey,
 		name:        name,
@@ -97,16 +97,26 @@ func (state projectState) String() string {
 }
 
 type ProjectItem struct {
-	name    string
-	itemKey string
-	model.Entity
+	common.TimeTracked
+	itemType  common.IssueType
+	name      string
+	itemKey   string
+	creator   string
+	assignee  string
+	itemState string
+	common.Entity
 }
 
-func NewProjectItem(id int, name, itemKey string) ProjectItem {
+func NewProjectItem(id int, name, itemKey string, itemType common.IssueType, state string, created, updated time.Time, creator, assignee string) ProjectItem {
 	return ProjectItem{
-		name:    name,
-		itemKey: itemKey,
-		Entity: model.Entity{
+		TimeTracked: common.NewTimeTracked(created, updated),
+		creator:     creator,
+		assignee:    assignee,
+		itemType:    itemType,
+		name:        name,
+		itemKey:     itemKey,
+		itemState:   state,
+		Entity: common.Entity{
 			Id: id,
 		},
 	}

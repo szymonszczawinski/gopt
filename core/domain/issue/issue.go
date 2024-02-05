@@ -1,30 +1,16 @@
 package domain
 
-import "gopt/core/domain/common/model"
-
-type IssueType string
-
-type RelationType string
-
-const (
-	RelationTypeCauses     RelationType = "Causes"
-	RelationTypeIsCausedBy RelationType = "IsCausedBy"
-	RelationTypeIsChildOf  RelationType = "IsChildOf"
-	RelationTypeIsParentOf RelationType = "IsParentOf"
-)
-
-const (
-	IssueTypeRequirement IssueType = "Requirement"
-	IssueTypeBug         IssueType = "Bug"
+import (
+	"gopt/core/domain/common"
 )
 
 type (
 	ParentProject struct{}
 
 	Issue struct {
-		model.TimeTracked
+		common.TimeTracked
 
-		issueType   IssueType
+		issueType   common.IssueType
 		project     ParentProject
 		itemKey     string
 		name        string
@@ -32,7 +18,7 @@ type (
 		comments    []Comment
 		relations   []Relation
 		itemNumber  int
-		model.Entity
+		common.Entity
 	}
 )
 
@@ -52,7 +38,7 @@ func (issue Issue) GetDescription() string {
 	return issue.description
 }
 
-func (issue Issue) GetIssueType() IssueType {
+func (issue Issue) GetIssueType() common.IssueType {
 	return issue.issueType
 }
 
@@ -67,7 +53,7 @@ func (issue *Issue) AddComment(comment Comment) {
 
 type Requirement struct {
 	project   ParentProject
-	issueType IssueType
+	issueType common.IssueType
 	Issue
 }
 
@@ -77,8 +63,8 @@ type Bug struct {
 }
 
 type Relation struct {
-	relationType RelationType
+	relationType common.RelationType
 	fromIssue    Issue
 	toIssue      Issue
-	model.Entity
+	common.Entity
 }

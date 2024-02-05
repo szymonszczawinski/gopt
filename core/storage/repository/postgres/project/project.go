@@ -3,10 +3,10 @@ package project
 import (
 	"context"
 	"errors"
+	"gopt/core/domain/common"
 	"gopt/core/domain/project"
 	"gopt/core/storage/repository/postgres"
 	"gopt/coreapi"
-	"gopt/coreapi/storage/sql/command"
 	"log"
 	"sync"
 	"time"
@@ -30,12 +30,23 @@ const (
 		" JOIN users u ON u.id = p.created_by_id" +
 		" WHERE p.project_key = $1"
 
-	PROJECT_ITEMS_SELECT_BY_PROJECT_ID = "SELECT p.id, p.created, p.updated, p.name, p.project_key, p.description, p.lifecycle_id, " +
-		" lcs.id as state_id, lcs.name as state_name, u.id as owner_id, CONCAT(users.last_name,', ',users.first_name) as owner_name " +
-		" from project p " +
-		" JOIN lifecyclestate lcs ON lcs.id = p.state_id" +
-		" JOIN users u ON u.id = p.created_by_id" +
-		" WHERE p.project_key = $1"
+	PROJECT_ITEMS_SELECT_BY_PROJECT_KEY = "SELECT i.id, i.created, i.updated, i.name, i.item_key,  " +
+		" lcs.name as state_name, lc.name as itemType," +
+		" CONCAT(c.last_name,', ',c.first_name) as creator_name, " +
+		" CONCAT(a.last_name,', ',a.first_name) as assignee_name " +
+		" from issue i " +
+		" JOIN lifecyclestate lcs ON lcs.id = i.state_id" +
+		" JOIN lifecycle lc ON lc.id = i.lifecycle_id" +
+		" JOIN users c ON c.id = i.created_by_id" +
+		" JOIN users a ON a.id = i.assigned_to_id" +
+		" WHERE i.project_key = $1"
+	INSERT_LIFECYCLE_STATE  string = "INSERT INTO lifecyclestate (id, name) VALUES (NULL,?);"
+	INSERT_LIFECYCLE        string = "INSERT INTO lifecycle (id, name,start_state_id) VALUES (NULL,?,?);"
+	INSERT_STATE_TRANSITION string = "INSERT INTO statetransition (lifecycleid, fromstateid, to_state_id) VALUES (?,?,?);"
+	INSERT_PROJECT          string = "INSERT INTO project (id, created, updated, name, project_key, description, state_id, lifecycle_id, created_by_id) " +
+		"VALUES (NULL,?,?,?,?,?,?,?,?);"
+	INSERT_PROJECT_RETURN_ID string = "INSERT INTO project (created, updated, name, project_key, description, state_id, lifecycle_id, created_by_id) " +
+		"VALUES(@created, @updated, @name, @project_key, @description, @state_id, @lifecycle_id, @created_by_id) returning id;"
 )
 
 var (
@@ -86,8 +97,8 @@ func (repo projectRepositoryPostgres) GetProjects() coreapi.Result[[]project.Pro
 	return coreapi.NewResult(projects, nil)
 }
 
-func (repo projectRepositoryPostgres) GetProject(projectId string) coreapi.Result[project.Project] {
-	result := repo.db.NewSelectOne(PROJECT_SELECT_BY_KEY, projectId)
+func (repo projectRepositoryPostgres) GetProject(projectKey string) coreapi.Result[project.Project] {
+	result := repo.db.NewSelectOne(PROJECT_SELECT_BY_KEY, projectKey)
 	if result == nil {
 		return coreapi.NewResult[project.Project](project.Project{}, ErrProjectNotFound)
 	}
@@ -104,9 +115,10 @@ func (repo projectRepositoryPostgres) GetProject(projectId string) coreapi.Resul
 		// FIXME: remove log
 		log.Println("ERROR:", err, row)
 	}
+	projectItems := repo.getProjectItems(projectKey)
 	p := project.NewProjectFromRepo(row.id, row.created, row.updated, row.projectKey, row.name, row.description,
 		project.NewProjectState(row.stateId, row.lifecycleId, row.stateName),
-		[]project.ProjectItem{},
+		projectItems.Data(),
 		project.NewProjectOwner(row.ownerId, row.ownerName))
 	return coreapi.NewResult(p, nil)
 }
@@ -122,7 +134,7 @@ func (repo projectRepositoryPostgres) StoreProject(p project.Project) coreapi.Re
 		"lifecycle_id":  p.GetLifecycleId(),
 		"created_by_id": p.GetOwnerId(),
 	}
-	id, err := repo.db.NewInsertReturninId(command.INSERT_PROJECT_RETURN_ID, args)
+	id, err := repo.db.NewInsertReturninId(INSERT_PROJECT_RETURN_ID, args)
 	if err != nil {
 		return coreapi.NewResult[project.Project](project.Project{}, errors.Join(ErrorProjectNotCreated, err))
 	}
@@ -132,4 +144,28 @@ func (repo projectRepositoryPostgres) StoreProject(p project.Project) coreapi.Re
 
 func (repo projectRepositoryPostgres) UpdateProject(p project.Project) coreapi.Result[project.Project] {
 	return coreapi.NewResult(project.Project{}, coreapi.ErrorNotImplemented)
+}
+
+func (repo projectRepositoryPostgres) getProjectItems(projectKey string) coreapi.Result[[]project.ProjectItem] {
+	// FIXME: delete log
+	log.Println("get project items for ", projectKey)
+	rows, err := repo.db.NewSelect(PROJECT_ITEMS_SELECT_BY_PROJECT_KEY, projectKey)
+	if err != nil {
+		log.Printf("ERROR: %v\n", err)
+		return coreapi.NewResult([]project.ProjectItem{}, err)
+	}
+	defer rows.Close()
+	projectItems := []project.ProjectItem{}
+	var row struct {
+		created, updated                                  time.Time
+		itemKey, name, state, creator, assingee, itemType string
+		id                                                int
+	}
+
+	pgx.ForEachRow(rows, []any{&row.id, &row.created, &row.updated, &row.name, &row.itemKey, &row.state, &row.itemType, &row.creator, &row.assingee}, func() error {
+		projectItems = append(projectItems, project.NewProjectItem(row.id, row.itemKey, row.name, common.IssueType(row.itemType),
+			row.state, row.created, row.updated, row.creator, row.assingee))
+		return nil
+	})
+	return coreapi.NewResult(projectItems, nil)
 }
