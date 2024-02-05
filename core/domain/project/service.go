@@ -47,7 +47,7 @@ func (service projectService) GetProject(projectId string) coreapi.Result[Projec
 	}
 
 	projectDetails := NewProjectDetails(result.Data())
-	projectDetails.Items = map2[ProjectItem, ProjectDetailsItem](result.Data().items,
+	projectDetails.Items = coreapi.Map2[ProjectItem, ProjectDetailsItem](result.Data().items,
 		func(t ProjectItem) ProjectDetailsItem {
 			return ProjectDetailsItem{State: t.itemState, ItemType: string(t.itemType), Name: t.name, ItemKey: t.itemKey}
 		},
@@ -70,14 +70,4 @@ func (service projectService) CreateProject(newProject CreateProjectCommand) cor
 func (service *projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {
 	// TODO: to implement
 	return coreapi.NewResult[ProjectDetails](ProjectDetails{}, nil)
-}
-
-func map2[T, U any](data []T, f func(T) U) []U {
-	res := make([]U, 0, len(data))
-
-	for _, e := range data {
-		res = append(res, f(e))
-	}
-
-	return res
 }
