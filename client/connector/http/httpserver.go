@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gopt/client/connector/http/controllers"
 	"log"
+	"log/slog"
 	"net/http"
 	"time"
 
@@ -33,16 +34,17 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int) *Ht
 	configureRoutes(instance.engine)
 	return instance
 }
+
 func configureRoutes(router *gin.Engine) {
 	router.GET("/gopt", controllers.Root(router))
 	router.GET("/gopt/hello", controllers.Hello)
 	router.GET("/gopt/api", controllers.Api)
-
 }
+
 func (s *HttpServer) Start() {
 	s.group.Go(func() error {
 		// service connections
-		log.Println("Sever started on port:", s.port)
+		slog.Info("Sever started on port:", s.port)
 		if err := s.server.ListenAndServe(); err != nil {
 			log.Printf("Listen: %s\n", err)
 			return err
@@ -56,5 +58,5 @@ func (s *HttpServer) Start() {
 	if err := s.server.Shutdown(ctx); err != nil {
 		log.Fatal("Server Shutdown:", err)
 	}
-	log.Println("Server exiting")
+	slog.Info("Server exiting")
 }

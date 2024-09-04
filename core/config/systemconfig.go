@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"log"
+	"log/slog"
 	"os"
 )
 
@@ -40,15 +41,15 @@ func GetConfiguredServices() (*ServiceConfigItems, error) {
 		log.Fatal(err)
 		return nil, err
 	}
-	log.Println(cwd)
+	slog.Info(cwd)
 	// Open our jsonFile
 	jsonFile, err := os.Open(CONFIG_DIR + "/services_config.json")
 	// if we os.Open returns an error then handle it
 	if err != nil {
-		log.Println(err)
+		slog.Info("get configures services", "err", err)
 		return nil, err
 	}
-	log.Println("Successfully Opened services_config.json")
+	slog.Info("Successfully Opened services_config.json")
 	byteValue, _ := io.ReadAll(jsonFile)
 	json.Unmarshal(byteValue, &configuredServices)
 	// defer the closing of our jsonFile so that we can parse it later on

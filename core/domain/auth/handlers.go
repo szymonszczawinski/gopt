@@ -4,7 +4,7 @@ import (
 	"errors"
 	"gopt/coreapi/viewhandlers"
 	"gopt/public/auth"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -39,7 +39,7 @@ func (handler authHandler) login(c *gin.Context) {
 }
 
 func (handler authHandler) loginSubmit(c *gin.Context) {
-	log.Println("login submit")
+	slog.Info("login submit")
 	password := c.PostForm("username")
 	username := c.PostForm("password")
 	loginResult := handler.authService.login(username, password)
@@ -47,7 +47,7 @@ func (handler authHandler) loginSubmit(c *gin.Context) {
 		auth.LoginError(loginResult.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
-	log.Println(loginResult.Data())
+	slog.Info("data", loginResult.Data())
 	sessionToken := uuid.NewString()
 	c.SetCookie("session_token", sessionToken, 120, "", "gopt", false, true)
 	c.HTML(http.StatusOK, "home", gin.H{

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"gopt/coreapi/viewhandlers"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"time"
@@ -40,7 +41,7 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 	routes := configureMainRoutes(ginRouter)
 	instance := httpServer{
 		server: &http.Server{
-			Addr:    fmt.Sprintf("localhost:%v", port),
+			Addr:    fmt.Sprintf(":%v", port),
 			Handler: ginRouter,
 		},
 		router:     ginRouter,
@@ -58,8 +59,9 @@ func (s *httpServer) Start() {
 	s.group.Go(func() error {
 		s.group.Go(func() error {
 			// service connections
+			slog.Info("http server staring on", "address", s.server.Addr)
 			if err := s.server.ListenAndServe(); err != nil {
-				log.Printf("Listen: %s\n", err)
+				slog.Info("http server error", "error", err)
 				return err
 			}
 			return nil
@@ -73,14 +75,14 @@ func (s *httpServer) Start() {
 		if err := s.server.Shutdown(ctx); err != nil {
 			log.Fatal("Server Shutdown:", err)
 		} else {
-			log.Println("Server Shutdown OK")
+			slog.Info("Server Shutdown OK")
 		}
 		// catching ctx.Done(). timeout of 5 seconds.
 		// select {
 		// case <-ctx.Done():
-		// 	log.Println("timeout of 5 seconds.")
+		// 	slog.Info("timeout of 5 seconds.")
 		// }
-		log.Println("Server exiting")
+		slog.Info("Server exiting")
 		return nil
 	})
 }

@@ -8,6 +8,7 @@ import (
 	"gopt/core/storage/repository/postgres"
 	"gopt/coreapi"
 	"log"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -113,7 +114,7 @@ func (repo projectRepositoryPostgres) GetProject(projectKey string) coreapi.Resu
 		&row.stateId, &row.stateName, &row.ownerId, &row.ownerName)
 	if err != nil {
 		// FIXME: remove log
-		log.Println("ERROR:", err, row)
+		slog.Info("ERROR:", err, row)
 	}
 	projectItems := repo.getProjectItems(projectKey)
 	p := project.NewProjectFromRepo(row.id, row.created, row.updated, row.projectKey, row.name, row.description,
@@ -148,7 +149,7 @@ func (repo projectRepositoryPostgres) UpdateProject(p project.Project) coreapi.R
 
 func (repo projectRepositoryPostgres) getProjectItems(projectKey string) coreapi.Result[[]project.ProjectItem] {
 	// FIXME: delete log
-	log.Println("get project items for ", projectKey)
+	slog.Info("get project items for ", projectKey)
 	rows, err := repo.db.NewSelect(PROJECT_ITEMS_SELECT_BY_PROJECT_KEY, projectKey)
 	if err != nil {
 		log.Printf("ERROR: %v\n", err)

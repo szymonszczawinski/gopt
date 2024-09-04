@@ -7,6 +7,7 @@ import (
 	imessenger "gopt/coreapi/messenger"
 	"gopt/coreapi/queue"
 	"log"
+	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -33,23 +34,24 @@ func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientSe
 			if ok {
 				impl.AddHandler(imessenger.HELLO, serviceInstance)
 			} else {
-				log.Println("Incorrect type", impl)
+				slog.Info("Incorrect type", impl)
 			}
 		} else {
-			log.Println("Could not find service: ", messenger.IMMESSENGER_HANDLER_REGISTRY)
+			slog.Info("Could not find service: ", messenger.IMMESSENGER_HANDLER_REGISTRY)
 		}
 	}
 	return serviceInstance
 }
 
 func (s *httpClientService) StartComponent() {
-	log.Println("Starting", IHTTP_CLIENT_SERVICE)
+	slog.Info("Starting", IHTTP_CLIENT_SERVICE)
 	s.looper.Start(s.ctx)
 }
 
 func (s *httpClientService) OnPublish(t imessenger.Topic, m imessenger.Message, l imessenger.PublishListener) {
 	log.Printf("Message: %v published on topic: %v\n", m, t)
 }
+
 func (s *httpClientService) OnSubscribe(t imessenger.Topic, listener imessenger.SubscribeListener) {
 	log.Printf("Subscribe request on topic: %v\n", t)
 }

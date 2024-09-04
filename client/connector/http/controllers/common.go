@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -12,11 +12,11 @@ func Root(router *gin.Engine) gin.HandlerFunc {
 		routes := router.Routes()
 		routesMap := map[string]string{}
 
-		log.Println(routes)
+		slog.Info("handle root", "routes", routes)
 		for _, r := range routes {
 			routesMap[r.Path] = r.Handler
 		}
-		log.Println(routesMap)
+		slog.Info("handle root", "routes map", routesMap)
 
 		c.String(http.StatusOK, "Welcome gopt Client\nAvailable Routes:\n%v", routesMap)
 	}

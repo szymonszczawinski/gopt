@@ -3,7 +3,7 @@ package handlers
 import (
 	"errors"
 	"gopt/core/domain/project"
-	"log"
+	"log/slog"
 
 	view_errors "gopt/public/error"
 	view_project "gopt/public/project"
@@ -12,7 +12,7 @@ import (
 )
 
 func (h projectHandler) projectsPage(c *gin.Context) {
-	log.Println("PROJECTS PAGE")
+	slog.Info("PROJECTS PAGE")
 	view_project.Projects(h.readRepo.GetProjects().Data()).Render(c.Request.Context(), c.Writer)
 }
 
@@ -21,7 +21,7 @@ func (h projectHandler) newProject(c *gin.Context) {
 }
 
 func (h projectHandler) addProject(c *gin.Context) {
-	log.Println("addProject")
+	slog.Info("addProject")
 	command := project.CreateProjectCommand{
 		IssueKey: c.PostForm("project-key"),
 		Name:     c.PostForm("project-name"),
@@ -36,7 +36,7 @@ func (h projectHandler) addProject(c *gin.Context) {
 		view_project.ProjectAddError(result.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
-	log.Println("Project Created")
+	slog.Info("Project Created")
 	c.Writer.Header().Add("HX-Redirect", "/gopt/views/projects")
 	// c.Redirect(http.StatusFound, "/gopt/projects")
 }
@@ -48,7 +48,7 @@ func (h projectHandler) projectDetails(c *gin.Context) {
 		view_errors.Error(result.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
-	log.Println("PROJECT DETAILS", result.Data())
+	slog.Info("PROJECT DETAILS", "data", result.Data())
 	view_project.ProjectDetails(result.Data()).Render(c.Request.Context(), c.Writer)
 }
 

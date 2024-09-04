@@ -4,7 +4,7 @@ import (
 	"context"
 	"gopt/coreapi"
 	"gopt/coreapi/service"
-	"log"
+	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -41,7 +41,7 @@ func (service *projectService) StartComponent() {
 func (service projectService) GetProject(projectId string) coreapi.Result[ProjectDetails] {
 	result := service.repository.GetProject(projectId)
 	// FIXME: remove log
-	log.Println("projectService GetProject", result)
+	slog.Info("projectService GetProject", "result", result)
 	if !result.Sucess() {
 		return coreapi.NewResult(ProjectDetails{}, result.Error())
 	}
@@ -61,7 +61,7 @@ func (service projectService) CreateProject(newProject CreateProjectCommand) cor
 
 	resultProject := service.repository.StoreProject(project)
 	if !resultProject.Sucess() {
-		log.Println("Could not create Project", resultProject.Error())
+		slog.Info("Could not create Project", "err", resultProject.Error())
 		return coreapi.NewResult[ProjectDetails](ProjectDetails{}, resultProject.Error())
 	}
 	return coreapi.NewResult[ProjectDetails](NewProjectDetails(resultProject.Data()), nil)

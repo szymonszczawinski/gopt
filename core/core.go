@@ -10,7 +10,7 @@ import (
 	"gopt/core/messenger"
 	"gopt/core/service"
 	"gopt/core/storage/repository/postgres"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"strconv"
@@ -30,9 +30,9 @@ const (
 )
 
 func Start(cla map[string]any, staticContent http.StaticContent) {
-	log.Println("START CORE")
+	slog.Info("START CORE")
 	config.InitSystemConfiguration(cla)
-	log.Println("Start Parameters:", cla)
+	slog.Info("Start Parameters:", cla)
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
@@ -41,38 +41,38 @@ func Start(cla map[string]any, staticContent http.StaticContent) {
 	startServices(sm, mainGroup, groupContext, staticContent)
 	// time.Sleep(time.Second * 5)
 	if err := mainGroup.Wait(); err == nil {
-		log.Println("FINISH CORE")
+		slog.Info("FINISH CORE")
 	}
 
 	defer close(signalChannel)
 }
 
 func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
-	log.Println("START CORE :: START SERVICES")
+	slog.Info("START CORE :: START SERVICES")
 
-	log.Println("Starting MESSENGER SERVICE")
+	slog.Info("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
 	sm.StartComponent(api_service.ComponentTypeMessenger, messengerService)
 
-	log.Println("Starting DATABASE")
+	slog.Info("Starting DATABASE")
 	// databaseConnection := bun.NewBunDatabase(eg, ctx)
 	databaseConnection := postgres.NewPostgresSqlDatabase(eg, ctx)
 	sm.StartComponent(api_service.ComponentTypeSqlDatabase, databaseConnection)
 
-	log.Println("Starting PROJECT REPOSITORY")
+	slog.Info("Starting PROJECT REPOSITORY")
 	// projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
 	projectRepository := repo_project.NewProjectRepositoryPostgres(eg, ctx, databaseConnection)
 	sm.StartComponent(api_service.ComponentTypeProjectRepository, projectRepository)
 
-	log.Println("Starting PROJECT SERVICE")
+	slog.Info("Starting PROJECT SERVICE")
 	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
 	sm.StartComponent(api_service.ComponentTypeProjectService, projetcsService)
 
-	log.Println("Starting AUTH REPOSITORY")
+	slog.Info("Starting AUTH REPOSITORY")
 	authRepository := repo_auth.NewAuthRepository(eg, ctx, databaseConnection)
 	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
-	log.Println("Starting AUTH SERVICE")
+	slog.Info("Starting AUTH SERVICE")
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
 	sm.StartComponent(api_service.ComponentTypeAuthService, authService)
 
@@ -91,7 +91,7 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	httpServer.AddHandler(authController)
 	httpServer.Start()
 
-	// log.Println("Starting HTTP SERVER SERVICE")
+	// slog.Info("Starting HTTP SERVER SERVICE")
 	// httpServerService := http.NewHttpServerService(eg, ctx, staticContent)
 	// sm.StartComponent(iservice.ComponentTypeHttpServerService, httpServerService)
 }
@@ -99,12 +99,12 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 // func createPluginService(serviceLocation string, serviceName string) iservice.IComponent {
 // 	plug, err := plugin.Open(serviceLocation)
 // 	if err != nil {
-// 		log.Println("Could not load: ", serviceName, "Error: ", err)
+// 		slog.Info("Could not load: ", serviceName, "Error: ", err)
 // 		return nil
 // 	}
 // 	createMethod, err := plug.Lookup(iservice.NEW_FUNCTION)
 // 	if err != nil {
-// 		log.Println("Could not get New from: ", serviceName)
+// 		slog.Info("Could not get New from: ", serviceName)
 // 		return nil
 // 	}
 // 	createFunction, isCreateFunction := createMethod.(func() any)
@@ -115,7 +115,7 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 // 	instance := createFunction()
 // 	serviceInstance, isInstance := instance.(iservice.IComponent)
 // 	if !isInstance {
-// 		log.Println("Instance is not IModService")
+// 		slog.Info("Instance is not IModService")
 // 		return nil
 // 	}
 // 	return serviceInstance

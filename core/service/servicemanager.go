@@ -7,6 +7,7 @@ import (
 	"gopt/coreapi/queue"
 	"gopt/coreapi/service"
 	"log"
+	"log/slog"
 	"sync"
 
 	"golang.org/x/sync/errgroup"
@@ -46,7 +47,7 @@ func GetServiceManager() (service.IServiceManager, error) {
 func (sm *serviceManager) MustGetComponent(componentType service.ComponentType) service.IComponent {
 	component, componentExists := sm.components[componentType]
 	if componentExists {
-		log.Println("Return component of type: ", componentType)
+		slog.Info("Return component", "type", componentType)
 		return component
 	}
 	log.Fatalf("Componnent %v does not exists", componentType)
@@ -66,6 +67,6 @@ func (sm *serviceManager) StartComponent(componentType service.ComponentType, co
 
 // Register given service for a given ServiceType
 func (sm *serviceManager) RegisterComponent(componentType service.ComponentType, component service.IComponent) {
-	log.Println("Register Component: ", componentType)
+	slog.Info("Register Component", "type", componentType)
 	sm.components[componentType] = component
 }

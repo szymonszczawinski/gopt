@@ -5,6 +5,7 @@ import (
 	"gopt/client/config"
 	"gopt/client/connector/http"
 	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -14,14 +15,14 @@ import (
 
 func main() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lshortfile)
-	log.Println("gopt :: CLIENT :: START")
+	slog.Info("gopt :: CLIENT :: START")
 	baseContext, cancel := context.WithCancel(context.Background())
 	signalChannel := registerShutdownHook(cancel)
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
 
 	configMap, err := config.GetClientConfig()
 	if err != nil {
-		log.Println("Could not load configuration", err)
+		slog.Info("Could not load configuration", err)
 		return
 	}
 	serverPort := configMap[config.HTTP_SERVER_PORT]
@@ -30,7 +31,7 @@ func main() {
 	httpServer.Start()
 
 	if err := mainGroup.Wait(); err == nil {
-		log.Println("FINISH CORE")
+		slog.Info("FINISH CORE")
 	}
 
 	defer close(signalChannel)
@@ -43,7 +44,7 @@ func registerShutdownHook(cancel context.CancelFunc) chan os.Signal {
 	go func() {
 		// wait until receiving the signal
 		<-sigCh
-		log.Println("Shutdown Hook triggered")
+		slog.Info("Shutdown Hook triggered")
 		cancel()
 	}()
 

@@ -8,6 +8,7 @@ import (
 	domain "gopt/core/domain/issue"
 	"gopt/core/http"
 	"log"
+	"log/slog"
 	"os"
 	"reflect"
 	"runtime"
@@ -24,14 +25,14 @@ func init() {
 }
 
 func main() {
-	log.Println("gopt :: START")
+	slog.Info("gopt :: START")
 	staticContent := http.StaticContent{
 		PublicDir: publicDir,
 	}
 	cla := parseCLA(os.Args)
 	core.Start(cla, staticContent)
 
-	log.Println("gopt :: FINISH")
+	slog.Info("gopt :: FINISH")
 	// sqlite.GetSqliteRepository()
 	// RunTests()
 }
@@ -42,7 +43,7 @@ func parseCLA(args []string) map[string]any {
 	if len(args) > 1 {
 		args = args[1:]
 		if len(args)%2 == 1 {
-			log.Println("Incorrect  number of command line parameters", args)
+			slog.Info("Incorrect  number of command line parameters", args)
 			return cla
 		}
 		for i := 0; i < len(args); i += 2 {

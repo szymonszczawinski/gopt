@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gopt/coreapi/queue"
-	"log"
+	"log/slog"
 	"time"
 
 	"golang.org/x/sync/errgroup"
@@ -19,11 +19,10 @@ type dummyService struct {
 }
 
 func (s *dummyService) VoidMethod(message string) {
-	log.Println("dummyService::VoidMethod")
+	slog.Info("dummyService::VoidMethod")
 	s.looper.Add(&queue.Job{Execute: func() {
 		time.Sleep(time.Second)
 		fmt.Println("Hello ", message)
-
 	}})
 }
 

@@ -6,6 +6,7 @@ import (
 	"gopt/core/config"
 	"gopt/coreapi/service"
 	"log"
+	"log/slog"
 	"os"
 
 	"github.com/jackc/pgx/v5"
@@ -48,7 +49,7 @@ func (db *postgresDatabase) Close() {
 }
 
 func (db *postgresDatabase) StartComponent() {
-	log.Println("Starting", service.ComponentTypeSqlDatabase)
+	slog.Info("Starting", "component", service.ComponentTypeSqlDatabase)
 	db.dbpool = openDatabase(db.ctx)
 	if config.GetSystemConfig(config.INIT_DB) == config.INIT_DB_TRUE {
 		mustDropTables(db)
@@ -78,7 +79,7 @@ func (db *postgresDatabase) NewInsertReturninId(sql string, args any) (int, erro
 type myLogger struct{}
 
 func (ll myLogger) Log(ctx context.Context, level tracelog.LogLevel, msg string, data map[string]any) {
-	log.Println("PGX", "level=", level, "msg=", msg, "args=", data)
+	slog.Info("PGX", "level=", level, "msg=", msg, "args=", data)
 }
 
 func openDatabase(ctx context.Context) *pgxpool.Pool {

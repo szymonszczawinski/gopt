@@ -11,30 +11,29 @@
 #BUILD APP
 ############################################################################
 
-FROM golang:1.21.3 as appBuilder
-WORKDIR /app/src/gopt/
+FROM golang:1.23.0-alpine3.20 as build-stage
+WORKDIR /app
 COPY . .
-WORKDIR /app/src/gopt/
-RUN go build --trimpath -o app main.go
-
+RUN go mod download
+RUN go build -o /gopt
 
 #CREATE FINAL IMAGE
 ############################################################################
 
-FROM alpine:3.14 AS server
+FROM alpine:3.19 AS release-stage
 
-WORKDIR /app/josi
+WORKDIR /
 
 #COPY PLUGINS
 # COPY --from=pluginBuilder /app/src/josi/mod/rpc/rpc.so /app/josi/mod/rpc/rpc.so
 
 #COPY APP
-COPY --from=appBuilder /app/src/gopt/app /app/gopt/app
+COPY --from=build-stage /gopt /gopt
 #COPY --from=appBuilder /app/src/gopt/gopt.db /app/gopt/gopt.db
+EXPOSE 8081
+ENV DB_URL=postgresql://postgres:postgres@172.18.0.1:5432/gopt
+# WORKDIR /app/gopt
+CMD "/gopt"
 
-WORKDIR /app/gopt
-CMD ["./app"]
-
-#EXPOSE 8080
 
 #CMD ["gosandbox"]

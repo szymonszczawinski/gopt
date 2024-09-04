@@ -19,7 +19,7 @@ package storage
 // }
 //
 // func NewStorageService(eg *errgroup.Group, ctx context.Context, repository storage.IRepository) storage.IStorageService {
-// 	log.Println("New Storage Service")
+// 	slog.Info("New Storage Service")
 // 	instance := new(storageService)
 // 	instance.ctx = ctx
 // 	instance.looper = queue.NeqJobQueue("storageService", eg)
@@ -27,7 +27,7 @@ package storage
 // 	return instance
 // }
 // func (self *storageService) StartComponent() {
-// 	log.Println("Starting", service.ComponentTypeTypeStorageService)
+// 	slog.Info("Starting", service.ComponentTypeTypeStorageService)
 // 	self.looper.Start(self.ctx)
 // }
 //

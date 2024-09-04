@@ -4,7 +4,7 @@ import (
 	"context"
 	"gopt/coreapi/queue"
 	"gopt/coreapi/service"
-	"log"
+	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -25,7 +25,7 @@ func NewHttpServerService(eg *errgroup.Group, ctx context.Context, staticContent
 }
 
 func (s *httpServerService) StartComponent() {
-	log.Println("Starting", service.ComponentTypeHttpServerService)
+	slog.Info("Starting", "component", service.ComponentTypeHttpServerService)
 	s.looper.Start(s.ctx)
 	s.server.Start()
 }

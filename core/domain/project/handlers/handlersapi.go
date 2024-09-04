@@ -2,14 +2,14 @@ package handlers
 
 import (
 	"gopt/core/domain/project"
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 func (handler projectHandler) getProjects(c *gin.Context) {
-	log.Println("getProjetcs")
+	slog.Info("getProjetcs")
 	c.JSON(http.StatusOK, gin.H{"data": handler.readRepo.GetProjects(), "error": ""})
 }
 

@@ -6,7 +6,7 @@ import (
 	imessenger "gopt/coreapi/messenger"
 	"gopt/coreapi/queue"
 	iservice "gopt/coreapi/service"
-	"log"
+	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 )
@@ -31,7 +31,7 @@ type messengerService struct {
 }
 
 func NewMessengerService(eg *errgroup.Group, ctx context.Context) imessenger.IMessenger {
-	log.Println("New Messenger Service")
+	slog.Info("New Messenger Service")
 	messenger := new(messengerService)
 	messenger.ctx = ctx
 	messenger.looper = queue.NeqJobQueue("messengerService", eg)
@@ -42,39 +42,40 @@ func NewMessengerService(eg *errgroup.Group, ctx context.Context) imessenger.IMe
 }
 
 func (s *messengerService) StartComponent() {
-	log.Println("Starting", iservice.ComponentTypeMessenger)
+	slog.Info("Starting", "component", iservice.ComponentTypeMessenger)
 	s.looper.Start(s.ctx)
 }
 
 func (s *messengerService) Publish(t imessenger.Topic, m imessenger.Message, listener imessenger.PublishListener) {
-	log.Println("Publish on topic:", t)
+	slog.Info("Publish on", "topic", t)
 	go func() {
-		log.Println("Publish::GO::handlers: ", s.handlers)
+		slog.Info("Publish::GO:: ", "handlers", s.handlers)
 		handlers, ok := s.handlers[t]
 		if ok {
 			for _, handler := range handlers {
 				handler.OnPublish(t, m, listener)
 			}
 		} else {
-			log.Println("Could not find handlers for topic:", t)
+			slog.Info("Could not find handlers for", "topic", t)
 		}
 	}()
 }
 
 func (s *messengerService) Subscribe(t imessenger.Topic, listener imessenger.SubscribeListener) {
-	log.Println("Subscribe on topic", t)
+	slog.Info("Subscribe on", "topic", t)
 }
+
 func (s *messengerService) AddHandler(t imessenger.Topic, handler IMessengerHandler) {
-	log.Println("AddHandler")
+	slog.Info("AddHandler")
 	handlers, ok := s.handlers[t]
 	if ok {
 		handlers = append(handlers, handler)
 	} else {
 		s.handlers[t] = []IMessengerHandler{handler}
 	}
-	log.Println("Handler for topic:", t, " added")
+	slog.Info("andler added for", "topic", t)
 }
 
 func (s *messengerService) RemoveHandler(handler IMessengerHandler) {
-	log.Println("RemoveHandler")
+	slog.Info("RemoveHandler")
 }

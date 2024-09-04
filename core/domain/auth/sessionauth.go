@@ -1,7 +1,7 @@
 package auth
 
 import (
-	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-contrib/sessions"
@@ -13,15 +13,13 @@ const (
 	USER_ID  string = "user_id"
 )
 
-var (
-	users = map[string]string{
-		"user1": "password1",
-		"user2": "password2",
-	}
-)
+var users = map[string]string{
+	"user1": "password1",
+	"user2": "password2",
+}
 
 func SessionAuth(c *gin.Context) {
-	log.Println("Session AUTH")
+	slog.Info("Session AUTH")
 	session := sessions.Default(c)
 	if session.Get(AUTH_KEY) == nil {
 		c.Redirect(http.StatusFound, "/gopt/login")
