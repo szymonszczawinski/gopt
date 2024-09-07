@@ -1,0 +1,9 @@
+package issue
+
+import layout "gopt/public/layouts"
+
+templ IssueDetails(issueId string) {
+@layout.PageAll("Issue Details") {
+{ issueId }
+}
+}

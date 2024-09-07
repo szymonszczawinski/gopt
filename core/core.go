@@ -5,6 +5,7 @@ import (
 	"gopt/core/config"
 	"gopt/core/domain/auth"
 	"gopt/core/domain/home"
+	"gopt/core/domain/issue"
 	"gopt/core/domain/project"
 	"gopt/core/http"
 	"gopt/core/messenger"
@@ -79,6 +80,7 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	homeController := home.NewHomeHandler()
 	projectsController := project_handlers.NewProjectHandler(projetcsService, projectRepository)
 	authController := auth.NewAuthHandler(authService)
+	issueController := issue.NewIssueHandler()
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
@@ -89,6 +91,7 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	httpServer.AddHandler(homeController)
 	httpServer.AddHandler(projectsController)
 	httpServer.AddHandler(authController)
+	httpServer.AddHandler(issueController)
 	httpServer.Start()
 
 	// slog.Info("Starting HTTP SERVER SERVICE")
