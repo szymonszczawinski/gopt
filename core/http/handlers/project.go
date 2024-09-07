@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"gopt/core/domain/project"
+	"gopt/coreapi"
 	"gopt/coreapi/viewhandlers"
 	"log/slog"
 
@@ -12,12 +13,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type IProjectService interface {
+	// GetProjects() coreapi.Result[[]ProjectListElement]
+	GetProject(projectId string) coreapi.Result[project.ProjectDetails]
+	CreateProject(newProject project.CreateProjectCommand) coreapi.Result[project.ProjectDetails]
+	CloseProject(projectId string) coreapi.Result[project.ProjectDetails]
+}
+
 type projectHandler struct {
-	projectService project.IProjectService
+	projectService IProjectService
 	readRepo       project.IProjectQueryRepository
 }
 
-func NewProjectHandler(projectService project.IProjectService, readRepo project.IProjectQueryRepository) *projectHandler {
+func NewProjectHandler(projectService IProjectService, readRepo project.IProjectQueryRepository) *projectHandler {
 	instance := projectHandler{
 		projectService: projectService,
 		readRepo:       readRepo,

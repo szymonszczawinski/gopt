@@ -3,19 +3,10 @@ package project
 import (
 	"context"
 	"gopt/coreapi"
-	"gopt/coreapi/service"
 	"log/slog"
 
 	"golang.org/x/sync/errgroup"
 )
-
-type IProjectService interface {
-	service.IComponent
-	// GetProjects() coreapi.Result[[]ProjectListElement]
-	GetProject(projectId string) coreapi.Result[ProjectDetails]
-	CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectDetails]
-	CloseProject(projectId string) coreapi.Result[ProjectDetails]
-}
 
 type projectService struct {
 	ctx        context.Context
@@ -23,7 +14,7 @@ type projectService struct {
 	repository IProjectRepository
 }
 
-func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository) IProjectService {
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository) *projectService {
 	instance := new(projectService)
 	instance.repository = repository
 	instance.ctx = ctx
@@ -47,7 +38,7 @@ func (service projectService) GetProject(projectId string) coreapi.Result[Projec
 	}
 
 	projectDetails := NewProjectDetails(result.Data())
-	projectDetails.Items = coreapi.Map2[ProjectItem, ProjectDetailsItem](result.Data().items,
+	projectDetails.Items = coreapi.Map2(result.Data().items,
 		func(t ProjectItem) ProjectDetailsItem {
 			return ProjectDetailsItem{State: t.itemState, ItemType: string(t.itemType), Name: t.name, ItemKey: t.itemKey}
 		},
@@ -62,12 +53,12 @@ func (service projectService) CreateProject(newProject CreateProjectCommand) cor
 	resultProject := service.repository.StoreProject(project)
 	if !resultProject.Sucess() {
 		slog.Info("Could not create Project", "err", resultProject.Error())
-		return coreapi.NewResult[ProjectDetails](ProjectDetails{}, resultProject.Error())
+		return coreapi.NewResult(ProjectDetails{}, resultProject.Error())
 	}
-	return coreapi.NewResult[ProjectDetails](NewProjectDetails(resultProject.Data()), nil)
+	return coreapi.NewResult(NewProjectDetails(resultProject.Data()), nil)
 }
 
 func (service *projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {
 	// TODO: to implement
-	return coreapi.NewResult[ProjectDetails](ProjectDetails{}, nil)
+	return coreapi.NewResult(ProjectDetails{}, nil)
 }

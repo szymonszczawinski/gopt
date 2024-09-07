@@ -1,8 +1,6 @@
 package viewhandlers
 
 import (
-	"embed"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,23 +30,23 @@ func (r Routes) Apis() *gin.RouterGroup {
 	return r.apis
 }
 
-type Action func(c *gin.Context)
+// type Action func(c *gin.Context)
 
 type IViewHandler interface {
 	// Perform(a Action) gin.HandlerFunc
 	ConfigureRoutes(routes Routes)
 }
 
-type ApiHandler interface {
-	ConfigureApiRoutes(routes *Routes)
-}
+// type ApiHandler interface {
+// ConfigureApiRoutes(routes *Routes)
+// }
 
-type BaseHandler struct {
-	FileSystem embed.FS
-}
+// type BaseHandler struct {
+// FileSystem embed.FS
+// }
 
-func (h *BaseHandler) Perform(a Action) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		a(c)
-	}
-}
+// func (h *BaseHandler) Perform(a Action) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		a(c)
+// 	}
+// }

@@ -9,9 +9,8 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-type IAuthService interface {
+type IAuthRepository interface {
 	service.IComponent
-	Login(username, password string) coreapi.Result[AuthCredentials]
 }
 
 type authenticationService struct {
@@ -35,12 +34,12 @@ func (service *authenticationService) StartComponent() {
 func (service authenticationService) Login(username, pass string) coreapi.Result[AuthCredentials] {
 	userName, err := NewUserName(username)
 	if err != nil {
-		return coreapi.NewResult[AuthCredentials](AuthCredentials{}, err)
+		return coreapi.NewResult(AuthCredentials{}, err)
 	}
 	password, err := NewPassword(pass)
 	if err != nil {
-		return coreapi.NewResult[AuthCredentials](AuthCredentials{}, err)
+		return coreapi.NewResult(AuthCredentials{}, err)
 	}
 	authCredentials := NewAuthCredentials(userName, password)
-	return coreapi.NewResult[AuthCredentials](authCredentials, errors.New("not implemented"))
+	return coreapi.NewResult(authCredentials, errors.New("not implemented"))
 }

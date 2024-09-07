@@ -3,6 +3,8 @@ package handlers
 import (
 	"errors"
 	"gopt/core/domain/auth"
+	"gopt/coreapi"
+	"gopt/coreapi/service"
 	"gopt/coreapi/viewhandlers"
 	auth_view "gopt/public/auth"
 	"log/slog"
@@ -18,11 +20,15 @@ var (
 	ErrorFailedSaveSession   = errors.New("faield to save session")
 )
 
+type IAuthService interface {
+	service.IComponent
+	Login(username, password string) coreapi.Result[auth.AuthCredentials]
+}
 type authHandler struct {
-	authService auth.IAuthService
+	authService IAuthService
 }
 
-func NewAuthHandler(authService auth.IAuthService) *authHandler {
+func NewAuthHandler(authService IAuthService) *authHandler {
 	instance := authHandler{
 		authService: authService,
 	}
