@@ -11,7 +11,7 @@ import (
 
 type IAuthService interface {
 	service.IComponent
-	login(username, password string) coreapi.Result[AuthCredentials]
+	Login(username, password string) coreapi.Result[AuthCredentials]
 }
 
 type authenticationService struct {
@@ -30,10 +30,9 @@ func NewAuthenticationService(eg *errgroup.Group, ctx context.Context, repositor
 }
 
 func (service *authenticationService) StartComponent() {
-
 }
 
-func (service authenticationService) login(username, pass string) coreapi.Result[AuthCredentials] {
+func (service authenticationService) Login(username, pass string) coreapi.Result[AuthCredentials] {
 	userName, err := NewUserName(username)
 	if err != nil {
 		return coreapi.NewResult[AuthCredentials](AuthCredentials{}, err)

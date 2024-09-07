@@ -1,4 +1,4 @@
-package issue
+package handlers
 
 import (
 	"gopt/coreapi/viewhandlers"

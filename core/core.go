@@ -4,10 +4,9 @@ import (
 	"context"
 	"gopt/core/config"
 	"gopt/core/domain/auth"
-	"gopt/core/domain/home"
-	"gopt/core/domain/issue"
 	"gopt/core/domain/project"
 	"gopt/core/http"
+	"gopt/core/http/handlers"
 	"gopt/core/messenger"
 	"gopt/core/service"
 	"gopt/core/storage/repository/postgres"
@@ -20,7 +19,6 @@ import (
 	repo_auth "gopt/core/storage/repository/postgres/auth"
 	repo_project "gopt/core/storage/repository/postgres/project"
 
-	project_handlers "gopt/core/domain/project/handlers"
 	api_service "gopt/coreapi/service"
 
 	"golang.org/x/sync/errgroup"
@@ -77,10 +75,10 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
 	sm.StartComponent(api_service.ComponentTypeAuthService, authService)
 
-	homeController := home.NewHomeHandler()
-	projectsController := project_handlers.NewProjectHandler(projetcsService, projectRepository)
-	authController := auth.NewAuthHandler(authService)
-	issueController := issue.NewIssueHandler()
+	homeController := handlers.NewHomeHandler()
+	projectsController := handlers.NewProjectHandler(projetcsService, projectRepository)
+	authController := handlers.NewAuthHandler(authService)
+	issueController := handlers.NewIssueHandler()
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {

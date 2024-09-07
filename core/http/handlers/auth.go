@@ -1,9 +1,10 @@
-package auth
+package handlers
 
 import (
 	"errors"
+	"gopt/core/domain/auth"
 	"gopt/coreapi/viewhandlers"
-	"gopt/public/auth"
+	auth_view "gopt/public/auth"
 	"log/slog"
 	"net/http"
 
@@ -18,10 +19,10 @@ var (
 )
 
 type authHandler struct {
-	authService IAuthService
+	authService auth.IAuthService
 }
 
-func NewAuthHandler(authService IAuthService) *authHandler {
+func NewAuthHandler(authService auth.IAuthService) *authHandler {
 	instance := authHandler{
 		authService: authService,
 	}
@@ -35,16 +36,16 @@ func (handler *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 }
 
 func (handler authHandler) login(c *gin.Context) {
-	auth.Login().Render(c.Request.Context(), c.Writer)
+	auth_view.Login().Render(c.Request.Context(), c.Writer)
 }
 
 func (handler authHandler) loginSubmit(c *gin.Context) {
 	slog.Info("login submit")
 	password := c.PostForm("username")
 	username := c.PostForm("password")
-	loginResult := handler.authService.login(username, password)
+	loginResult := handler.authService.Login(username, password)
 	if !loginResult.Sucess() {
-		auth.LoginError(loginResult.Error().Error()).Render(c.Request.Context(), c.Writer)
+		auth_view.LoginError(loginResult.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
 	slog.Info("data", loginResult.Data())
@@ -57,12 +58,12 @@ func (handler authHandler) loginSubmit(c *gin.Context) {
 
 func (handler authHandler) logout(c *gin.Context) {
 	session := sessions.Default(c)
-	user := session.Get(AUTH_KEY)
+	user := session.Get(auth.AUTH_KEY)
 	if user == nil {
 		c.HTML(http.StatusBadRequest, "error", gin.H{"error": ErrorInvalidSessionToken})
 		return
 	}
-	session.Delete(AUTH_KEY)
+	session.Delete(auth.AUTH_KEY)
 	if err := session.Save(); err != nil {
 		c.HTML(http.StatusInternalServerError, "error", gin.H{"error": ErrorFailedSaveSession})
 		return

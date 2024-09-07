@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"gopt/core/domain/project"
+	"gopt/coreapi/viewhandlers"
 	"log/slog"
 
 	view_errors "gopt/public/error"
@@ -10,6 +11,30 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type projectHandler struct {
+	projectService project.IProjectService
+	readRepo       project.IProjectQueryRepository
+}
+
+func NewProjectHandler(projectService project.IProjectService, readRepo project.IProjectQueryRepository) *projectHandler {
+	instance := projectHandler{
+		projectService: projectService,
+		readRepo:       readRepo,
+	}
+	return &instance
+}
+
+func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+	pagesProjects := routes.Views().Group("/projects")
+	// pagesProjects.Use(auth.SessionAuth)
+	{
+		pagesProjects.GET("/", handler.projectsPage)
+		pagesProjects.GET("/new", handler.newProject)
+		pagesProjects.POST("/new", handler.addProject)
+		pagesProjects.GET("/:itemId", handler.projectDetails)
+	}
+}
 
 func (h projectHandler) projectsPage(c *gin.Context) {
 	slog.Info("PROJECTS PAGE")
