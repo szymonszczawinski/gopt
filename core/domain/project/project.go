@@ -96,6 +96,7 @@ func (state projectState) String() string {
 	return state.name
 }
 
+// Item / task related with a project
 type ProjectItem struct {
 	common.TimeTracked
 	itemType  common.IssueType

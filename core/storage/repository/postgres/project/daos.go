@@ -4,6 +4,7 @@ import (
 	"time"
 )
 
+// representation of database project entry
 type ProjectRow struct {
 	Created     time.Time
 	Updated     time.Time

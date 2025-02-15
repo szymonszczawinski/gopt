@@ -27,32 +27,6 @@ type ProjectListElement struct {
 	Id         int    `json:"id"`
 }
 
-// Read-only view of a project
-type ProjectDetails struct {
-	ProjectKey string `json:"projectKey"`
-	Name       string `json:"name"`
-	State      string `json:"state"`
-	Owner      string `json:"owner"`
-	Created    string `json:"created"`
-	Updated    string `json:"updated"`
-	Items      []ProjectDetailsItem
-	Id         int `json:"id"`
-}
-
-// Read-only view of project related items: Tasks, Bugs, etc
-type ProjectDetailsItem struct {
-	ItemType string
-	Name     string
-	ItemKey  string
-	State    string
-}
-
-type ProjectComment struct {
-	Created time.Time `json:"created"`
-	Content string    `json:"content"`
-	Id      int       `json:"id"`
-}
-
 func NewProjectListElement(id int, projectKey, name, projectState, owner string, projectCreationTime, projectLastUpdateTime time.Time) ProjectListElement {
 	return ProjectListElement{
 		Id:         id,
@@ -63,6 +37,18 @@ func NewProjectListElement(id int, projectKey, name, projectState, owner string,
 		Created:    projectCreationTime.Format(DDMMYYYYhhmmss),
 		Updated:    projectLastUpdateTime.Format(DDMMYYYYhhmmss),
 	}
+}
+
+// Read-only view of a project
+type ProjectDetails struct {
+	ProjectKey string `json:"projectKey"`
+	Name       string `json:"name"`
+	State      string `json:"state"`
+	Owner      string `json:"owner"`
+	Created    string `json:"created"`
+	Updated    string `json:"updated"`
+	Items      []ProjectDetailsItem
+	Id         int `json:"id"`
 }
 
 func NewProjectDetails(project Project) ProjectDetails {
@@ -77,4 +63,18 @@ func NewProjectDetails(project Project) ProjectDetails {
 	}
 
 	return projectDetails
+}
+
+// Read-only view of project related items: Tasks, Bugs, etc
+type ProjectDetailsItem struct {
+	ItemType string
+	Name     string
+	ItemKey  string
+	State    string
+}
+
+type ProjectComment struct {
+	Created time.Time `json:"created"`
+	Content string    `json:"content"`
+	Id      int       `json:"id"`
 }

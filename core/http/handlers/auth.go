@@ -6,11 +6,11 @@ import (
 	"gopt/coreapi"
 	"gopt/coreapi/service"
 	"gopt/coreapi/viewhandlers"
-	auth_view "gopt/public/auth"
 	"log/slog"
 	"net/http"
 
-	"github.com/gin-contrib/sessions"
+	auth_view "gopt/public/auth"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -63,17 +63,21 @@ func (handler authHandler) loginSubmit(c *gin.Context) {
 }
 
 func (handler authHandler) logout(c *gin.Context) {
-	session := sessions.Default(c)
-	user := session.Get(auth.AUTH_KEY)
-	if user == nil {
-		c.HTML(http.StatusBadRequest, "error", gin.H{"error": ErrorInvalidSessionToken})
-		return
-	}
-	session.Delete(auth.AUTH_KEY)
-	if err := session.Save(); err != nil {
-		c.HTML(http.StatusInternalServerError, "error", gin.H{"error": ErrorFailedSaveSession})
-		return
-	}
+	// home_view.Home().Render(c.Request.Context(), c.Writer)
+	// c.Writer.Header().Add("HX-Redirect", "/gopt")
+
+	// session := sessions.Default(c)
+	// user := session.Get(auth.AUTH_KEY)
+	// if user == nil {
+	// 	// c.HTML(http.StatusBadRequest, "error", gin.H{"error": ErrorInvalidSessionToken})
+	// 	errors_view.Error("SUPER ERROR").Render(c.Request.Context(), c.Writer)
+	// 	return
+	// }
+	// session.Delete(auth.AUTH_KEY)
+	// if err := session.Save(); err != nil {
+	// 	c.HTML(http.StatusInternalServerError, "error", gin.H{"error": ErrorFailedSaveSession})
+	// 	return
+	// }
 	c.Redirect(http.StatusFound, "/gopt")
-	c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
+	// c.JSON(http.StatusOK, gin.H{"message": "Successfully logged out"})
 }

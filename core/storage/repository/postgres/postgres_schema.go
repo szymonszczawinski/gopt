@@ -36,7 +36,7 @@ const (
 	INIT_STATE_TRANSITION string = "INSERT INTO statetransition (lifecycle_id,from_state_id,to_state_id) VALUES (1,1,2), (1,2,4), (1,4,5), (1,5,6), (1,6,10);"
 	INIT_USERS            string = "INSERT INTO users (first_name, last_name, email, deleted) VALUES ('Szymon','Szczawinski','szymon.szczawinski@mail.com', false);"
 	INIT_PROJECTS         string = "INSERT INTO project (created, updated, name, project_key, description, state_id, lifecycle_id, created_by_id) " +
-		"VALUES (NOW(),NOW(),'ICAS-1','ICAS-1','ICAS-1 description',1,1,1);"
+		"VALUES (NOW(),NOW(),'ICAS-1','ICAS-1','ICAS-1 description',1,1,1),(NOW(),NOW(),'COSMOS','COSMOS','COSMOS description',1,1,1);"
 	INIT_ISSUES string = "INSERT INTO issue (created, updated, name, item_key, project_key, project_id, description, state_id, lifecycle_id, created_by_id, assigned_to_id) " +
 		"VALUES (NOW(),NOW(),'ICAS-1-1','ICAS-1-1','ICAS-1',1,' description',1,2,1,1)," +
 		"(NOW(),NOW(),'ICAS-1-2','ICAS-1-2','ICAS-1',1,'ICAS-1-2 description',1,3,1,1);"
