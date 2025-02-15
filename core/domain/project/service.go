@@ -40,7 +40,15 @@ func (service projectService) GetProject(projectId string) coreapi.Result[Projec
 	projectDetails := NewProjectDetails(result.Data())
 	projectDetails.Items = coreapi.Map2(result.Data().items,
 		func(t ProjectItem) ProjectDetailsItem {
-			return ProjectDetailsItem{State: t.itemState, ItemType: string(t.itemType), Name: t.name, ItemKey: t.itemKey}
+			return ProjectDetailsItem{
+				State:      t.itemState,
+				ItemType:   string(t.itemType),
+				Name:       t.name,
+				ItemKey:    t.itemKey,
+				Created:    t.GetCreationTime().String(),
+				Updated:    t.GetLastUpdateTime().String(),
+				AssignedTo: t.assignee,
+			}
 		},
 	)
 	return coreapi.NewResult(projectDetails, nil)

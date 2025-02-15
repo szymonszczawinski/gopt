@@ -65,12 +65,15 @@ func NewProjectDetails(project Project) ProjectDetails {
 	return projectDetails
 }
 
-// Read-only view of project related items: Tasks, Bugs, etc
+// Read-only view of project related items on project details page: Tasks, Bugs, etc
 type ProjectDetailsItem struct {
-	ItemType string
-	Name     string
-	ItemKey  string
-	State    string
+	ItemType   string `json:"itemType"`
+	Name       string `json:"name"`
+	ItemKey    string `json:"itemKey"`
+	State      string `json:"state"`
+	AssignedTo string `json:"assignedTo"`
+	Created    string `json:"created"`
+	Updated    string `json:"updated"`
 }
 
 type ProjectComment struct {
