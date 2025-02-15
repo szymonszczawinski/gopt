@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"gopt/core/domain/issue"
 	"gopt/coreapi/viewhandlers"
 	"log/slog"
 
@@ -20,9 +21,10 @@ func (handler *issueHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 	issueRoutes := routes.Views().Group("/issues")
 	// pagesProjects.Use(auth.SessionAuth)
 	{
-		issueRoutes.GET("/", handler.issueAll)
+		issueRoutes.GET("/", handler.allIssues)
+		issueRoutes.GET("/new", handler.newIssue)
 		issueRoutes.GET("/:itemId", handler.issueDetails)
-		issueRoutes.POST("/", handler.issueAdd)
+		issueRoutes.POST("/new", handler.addIssue)
 	}
 }
 
@@ -32,10 +34,21 @@ func (h issueHandler) issueDetails(c *gin.Context) {
 	view_issue.IssueDetails(issueId).Render(c.Request.Context(), c.Writer)
 }
 
-func (h issueHandler) issueAdd(c *gin.Context) {
-	slog.Info("ISSUE ADD")
+func (h issueHandler) newIssue(c *gin.Context) {
+	slog.Info("NEW ISSUE")
+	view_issue.NewIssue().Render(c.Request.Context(), c.Writer)
 }
 
-func (h issueHandler) issueAll(c *gin.Context) {
+func (h issueHandler) addIssue(c *gin.Context) {
+	slog.Info("ADD ISSUE")
+	command := issue.CreateIssueCommand{
+		ProjectKey: c.PostForm("project-key"),
+		Name:       c.PostForm("issue-name"),
+		IssueType:  c.PostForm("issue-type"),
+	}
+	slog.Info("received command", "cmd", command)
+}
+
+func (h issueHandler) allIssues(c *gin.Context) {
 	slog.Info("ISSUE ALL")
 }
