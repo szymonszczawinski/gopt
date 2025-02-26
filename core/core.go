@@ -64,8 +64,8 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	sm.StartComponent(api_service.ComponentTypeProjectRepository, projectRepository)
 
 	slog.Info("Starting PROJECT SERVICE")
-	projetcsService := project.NewProjectService(eg, ctx, projectRepository)
-	sm.StartComponent(api_service.ComponentTypeProjectService, projetcsService)
+	projectService := project.NewProjectService(eg, ctx, projectRepository)
+	sm.StartComponent(api_service.ComponentTypeProjectService, projectService)
 
 	slog.Info("Starting AUTH REPOSITORY")
 	authRepository := repo_auth.NewAuthRepository(eg, ctx, databaseConnection)
@@ -75,10 +75,10 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
 	sm.StartComponent(api_service.ComponentTypeAuthService, authService)
 
-	homeController := handlers.NewHomeHandler()
-	projectsController := handlers.NewProjectHandler(projetcsService, projectRepository)
-	authController := handlers.NewAuthHandler(authService)
-	issueController := handlers.NewIssueHandler()
+	homeHandler := handlers.NewHomeHandler()
+	projectHandler := handlers.NewProjectHandler(projectService, projectRepository)
+	authHandler := handlers.NewAuthHandler(authService)
+	issueHandler := handlers.NewIssueHandler()
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
@@ -86,10 +86,10 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	}
 
 	httpServer := http.NewHttpServer(ctx, eg, httpPort, staticContent)
-	httpServer.AddHandler(homeController)
-	httpServer.AddHandler(projectsController)
-	httpServer.AddHandler(authController)
-	httpServer.AddHandler(issueController)
+	httpServer.AddHandler(homeHandler)
+	httpServer.AddHandler(projectHandler)
+	httpServer.AddHandler(authHandler)
+	httpServer.AddHandler(issueHandler)
 	httpServer.Start()
 
 	// slog.Info("Starting HTTP SERVER SERVICE")

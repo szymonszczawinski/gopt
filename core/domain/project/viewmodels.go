@@ -1,6 +1,7 @@
 package project
 
 import (
+	"errors"
 	"time"
 )
 
@@ -8,17 +9,66 @@ const (
 	DDMMYYYYhhmmss = "2006-01-02 15:04:05"
 )
 
-type CreateProjectCommand struct {
-	IssueKey string `json:"issueKey"`
-	Name     string `json:"name"`
+// Command for creating new project
+type CreateProject struct {
+	ProjectKey string `json:"project_key"`
+	Name       string `json:"project_name"`
 }
 
-type AddCommentCommand struct {
-	ParentIssueKey string `json:"parrentIssueKey"`
+func NewCreateProject(projectKey, projectName string) (CreateProject, error) {
+	command := CreateProject{
+		ProjectKey: projectKey,
+		Name:       projectName,
+	}
+	return command, command.validate()
+}
+
+func (c CreateProject) validate() error {
+	var result string
+	if len(c.Name) == 0 {
+		result = "Name must not be empty.\n"
+	}
+	if len(c.ProjectKey) == 0 {
+		result += "Key must not be empty"
+	}
+	if len(result) != 0 {
+		return errors.New(result)
+	} else {
+		return nil
+	}
+}
+
+// Command for get single project by its key
+type GetProject struct {
+	ProjectKey string `json:"project_key"`
+}
+
+func NewGetProject(projectKey string) (GetProject, error) {
+	command := GetProject{
+		ProjectKey: projectKey,
+	}
+	return command, command.validate()
+}
+
+func (c GetProject) validate() error {
+	var result string
+	if len(c.ProjectKey) == 0 {
+		result += "Key must not be empty"
+	}
+	if len(result) != 0 {
+		return errors.New(result)
+	} else {
+		return nil
+	}
+}
+
+// Command for adding a comment to issue or project
+type AddComment struct {
+	ParentIssueKey string `json:"parrent_issue_key"`
 	Content        string `json:"content"`
 }
 type ProjectListElement struct {
-	ProjectKey string `json:"projectKey"`
+	ProjectKey string `json:"project_key"`
 	Name       string `json:"name"`
 	Created    string `json:"created"`
 	Updated    string `json:"updated"`
@@ -41,7 +91,7 @@ func NewProjectListElement(id int, projectKey, name, projectState, owner string,
 
 // Read-only view of a project
 type ProjectDetails struct {
-	ProjectKey string `json:"projectKey"`
+	ProjectKey string `json:"project_key"`
 	Name       string `json:"name"`
 	State      string `json:"state"`
 	Owner      string `json:"owner"`
@@ -67,11 +117,11 @@ func NewProjectDetails(project Project) ProjectDetails {
 
 // Read-only view of project related items on project details page: Tasks, Bugs, etc
 type ProjectDetailsItem struct {
-	ItemType   string `json:"itemType"`
+	ItemType   string `json:"item_type"`
 	Name       string `json:"name"`
-	ItemKey    string `json:"itemKey"`
+	ItemKey    string `json:"item_key"`
 	State      string `json:"state"`
-	AssignedTo string `json:"assignedTo"`
+	AssignedTo string `json:"assigned_to"`
 	Created    string `json:"created"`
 	Updated    string `json:"updated"`
 }

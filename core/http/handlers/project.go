@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"errors"
+	"fmt"
 	"gopt/core/domain/project"
 	"gopt/coreapi"
 	"gopt/coreapi/viewhandlers"
@@ -15,8 +15,8 @@ import (
 
 type IProjectService interface {
 	// GetProjects() coreapi.Result[[]ProjectListElement]
-	GetProject(projectId string) coreapi.Result[project.ProjectDetails]
-	CreateProject(newProject project.CreateProjectCommand) coreapi.Result[project.ProjectDetails]
+	GetProject(command project.GetProject) coreapi.Result[project.ProjectDetails]
+	CreateProject(command project.CreateProject) coreapi.Result[project.ProjectDetails]
 	CloseProject(projectId string) coreapi.Result[project.ProjectDetails]
 }
 
@@ -34,17 +34,16 @@ func NewProjectHandler(projectService IProjectService, readRepo project.IProject
 }
 
 func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
-	pagesProjects := routes.Views().Group("/projects")
+	projectsRoute := routes.Views().Group("/projects")
 	// pagesProjects.Use(auth.SessionAuth)
-	{
-		pagesProjects.GET("/", handler.projectsPage)
-		pagesProjects.GET("/new", handler.newProject)
-		pagesProjects.POST("/new", handler.addProject)
-		pagesProjects.GET("/:itemId", handler.projectDetails)
-	}
+
+	projectsRoute.GET("/", handler.listProjects)
+	projectsRoute.GET("/:item_key", handler.projectDetails)
+	projectsRoute.GET("/new", handler.newProject)
+	projectsRoute.POST("/new", handler.addProject)
 }
 
-func (h projectHandler) projectsPage(c *gin.Context) {
+func (h projectHandler) listProjects(c *gin.Context) {
 	slog.Info("PROJECTS PAGE")
 	view_project.Projects(h.readRepo.GetProjects().Data()).Render(c.Request.Context(), c.Writer)
 }
@@ -55,11 +54,7 @@ func (h projectHandler) newProject(c *gin.Context) {
 
 func (h projectHandler) addProject(c *gin.Context) {
 	slog.Info("addProject")
-	command := project.CreateProjectCommand{
-		IssueKey: c.PostForm("project-key"),
-		Name:     c.PostForm("project-name"),
-	}
-	err := validateProject(command)
+	command, err := project.NewCreateProject(c.PostForm("project_key"), c.PostForm("project_name"))
 	if err != nil {
 		view_project.ProjectAddError(err.Error()).Render(c.Request.Context(), c.Writer)
 		return
@@ -70,32 +65,23 @@ func (h projectHandler) addProject(c *gin.Context) {
 		return
 	}
 	slog.Info("Project Created")
-	c.Writer.Header().Add("HX-Redirect", "/gopt/views/projects")
+	c.Writer.Header().Add("HX-Redirect", fmt.Sprintf("/gopt/views/projects/%v", result.Data().ProjectKey))
 	// c.Redirect(http.StatusFound, "/gopt/projects")
 }
 
 func (h projectHandler) projectDetails(c *gin.Context) {
-	projectId := c.Param("itemId")
-	result := h.projectService.GetProject(projectId)
+	command, err := project.NewGetProject(c.Param("item_key"))
+	if err != nil {
+		slog.Error("get project details", "err", err)
+		// view_project.ProjectAddError(err.Error()).Render(c.Request.Context(), c.Writer)
+		return
+	}
+
+	result := h.projectService.GetProject(command)
 	if !result.Sucess() {
 		view_errors.Error(result.Error().Error()).Render(c.Request.Context(), c.Writer)
 		return
 	}
 	slog.Info("PROJECT DETAILS", "data", result.Data())
 	view_project.ProjectDetails(result.Data()).Render(c.Request.Context(), c.Writer)
-}
-
-func validateProject(command project.CreateProjectCommand) error {
-	var result string
-	if len(command.Name) == 0 {
-		result = "Name must not be empty.\n"
-	}
-	if len(command.IssueKey) == 0 {
-		result += "Key must not be empty"
-	}
-	if len(result) != 0 {
-		return errors.New(result)
-	} else {
-		return nil
-	}
 }

@@ -18,14 +18,13 @@ func NewIssueHandler() *issueHandler {
 }
 
 func (handler *issueHandler) ConfigureRoutes(routes viewhandlers.Routes) {
-	issueRoutes := routes.Views().Group("/issues")
+	issuesRoute := routes.Views().Group("/issues")
 	// pagesProjects.Use(auth.SessionAuth)
-	{
-		issueRoutes.GET("/", handler.allIssues)
-		issueRoutes.GET("/new", handler.newIssue)
-		issueRoutes.GET("/:itemId", handler.issueDetails)
-		issueRoutes.POST("/new", handler.addIssue)
-	}
+
+	issuesRoute.GET("/", handler.listIssues)
+	issuesRoute.GET("/:itemId", handler.issueDetails)
+	issuesRoute.GET("/new", handler.newIssue)
+	issuesRoute.POST("/new", handler.addIssue)
 }
 
 func (h issueHandler) issueDetails(c *gin.Context) {
@@ -41,14 +40,10 @@ func (h issueHandler) newIssue(c *gin.Context) {
 
 func (h issueHandler) addIssue(c *gin.Context) {
 	slog.Info("ADD ISSUE")
-	command := issue.CreateIssueCommand{
-		ProjectKey: c.PostForm("project-key"),
-		Name:       c.PostForm("issue-name"),
-		IssueType:  c.PostForm("issue-type"),
-	}
-	slog.Info("received command", "cmd", command)
+	command, err := issue.NewCreateIssue(c.PostForm("project-key"), c.PostForm("issue-name"), c.PostForm("issue-type"))
+	slog.Info("received command", "cmd", command, "err", err)
 }
 
-func (h issueHandler) allIssues(c *gin.Context) {
+func (h issueHandler) listIssues(c *gin.Context) {
 	slog.Info("ISSUE ALL")
 }

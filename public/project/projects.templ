@@ -1,177 +1,161 @@
 package project
 
 import (
-	"gopt/core/domain/project"
-	layout "gopt/public/layouts"
+"gopt/core/domain/project"
+layout "gopt/public/layouts"
 )
 
 templ Projects(projects []project.ProjectListElement) {
-	@layout.PageAll("Projects") {
-		<div>
-			<div class="bg-gray-700 text-white p-4">
-				<a
-					href="/gopt/views/projects/new"
-					class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-				>
-					Add
-					Project
-				</a>
-			</div>
-			<div>
-				<table class="shadow-lg bg-white border-collapse" id="project-list">
-					<tr>
-						<th class="bg-blue-100 border text-left px-8 py-4">ID</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Name</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">State</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Owner</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Created</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
-					</tr>
-					for _,elem :=range projects {
-						<tr class="hover:bg-gray-50">
-							<td class="border px-8 py-4">
-								<a href={ templ.URL("/gopt/views/projects/" + elem.ProjectKey) } class="text-blue-600">
-									{ 
+@layout.PageAll("Projects") {
+<div>
+  <div class="bg-gray-700 text-white p-4">
+    <a href="/gopt/views/projects/new"
+      class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
+      Add
+      Project
+    </a>
+  </div>
+  <div>
+    <table class="shadow-lg bg-white border-collapse" id="project-list">
+      <tr>
+        <th class="bg-blue-100 border text-left px-8 py-4">ID</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Name</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">State</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Owner</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Created</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
+      </tr>
+      for _,elem :=range projects {
+      <tr class="hover:bg-gray-50">
+        <td class="border px-8 py-4">
+          <a href={ templ.URL("/gopt/views/projects/" + elem.ProjectKey) } class="text-blue-600">
+            {
             elem.ProjectKey }
-								</a>
-							</td>
-							<td class="border px-8 py-4">{ elem.Name }</td>
-							<td class="border px-8 py-4">{ elem.State }</td>
-							<td class="border px-8 py-4">{ elem.Owner }</td>
-							<td class="border px-8 py-4">{ elem.Created }</td>
-							<td class="border px-8 py-4">{ elem.Updated }</td>
-						</tr>
-					}
-				</table>
-			</div>
-		</div>
-	}
+          </a>
+        </td>
+        <td class="border px-8 py-4">{ elem.Name }</td>
+        <td class="border px-8 py-4">{ elem.State }</td>
+        <td class="border px-8 py-4">{ elem.Owner }</td>
+        <td class="border px-8 py-4">{ elem.Created }</td>
+        <td class="border px-8 py-4">{ elem.Updated }</td>
+      </tr>
+      }
+    </table>
+  </div>
+</div>
+}
 }
 
 templ ProjectDetails(p project.ProjectDetails) {
-	@layout.PageAll("Project Details") {
-		<div>
-			<div class="bg-gray-700 text-white p-4">
-				<a
-					href="/gopt/views/issues/new"
-					class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
-				>
-					Create Issue
-				</a>
-			</div>
-			<div>
-				<table class="shadow-lg bg-white border-collapse" id="project-details">
-					<tr>
-						<td class="bg-blue-100 border text-left px-8 py-4">ID</td>
-						<td class="border px-8 py-4">
-							{ p.ProjectKey }
-						</td>
-					</tr>
-					<tr>
-						<td class="bg-blue-100 border text-left px-8 py-4">Name</td>
-						<td class="border px-8 py-4">{ p.Name }</td>
-					</tr>
-					<tr>
-						<td class="bg-blue-100 border text-left px-8 py-4">State</td>
-						<td class="border px-8 py-4">{ p.State }</td>
-					</tr>
-					<tr>
-						<td class="bg-blue-100 border text-left px-8 py-4">Owner</td>
-						<td class="border px-8 py-4">{ p.Owner }</td>
-					</tr>
-					<tr>
-						<td class="bg-blue-100 border text-left px-8 py-4">Created</td>
-						<td class="border px-8 py-4">{ p.Created }</td>
-					</tr>
-					<tr>
-						<td class="bg-blue-100 border text-left px-8 py-4">Updated</td>
-						<td class="border px-8 py-4">{ p.Updated }</td>
-					</tr>
-					<tr class="hover:bg-gray-50"></tr>
-				</table>
-			</div>
-			<div>
-				<h6>Items</h6>
-				<table class="shadow-lg bg-white border-collapse" id="item-list">
-					<tr>
-						<th class="bg-blue-100 border text-left px-8 py-4">ID</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Name</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Type</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">State</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Assigned to</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Created</th>
-						<th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
-					</tr>
-					for _,item :=range p.Items {
-						<tr class="hover:bg-gray-50">
-							<td class="border px-8 py-4">
-								<a href={ templ.URL("/gopt/views/issues/" + item.ItemKey) } class="text-blue-600">
-									{ 
+@layout.PageAll("Project Details") {
+<div>
+  <div class="bg-gray-700 text-white p-4">
+    <a href="/gopt/views/issues/new"
+      class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
+      Create Issue
+    </a>
+  </div>
+  <div>
+    <table class="shadow-lg bg-white border-collapse" id="project-details">
+      <tr>
+        <td class="bg-blue-100 border text-left px-8 py-4">ID</td>
+        <td class="border px-8 py-4">
+          { p.ProjectKey }
+        </td>
+      </tr>
+      <tr>
+        <td class="bg-blue-100 border text-left px-8 py-4">Name</td>
+        <td class="border px-8 py-4">{ p.Name }</td>
+      </tr>
+      <tr>
+        <td class="bg-blue-100 border text-left px-8 py-4">State</td>
+        <td class="border px-8 py-4">{ p.State }</td>
+      </tr>
+      <tr>
+        <td class="bg-blue-100 border text-left px-8 py-4">Owner</td>
+        <td class="border px-8 py-4">{ p.Owner }</td>
+      </tr>
+      <tr>
+        <td class="bg-blue-100 border text-left px-8 py-4">Created</td>
+        <td class="border px-8 py-4">{ p.Created }</td>
+      </tr>
+      <tr>
+        <td class="bg-blue-100 border text-left px-8 py-4">Updated</td>
+        <td class="border px-8 py-4">{ p.Updated }</td>
+      </tr>
+      <tr class="hover:bg-gray-50"></tr>
+    </table>
+  </div>
+  <div>
+    <h6>Items</h6>
+    <table class="shadow-lg bg-white border-collapse" id="item-list">
+      <tr>
+        <th class="bg-blue-100 border text-left px-8 py-4">ID</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Name</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Type</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">State</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Assigned to</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Created</th>
+        <th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
+      </tr>
+      for _,item :=range p.Items {
+      <tr class="hover:bg-gray-50">
+        <td class="border px-8 py-4">
+          <a href={ templ.URL("/gopt/views/issues/" + item.ItemKey) } class="text-blue-600">
+            {
             item.ItemKey }
-								</a>
-							</td>
-							<td class="border px-8 py-4">{ item.Name }</td>
-							<td class="border px-8 py-4">{ item.ItemType }</td>
-							<td class="border px-8 py-4">{ item.State }</td>
-							<td class="border px-8 py-4">{ item.AssignedTo } </td>
-							<td class="border px-8 py-4">{ item.Created }</td>
-							<td class="border px-8 py-4">{ item.Updated } </td>
-						</tr>
-					}
-				</table>
-			</div>
-		</div>
-	}
+          </a>
+        </td>
+        <td class="border px-8 py-4">{ item.Name }</td>
+        <td class="border px-8 py-4">{ item.ItemType }</td>
+        <td class="border px-8 py-4">{ item.State }</td>
+        <td class="border px-8 py-4">{ item.AssignedTo } </td>
+        <td class="border px-8 py-4">{ item.Created }</td>
+        <td class="border px-8 py-4">{ item.Updated } </td>
+      </tr>
+      }
+    </table>
+  </div>
+</div>
+}
 }
 
 templ NewProject() {
-	@layout.PageAll("Add Project") {
-		@NewProjectForm()
-		@ProjectAddError("")
-	}
+@layout.PageAll("Add Project") {
+@NewProjectForm()
+@ProjectAddError("")
+}
 }
 
 templ NewProjectForm() {
-	<div>
-		<form hx-post="/gopt/views/projects/new" hx-target="#project-add-error-pane">
-			<div>
-				<label for="project-name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
-					Project
-					Name
-				</label>
-				<input
-					type="text"
-					name="project-name"
-					id="project-name"
-					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-					value=""
-				/>
-			</div>
-			<div>
-				<label for="project-key" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project Key</label>
-				<input
-					type="text"
-					name="project-key"
-					id="project-key"
-					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-					value=""
-				/>
-			</div>
-			<div>
-				<button
-					type="submit"
-					class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2"
-				>
-					SAVE
-				</button>
-			</div>
-		</form>
-	</div>
-	<div id="project-add-error-pane">
-		@ProjectAddError("")
-	</div>
+<div>
+  <form hx-post="/gopt/views/projects/new" hx-target="#project-add-error-pane">
+    <div>
+      <label for="project_name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
+        Project
+        Name
+      </label>
+      <input type="text" name="project_name" id="project_name"
+        class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2" value="" />
+    </div>
+    <div>
+      <label for="project_key" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project Key</label>
+      <input type="text" name="project_key" id="project_key"
+        class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2" value="" />
+    </div>
+    <div>
+      <button type="submit"
+        class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2">
+        SAVE
+      </button>
+    </div>
+  </form>
+</div>
+<div id="project-add-error-pane">
+  @ProjectAddError("")
+</div>
 }
 
 templ ProjectAddError(message string) {
-	<label id="error-mess:wageage" class="block mb-2 text-sm font-medium text-rose-900">{ message }</label>
+<label id="error-mess:wageage" class="block mb-2 text-sm font-medium text-rose-900">{ message }</label>
 }

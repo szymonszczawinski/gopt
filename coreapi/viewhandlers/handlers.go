@@ -4,6 +4,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Interface for all handlers
+type IViewHandler interface {
+	// Perform(a Action) gin.HandlerFunc
+	ConfigureRoutes(routes Routes)
+}
+
+// Container for application routes
 type Routes struct {
 	root  *gin.RouterGroup
 	views *gin.RouterGroup
@@ -18,24 +25,22 @@ func NewRoutes(root, views, apis *gin.RouterGroup) *Routes {
 	}
 }
 
+// Get main application route: /gopt
 func (r Routes) Root() *gin.RouterGroup {
 	return r.root
 }
 
+// Get application views route: /gopt/views
 func (r Routes) Views() *gin.RouterGroup {
 	return r.views
 }
 
+// Get application API route: /gopt/api
 func (r Routes) Apis() *gin.RouterGroup {
 	return r.apis
 }
 
 // type Action func(c *gin.Context)
-
-type IViewHandler interface {
-	// Perform(a Action) gin.HandlerFunc
-	ConfigureRoutes(routes Routes)
-}
 
 // type ApiHandler interface {
 // ConfigureApiRoutes(routes *Routes)

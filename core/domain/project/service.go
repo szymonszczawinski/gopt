@@ -29,8 +29,8 @@ func (service *projectService) StartComponent() {
 // 	return service.repository.GetProjects()
 // }
 
-func (service projectService) GetProject(projectId string) coreapi.Result[ProjectDetails] {
-	result := service.repository.GetProject(projectId)
+func (service projectService) GetProject(command GetProject) coreapi.Result[ProjectDetails] {
+	result := service.repository.GetProject(command.ProjectKey)
 	// FIXME: remove log
 	slog.Info("projectService GetProject", "result", result)
 	if !result.Sucess() {
@@ -54,9 +54,9 @@ func (service projectService) GetProject(projectId string) coreapi.Result[Projec
 	return coreapi.NewResult(projectDetails, nil)
 }
 
-func (service projectService) CreateProject(newProject CreateProjectCommand) coreapi.Result[ProjectDetails] {
+func (service projectService) CreateProject(command CreateProject) coreapi.Result[ProjectDetails] {
 	newProjectState := NewProjectState(1, 1, "Open")
-	project := NewProject(newProject.IssueKey, newProject.Name, newProjectState)
+	project := NewProject(command.ProjectKey, command.Name, newProjectState)
 
 	resultProject := service.repository.StoreProject(project)
 	if !resultProject.Sucess() {
