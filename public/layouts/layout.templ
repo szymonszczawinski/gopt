@@ -6,10 +6,12 @@ templ PageAll(title string) {
 			@head()
 		</head>
 		<body class="flex flex-col min-h-screen">
-			@header(title)
+			@header()
 			@navigation()
 			<div id="content">
-				{ children... }
+				<div id="content-body">
+					{ children... }
+				</div>
 			</div>
 			<footer class="mt-auto bg-gray-800 text-white p-2">
 				@footer()
@@ -21,28 +23,43 @@ templ PageAll(title string) {
 templ head() {
 	<!-- Include the Tailwind JS file -->
 	<script src="https://cdn.tailwindcss.com"></script>
-	<script src="https://unpkg.com/htmx.org@1.9.2" integrity="sha384-L6OqL9pRWyyFU3+/bjdSri+iIphTN/bvYyM37tICVyOJkWZLpP2vGn6VUEXgzg6h" crossorigin="anonymous"></script>
+	<script src="https://unpkg.com/htmx.org@2.0.4"> </script>
 }
 
-templ header(title string ) {
-	<div id="header" class="bg-gray-800 text-white p-4">
-		<label id="title" class="block text-xl font-medium text-white mx-6 my-6">{ title  }</label>
-		<img class="w-auto h-auto absolute right-0 top-0 mx-6" src="/public/static/95px-Buggie.png" alt="BUG"/>
+templ header() {
+	<div id="header" class="bg-gray-800 text-white p-3">
+		<label id="title" class="block text-xl font-medium text-white mx-2 my-2">GOPT</label>
+		<img class="w-auto h-auto absolute right-0 top-0 mx-6" src="/public/static/50px-Buggie.png" alt="BUG"/>
 	</div>
 }
 
 templ navigation() {
-	<div id="nav" class="bg-gray-800 text-white p-4">
+	<div id="nav" class="bg-gray-800 text-white p-2">
 		<p>
-			<a href="/gopt" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
+			<button
+				hx-get="/gopt"
+				hx-target="#content-body"
+				hx-push-url="true"
+				class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-1 text-sm font-medium"
+			>
 				Home
-			</a>
-			<a href="/gopt/views/projects" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
+			</button>
+			<button
+				hx-get="/gopt/views/projects"
+				hx-target="#content-body"
+				hx-push-url="true"
+				class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-1 text-sm font-medium"
+			>
 				Projects
-			</a>
-			<a href="/gopt/login" class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
+			</button>
+			<button
+				hx-get="/gopt/login"
+				hx-target="content-body"
+				hx-push-url="true"
+				class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-1 text-sm font-medium"
+			>
 				Login
-			</a>
+			</button>
 		</p>
 	</div>
 }

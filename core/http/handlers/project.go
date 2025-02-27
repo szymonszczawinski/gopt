@@ -45,7 +45,12 @@ func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 
 func (h projectHandler) listProjects(c *gin.Context) {
 	slog.Info("PROJECTS PAGE")
-	view_project.Projects(h.readRepo.GetProjects().Data()).Render(c.Request.Context(), c.Writer)
+	isHxRequest := c.GetHeader("HX-Request")
+	if isHxRequest == "true" {
+		view_project.Projects(true, h.readRepo.GetProjects().Data()).Render(c.Request.Context(), c.Writer)
+	} else {
+		view_project.Projects(false, h.readRepo.GetProjects().Data()).Render(c.Request.Context(), c.Writer)
+	}
 }
 
 func (h projectHandler) newProject(c *gin.Context) {

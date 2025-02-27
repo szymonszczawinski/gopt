@@ -21,7 +21,12 @@ func (handler *homeHandler) ConfigureRoutes(routes viewhandlers.Routes) {
 }
 
 func (handler *homeHandler) homePage(c *gin.Context) {
-	home.Home().Render(c.Request.Context(), c.Writer)
+	isHxRequest := c.GetHeader("HX-Request")
+	if isHxRequest == "true" {
+		home.Home(true).Render(c.Request.Context(), c.Writer)
+	} else {
+		home.Home(false).Render(c.Request.Context(), c.Writer)
+	}
 }
 
 func (handler *homeHandler) errorPage(c *gin.Context) {
