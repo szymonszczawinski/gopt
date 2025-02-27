@@ -63,7 +63,7 @@ type projectRepositoryPostgres struct {
 	ctx context.Context
 }
 
-func NewProjectRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) project.IProjectRepository {
+func NewProjectRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) *projectRepositoryPostgres {
 	instance := projectRepositoryPostgres{
 		lockDb: &sync.RWMutex{},
 		db:     db,

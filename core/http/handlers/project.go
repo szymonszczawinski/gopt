@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"gopt/core/domain/project"
 	"gopt/coreapi"
+	"gopt/coreapi/service"
 	"gopt/coreapi/viewhandlers"
 	"log/slog"
 
@@ -12,6 +13,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+type IProjectQueryRepository interface {
+	service.IComponent
+	GetProjects() coreapi.Result[[]project.ProjectListElement]
+}
 
 type IProjectService interface {
 	// GetProjects() coreapi.Result[[]ProjectListElement]
@@ -22,10 +28,10 @@ type IProjectService interface {
 
 type projectHandler struct {
 	projectService IProjectService
-	readRepo       project.IProjectQueryRepository
+	readRepo       IProjectQueryRepository
 }
 
-func NewProjectHandler(projectService IProjectService, readRepo project.IProjectQueryRepository) *projectHandler {
+func NewProjectHandler(projectService IProjectService, readRepo IProjectQueryRepository) *projectHandler {
 	instance := projectHandler{
 		projectService: projectService,
 		readRepo:       readRepo,
@@ -88,5 +94,10 @@ func (h projectHandler) projectDetails(c *gin.Context) {
 		return
 	}
 	slog.Info("PROJECT DETAILS", "data", result.Data())
-	view_project.ProjectDetails(result.Data()).Render(c.Request.Context(), c.Writer)
+	isHxRequest := c.GetHeader("HX-Request")
+	if isHxRequest == "true" {
+		view_project.ProjectDetails(true, result.Data()).Render(c.Request.Context(), c.Writer)
+	} else {
+		view_project.ProjectDetails(false, result.Data()).Render(c.Request.Context(), c.Writer)
+	}
 }

@@ -5,7 +5,10 @@ import (
 )
 
 type (
-	ParentProject struct{}
+	ParentProject struct {
+		id  int
+		key string
+	}
 
 	Issue struct {
 		common.TimeTracked
@@ -22,8 +25,28 @@ type (
 	}
 )
 
+func NewIssueFromRepo(id int, key, name, issueType string, parentId int, parentKey string) Issue {
+	issue := Issue{
+		Entity: common.Entity{
+			Id: id,
+		},
+		itemKey:   key,
+		name:      name,
+		issueType: common.IssueType(issueType),
+		project: ParentProject{
+			id:  parentId,
+			key: parentKey,
+		},
+	}
+	return issue
+}
+
 func (issue Issue) GetItemKey() string {
 	return issue.itemKey
+}
+
+func (issue Issue) ParentKey() string {
+	return issue.project.key
 }
 
 func (issue Issue) GetItemNumber() int {

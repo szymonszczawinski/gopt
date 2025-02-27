@@ -35,3 +35,27 @@ func (c CreateIssue) validate() error {
 		return nil
 	}
 }
+
+type GetIssue struct {
+	IssueKey string `json:"issue_key"`
+}
+
+func NewGetIssue(issueKey string) (GetIssue, error) {
+	command := GetIssue{
+		IssueKey: issueKey,
+	}
+
+	return command, command.validate()
+}
+
+func (c GetIssue) validate() error {
+	result := ""
+	if len(c.IssueKey) == 0 {
+		result = "Issue key must not be empty;"
+	}
+	if len(result) != 0 {
+		return errors.New(result)
+	} else {
+		return nil
+	}
+}

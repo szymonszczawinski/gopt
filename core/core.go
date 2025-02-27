@@ -17,6 +17,7 @@ import (
 	"syscall"
 
 	repo_auth "gopt/core/storage/repository/postgres/auth"
+	repo_issue "gopt/core/storage/repository/postgres/issue"
 	repo_project "gopt/core/storage/repository/postgres/project"
 
 	api_service "gopt/coreapi/service"
@@ -37,7 +38,7 @@ func Start(cla map[string]any, staticContent http.StaticContent) {
 	mainGroup, groupContext := errgroup.WithContext(baseContext)
 	sm := service.NewServiceManager(mainGroup, groupContext)
 	// some simple comment
-	startServices(sm, mainGroup, groupContext, staticContent)
+	startComponents(sm, mainGroup, groupContext, staticContent)
 	// time.Sleep(time.Second * 5)
 	if err := mainGroup.Wait(); err == nil {
 		slog.Info("FINISH CORE")
@@ -46,7 +47,7 @@ func Start(cla map[string]any, staticContent http.StaticContent) {
 	defer close(signalChannel)
 }
 
-func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
+func startComponents(sm api_service.IServiceManager, eg *errgroup.Group, ctx context.Context, staticContent http.StaticContent) {
 	slog.Info("START CORE :: START SERVICES")
 
 	slog.Info("Starting MESSENGER SERVICE")
@@ -54,22 +55,24 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	sm.StartComponent(api_service.ComponentTypeMessenger, messengerService)
 
 	slog.Info("Starting DATABASE")
-	// databaseConnection := bun.NewBunDatabase(eg, ctx)
 	databaseConnection := postgres.NewPostgresSqlDatabase(eg, ctx)
 	sm.StartComponent(api_service.ComponentTypeSqlDatabase, databaseConnection)
 
 	slog.Info("Starting PROJECT REPOSITORY")
-	// projectRepository := project.NewProjectRepositoryBun(eg, ctx, databaseConnection)
 	projectRepository := repo_project.NewProjectRepositoryPostgres(eg, ctx, databaseConnection)
 	sm.StartComponent(api_service.ComponentTypeProjectRepository, projectRepository)
 
-	slog.Info("Starting PROJECT SERVICE")
-	projectService := project.NewProjectService(eg, ctx, projectRepository)
-	sm.StartComponent(api_service.ComponentTypeProjectService, projectService)
+	slog.Info("Starting ISSUE REPOSITORY")
+	issueRepository := repo_issue.NewIssueRepositoryPostgres(eg, ctx, databaseConnection)
+	sm.StartComponent(api_service.ComponentTypeProjectRepository, issueRepository)
 
 	slog.Info("Starting AUTH REPOSITORY")
 	authRepository := repo_auth.NewAuthRepository(eg, ctx, databaseConnection)
 	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
+
+	slog.Info("Starting PROJECT SERVICE")
+	projectService := project.NewProjectService(eg, ctx, projectRepository)
+	sm.StartComponent(api_service.ComponentTypeProjectService, projectService)
 
 	slog.Info("Starting AUTH SERVICE")
 	authService := auth.NewAuthenticationService(eg, ctx, authRepository)
@@ -78,7 +81,7 @@ func startServices(sm api_service.IServiceManager, eg *errgroup.Group, ctx conte
 	homeHandler := handlers.NewHomeHandler()
 	projectHandler := handlers.NewProjectHandler(projectService, projectRepository)
 	authHandler := handlers.NewAuthHandler(authService)
-	issueHandler := handlers.NewIssueHandler()
+	issueHandler := handlers.NewIssueHandler(issueRepository)
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
