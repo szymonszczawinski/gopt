@@ -1,4 +1,4 @@
-package storage
+package coreapi
 
 type (
 	RepositoryType  int

@@ -4,8 +4,7 @@ import (
 	"context"
 	"gopt/core/messenger"
 	"gopt/core/service"
-	imessenger "gopt/coreapi/messenger"
-	"gopt/coreapi/queue"
+	"gopt/coreapi"
 	"log"
 	"log/slog"
 
@@ -17,14 +16,14 @@ const (
 )
 
 type httpClientService struct {
-	looper queue.IJobQueue
+	looper coreapi.IJobQueue
 	ctx    context.Context
 }
 
 func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientService {
 	serviceInstance := new(httpClientService)
 	serviceInstance.ctx = ctx
-	serviceInstance.looper = queue.NeqJobQueue("httpClientService", eg)
+	serviceInstance.looper = coreapi.NeqJobQueue("httpClientService", eg)
 	sm, err := service.GetServiceManager()
 	if err == nil {
 
@@ -32,7 +31,7 @@ func NewHttpClientService(eg *errgroup.Group, ctx context.Context) *httpClientSe
 		if err == nil {
 			impl, ok := res.(messenger.IMessengerHandlerRegistry)
 			if ok {
-				impl.AddHandler(imessenger.HELLO, serviceInstance)
+				impl.AddHandler(coreapi.HELLO, serviceInstance)
 			} else {
 				slog.Info("Incorrect type", impl)
 			}
@@ -48,10 +47,10 @@ func (s *httpClientService) StartComponent() {
 	s.looper.Start(s.ctx)
 }
 
-func (s *httpClientService) OnPublish(t imessenger.Topic, m imessenger.Message, l imessenger.PublishListener) {
+func (s *httpClientService) OnPublish(t coreapi.Topic, m coreapi.Message, l coreapi.PublishListener) {
 	log.Printf("Message: %v published on topic: %v\n", m, t)
 }
 
-func (s *httpClientService) OnSubscribe(t imessenger.Topic, listener imessenger.SubscribeListener) {
+func (s *httpClientService) OnSubscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
 	log.Printf("Subscribe request on topic: %v\n", t)
 }

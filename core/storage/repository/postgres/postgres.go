@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"gopt/core/config"
-	"gopt/coreapi/service"
+	"gopt/coreapi"
 	"log"
 	"log/slog"
 	"os"
@@ -25,7 +25,7 @@ const (
 )
 
 type IPostgresDatabase interface {
-	service.IComponent
+	coreapi.IComponent
 	NewSelect(sql string, args ...any) (pgx.Rows, error)
 	NewSelectOne(sql string, args any) pgx.Row
 	NewInsert(sql string, args ...any) (pgconn.CommandTag, error)
@@ -49,7 +49,7 @@ func (db *postgresDatabase) Close() {
 }
 
 func (db *postgresDatabase) StartComponent() {
-	slog.Info("Starting", "component", service.ComponentTypeSqlDatabase)
+	slog.Info("Starting", "component", coreapi.ComponentTypeSqlDatabase)
 	db.dbpool = openDatabase(db.ctx)
 	if config.GetSystemConfig(config.INIT_DB) == config.INIT_DB_TRUE {
 		mustDropTables(db)

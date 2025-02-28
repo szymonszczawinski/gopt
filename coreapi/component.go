@@ -1,4 +1,4 @@
-package service
+package coreapi
 
 const NEW_FUNCTION string = "New"
 

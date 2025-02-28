@@ -1,12 +1,12 @@
-package messenger
+package coreapi
 
-import "gopt/coreapi/service"
-
-type Message any
-type Feedback any
+type (
+	Message  any
+	Feedback any
+)
 
 type IMessenger interface {
-	service.IComponent
+	IComponent
 	Publish(t Topic, m Message, listener PublishListener)
 	Subscribe(t Topic, listener SubscribeListener)
 }
@@ -18,4 +18,10 @@ type PublishListener interface {
 
 type SubscribeListener interface {
 	OnMessage(t Topic, m Message)
+}
+
+var HELLO Topic = Topic{"hello"}
+
+type Topic struct {
+	name string
 }

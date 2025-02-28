@@ -3,7 +3,6 @@ package handlers
 import (
 	"gopt/core/domain/issue"
 	"gopt/coreapi"
-	"gopt/coreapi/viewhandlers"
 	"log/slog"
 
 	view_issue "gopt/public/issue"
@@ -25,7 +24,7 @@ func NewIssueHandler(repo IIssueRepo) *issueHandler {
 	return &instance
 }
 
-func (handler *issueHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+func (handler *issueHandler) ConfigureRoutes(routes Routes) {
 	issuesRoute := routes.Views().Group("/issues")
 	// pagesProjects.Use(auth.SessionAuth)
 

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"gopt/coreapi/viewhandlers"
 	errors "gopt/public/error"
 	"gopt/public/home"
 
@@ -15,7 +14,7 @@ func NewHomeHandler() *homeHandler {
 	return &instance
 }
 
-func (handler *homeHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+func (handler *homeHandler) ConfigureRoutes(routes Routes) {
 	routes.Root().GET("/", handler.homePage)
 	routes.Root().GET("/error", handler.errorPage)
 }

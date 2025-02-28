@@ -4,14 +4,13 @@ import (
 	"context"
 	"embed"
 	"fmt"
-	"gopt/coreapi/viewhandlers"
+	"gopt/core/http/handlers"
 	"log"
 	"log/slog"
 	"net/http"
 	"os"
 	"time"
 
-	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
@@ -23,14 +22,13 @@ type StaticContent struct {
 }
 
 type IHttpServer interface {
-	AddHandler(c viewhandlers.IViewHandler)
+	AddHandler(c handlers.IViewHandler)
 }
 
 type httpServer struct {
 	server     *http.Server
 	router     *gin.Engine
-	routes     *viewhandlers.Routes
-	renderrer  multitemplate.Renderer
+	routes     *handlers.Routes
 	fileSystem embed.FS
 	group      *errgroup.Group
 	ctx        context.Context
@@ -46,7 +44,6 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 		},
 		router:     ginRouter,
 		routes:     routes,
-		renderrer:  multitemplate.NewRenderer(),
 		fileSystem: staticContent.PublicDir,
 		group:      group,
 		ctx:        context,
@@ -55,7 +52,6 @@ func NewHttpServer(context context.Context, group *errgroup.Group, port int, sta
 }
 
 func (s *httpServer) Start() {
-	s.router.HTMLRender = s.renderrer
 	s.group.Go(func() error {
 		s.group.Go(func() error {
 			// service connections
@@ -87,7 +83,7 @@ func (s *httpServer) Start() {
 	})
 }
 
-func (s *httpServer) AddHandler(vh viewhandlers.IViewHandler) {
+func (s *httpServer) AddHandler(vh handlers.IViewHandler) {
 	vh.ConfigureRoutes(*s.routes)
 }
 
@@ -107,13 +103,13 @@ func createGinRouter(fs embed.FS) *gin.Engine {
 	return engine
 }
 
-func configureMainRoutes(router *gin.Engine) *viewhandlers.Routes {
+func configureMainRoutes(router *gin.Engine) *handlers.Routes {
 	rootRoute := router.Group("/gopt")
 	apiRoute := rootRoute.Group("/api")
 	viewsRoute := rootRoute.Group("/views")
 
 	// apiRoute.Use(auth.SessionAuth)
 	// viewsRoute.Use(auth.SessionAuth)
-	routes := viewhandlers.NewRoutes(rootRoute, viewsRoute, apiRoute)
+	routes := handlers.NewRoutes(rootRoute, viewsRoute, apiRoute)
 	return routes
 }

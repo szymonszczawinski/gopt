@@ -4,8 +4,6 @@ import (
 	"errors"
 	"gopt/core/domain/auth"
 	"gopt/coreapi"
-	"gopt/coreapi/service"
-	"gopt/coreapi/viewhandlers"
 	"log/slog"
 	"net/http"
 
@@ -21,7 +19,7 @@ var (
 )
 
 type IAuthService interface {
-	service.IComponent
+	coreapi.IComponent
 	Login(username, password string) coreapi.Result[auth.AuthCredentials]
 }
 type authHandler struct {
@@ -35,7 +33,7 @@ func NewAuthHandler(authService IAuthService) *authHandler {
 	return &instance
 }
 
-func (handler *authHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+func (handler *authHandler) ConfigureRoutes(routes Routes) {
 	routes.Root().GET("login", handler.login)
 	routes.Root().POST("login", handler.loginSubmit)
 	routes.Root().GET("logout", handler.logout)

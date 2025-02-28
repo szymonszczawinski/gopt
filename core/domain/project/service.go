@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"gopt/coreapi"
-	"gopt/coreapi/service"
 	"log/slog"
 
 	"golang.org/x/sync/errgroup"
@@ -13,7 +12,7 @@ import (
 var ErrorCouldNotInsertProject = errors.New("could not insert project")
 
 type IProjectRepository interface {
-	service.IComponent
+	coreapi.IComponent
 	GetProjects() coreapi.Result[[]ProjectListElement]
 	GetProject(projectId string) coreapi.Result[Project]
 	StoreProject(project Project) coreapi.Result[Project]

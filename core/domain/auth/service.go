@@ -4,13 +4,12 @@ import (
 	"context"
 	"errors"
 	"gopt/coreapi"
-	"gopt/coreapi/service"
 
 	"golang.org/x/sync/errgroup"
 )
 
 type IAuthRepository interface {
-	service.IComponent
+	coreapi.IComponent
 }
 
 type authenticationService struct {

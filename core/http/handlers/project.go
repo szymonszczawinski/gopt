@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"gopt/core/domain/project"
 	"gopt/coreapi"
-	"gopt/coreapi/service"
-	"gopt/coreapi/viewhandlers"
 	"log/slog"
 
 	view_errors "gopt/public/error"
@@ -15,7 +13,7 @@ import (
 )
 
 type IProjectQueryRepository interface {
-	service.IComponent
+	coreapi.IComponent
 	GetProjects() coreapi.Result[[]project.ProjectListElement]
 }
 
@@ -39,7 +37,7 @@ func NewProjectHandler(projectService IProjectService, readRepo IProjectQueryRep
 	return &instance
 }
 
-func (handler *projectHandler) ConfigureRoutes(routes viewhandlers.Routes) {
+func (handler *projectHandler) ConfigureRoutes(routes Routes) {
 	projectsRoute := routes.Views().Group("/projects")
 	// pagesProjects.Use(auth.SessionAuth)
 
