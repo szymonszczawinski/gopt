@@ -7,7 +7,7 @@ import (
 // Interface for all handlers
 type IViewHandler interface {
 	// Perform(a Action) gin.HandlerFunc
-	ConfigureRoutes(routes Routes)
+	ConfigureRoutes(path string, routes Routes)
 }
 
 // Container for application routes

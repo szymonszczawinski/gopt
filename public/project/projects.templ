@@ -1,56 +1,63 @@
 package project
 
 import (
-"gopt/core/domain/project"
-layout "gopt/public/layouts"
+	"gopt/core/domain/project"
+	layout "gopt/public/layouts"
 )
 
 templ Projects(contentOnly bool, projects []project.ProjectListElement) {
-if contentOnly {
-@projectsContent(projects)
-} else {
-@layout.PageAll("Projects") {
-@projectsContent(projects)
-}
-}
+	if contentOnly {
+		@projectsContent(projects)
+	} else {
+		@layout.PageAll("Projects") {
+			@projectsContent(projects)
+		}
+	}
 }
 
 templ projectsContent(projects []project.ProjectListElement) {
-<div>
-  <div class="bg-gray-700 text-white p-4">
-    <a href="/gopt/views/projects/new"
-      class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium">
-      Add
-      Project
-    </a>
-  </div>
-  <div>
-    <table class="shadow-lg bg-white border-collapse" id="project-list">
-      <tr>
-        <th class="bg-blue-100 border text-left px-8 py-4">ID</th>
-        <th class="bg-blue-100 border text-left px-8 py-4">Name</th>
-        <th class="bg-blue-100 border text-left px-8 py-4">State</th>
-        <th class="bg-blue-100 border text-left px-8 py-4">Owner</th>
-        <th class="bg-blue-100 border text-left px-8 py-4">Created</th>
-        <th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
-      </tr>
-      for _,elem :=range projects {
-      <tr class="hover:bg-gray-50">
-        <td class="border px-8 py-4">
-          <a href="#" hx-get={ "/gopt/views/projects/" + elem.ProjectKey } hx-target="#content-body" hx-push-url="true"
-            class="text-blue-600">
-            {
+	<div>
+		<div class="bg-gray-700 text-white p-4">
+			<a
+				href="/gopt/views/projects/new"
+				class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+			>
+				Add
+				Project
+			</a>
+		</div>
+		<div>
+			<table class="shadow-lg bg-white border-collapse" id="project-list">
+				<tr>
+					<th class="bg-blue-100 border text-left px-8 py-4">ID</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Name</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">State</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Owner</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Created</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
+				</tr>
+				for _,elem :=range projects {
+					<tr class="hover:bg-gray-50">
+						<td class="border px-8 py-4">
+							<a
+								href="#"
+								hx-get={ "/gopt/views/projects/" + elem.ProjectKey }
+								hx-target="#content-body"
+								hx-push-url="true"
+								class="text-blue-600"
+							>
+								{ 
             elem.ProjectKey }
-          </a>
-        </td>
-        <td class="border px-8 py-4">{ elem.Name }</td>
-        <td class="border px-8 py-4">{ elem.State }</td>
-        <td class="border px-8 py-4">{ elem.Owner }</td>
-        <td class="border px-8 py-4">{ elem.Created }</td>
-        <td class="border px-8 py-4">{ elem.Updated }</td>
-      </tr>
-      }
-    </table>
-  </div>
-</div>
+							</a>
+						</td>
+						<td class="border px-8 py-4">{ elem.Name }</td>
+						<td class="border px-8 py-4">{ elem.State }</td>
+						<td class="border px-8 py-4">{ elem.Owner }</td>
+						<td class="border px-8 py-4">{ elem.Created }</td>
+						<td class="border px-8 py-4">{ elem.Updated }</td>
+					</tr>
+				}
+			</table>
+		</div>
+	</div>
 }

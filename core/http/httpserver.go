@@ -83,22 +83,22 @@ func (s *httpServer) Start() {
 	})
 }
 
-func (s *httpServer) AddHandler(vh handlers.IViewHandler) {
-	vh.ConfigureRoutes(*s.routes)
+func (s *httpServer) AddHandler(path string, vh handlers.IViewHandler) {
+	vh.ConfigureRoutes(path, *s.routes)
 }
 
 func createGinRouter(fs embed.FS) *gin.Engine {
 	engine := gin.Default()
 	engine.StaticFS("/public", http.FS(fs))
-	cookieOptions := sessions.Options{
-		Path:     "/",
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode,
-		Domain:   "",
-		MaxAge:   60 * 5,
-	}
+	// cookieOptions := sessions.Options{
+	// 	Path:     "/",
+	// 	HttpOnly: true,
+	// 	SameSite: http.SameSiteLaxMode,
+	// 	// Domain:   "gopt",
+	// 	MaxAge: 60 * 5,
+	// }
 	cookieStore := cookie.NewStore([]byte(os.Getenv("SECRET")))
-	cookieStore.Options(cookieOptions)
+	// cookieStore.Options(cookieOptions)
 	engine.Use(sessions.Sessions("mysession", cookieStore))
 	return engine
 }
@@ -109,7 +109,7 @@ func configureMainRoutes(router *gin.Engine) *handlers.Routes {
 	viewsRoute := rootRoute.Group("/views")
 
 	// apiRoute.Use(auth.SessionAuth)
-	// viewsRoute.Use(auth.SessionAuth)
+	viewsRoute.Use(handlers.SessionAuth)
 	routes := handlers.NewRoutes(rootRoute, viewsRoute, apiRoute)
 	return routes
 }

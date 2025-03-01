@@ -1,0 +1,80 @@
+package issue
+
+import layout "gopt/public/layouts"
+
+templ IssueDetails(contentOnly bool, issueKey string, parentKey string) {
+	if contentOnly {
+		@issueDetailsContent(issueKey, parentKey)
+	} else {
+		@layout.PageAll("Issue Details") {
+			@issueDetailsContent(issueKey, parentKey)
+		}
+	}
+}
+
+templ issueDetailsContent(issueKey string, parentKey string) {
+	{ parentKey } --- > { issueKey }
+}
+
+templ NewIssue() {
+	@layout.PageAll("Create Issue") {
+		@NewIssueForm()
+		@IssueAddError("")
+	}
+}
+
+templ NewIssueForm() {
+	<div>
+		<form hx-post="/gopt/views/issues/new" hx-target="#issue-add-error-pane">
+			<div>
+				<label for="issue-name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
+					Name
+				</label>
+				<input
+					type="text"
+					name="issue-name"
+					id="issue-name"
+					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+					value=""
+				/>
+			</div>
+			<div>
+				<label for="issue-type" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
+					Issue Type
+				</label>
+				<input
+					type="text"
+					name="issue-type"
+					id="issue-type"
+					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+					value=""
+				/>
+			</div>
+			<div>
+				<label for="project-key" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project</label>
+				<input
+					type="text"
+					name="project-key"
+					id="project-key"
+					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
+					value=""
+				/>
+			</div>
+			<div>
+				<button
+					type="submit"
+					class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2"
+				>
+					SAVE
+				</button>
+			</div>
+		</form>
+	</div>
+	<div id="issue-add-error-pane">
+		@IssueAddError("")
+	</div>
+}
+
+templ IssueAddError(message string) {
+	<label id="error-mess:wageage" class="block mb-2 text-sm font-medium text-rose-900">{ message }</label>
+}

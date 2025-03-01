@@ -14,7 +14,7 @@ func NewHomeHandler() *homeHandler {
 	return &instance
 }
 
-func (handler *homeHandler) ConfigureRoutes(routes Routes) {
+func (handler *homeHandler) ConfigureRoutes(path string, routes Routes) {
 	routes.Root().GET("/", handler.homePage)
 	routes.Root().GET("/error", handler.errorPage)
 }

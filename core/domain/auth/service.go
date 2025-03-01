@@ -2,7 +2,6 @@ package auth
 
 import (
 	"context"
-	"errors"
 	"gopt/coreapi"
 
 	"golang.org/x/sync/errgroup"
@@ -40,5 +39,6 @@ func (service authenticationService) Login(username, pass string) coreapi.Result
 		return coreapi.NewResult(AuthCredentials{}, err)
 	}
 	authCredentials := NewAuthCredentials(userName, password)
-	return coreapi.NewResult(authCredentials, errors.New("not implemented"))
+	// return coreapi.NewResult(authCredentials, errors.New("not implemented"))
+	return coreapi.NewResult(authCredentials, nil)
 }

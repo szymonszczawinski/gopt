@@ -88,10 +88,10 @@ func startComponents(sm coreapi.IServiceManager, eg *errgroup.Group, ctx context
 	}
 
 	httpServer := http.NewHttpServer(ctx, eg, httpPort, staticContent)
-	httpServer.AddHandler(homeHandler)
-	httpServer.AddHandler(projectHandler)
-	httpServer.AddHandler(authHandler)
-	httpServer.AddHandler(issueHandler)
+	httpServer.AddHandler("/", homeHandler)
+	httpServer.AddHandler("/projects", projectHandler)
+	httpServer.AddHandler("/", authHandler)
+	httpServer.AddHandler("issues/", issueHandler)
 	httpServer.Start()
 
 	// slog.Info("Starting HTTP SERVER SERVICE")

@@ -37,8 +37,8 @@ func NewProjectHandler(projectService IProjectService, readRepo IProjectQueryRep
 	return &instance
 }
 
-func (handler *projectHandler) ConfigureRoutes(routes Routes) {
-	projectsRoute := routes.Views().Group("/projects")
+func (handler *projectHandler) ConfigureRoutes(path string, routes Routes) {
+	projectsRoute := routes.Views().Group(path)
 	// pagesProjects.Use(auth.SessionAuth)
 
 	projectsRoute.GET("/", handler.listProjects)

@@ -1,80 +1,76 @@
 package issue
 
+import "gopt/core/domain/issue"
+
 import layout "gopt/public/layouts"
 
-templ IssueDetails(contentOnly bool, issueKey string, parentKey string) {
+templ Issues(contentOnly bool, issues []issue.IssueListElement) {
 	if contentOnly {
-		@issueDetailsContent(issueKey, parentKey)
+		@issuesContent(issues)
 	} else {
-		@layout.PageAll("Issue Details") {
-			@issueDetailsContent(issueKey, parentKey)
+		@layout.PageAll("Issue List") {
+			@issuesContent(issues)
 		}
 	}
 }
 
-templ issueDetailsContent(issueKey string, parentKey string) {
-	{ parentKey } --- > { issueKey }
-}
-
-templ NewIssue() {
-	@layout.PageAll("Create Issue") {
-		@NewIssueForm()
-		@IssueAddError("")
-	}
-}
-
-templ NewIssueForm() {
+templ issuesContent(issues []issue.IssueListElement) {
 	<div>
-		<form hx-post="/gopt/views/issues/new" hx-target="#issue-add-error-pane">
-			<div>
-				<label for="issue-name" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
-					Name
-				</label>
-				<input
-					type="text"
-					name="issue-name"
-					id="issue-name"
-					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-					value=""
-				/>
-			</div>
-			<div>
-				<label for="issue-type" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
-					Issue Type
-				</label>
-				<input
-					type="text"
-					name="issue-type"
-					id="issue-type"
-					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-					value=""
-				/>
-			</div>
-			<div>
-				<label for="project-key" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">Project</label>
-				<input
-					type="text"
-					name="project-key"
-					id="project-key"
-					class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2"
-					value=""
-				/>
-			</div>
-			<div>
-				<button
-					type="submit"
-					class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2"
-				>
-					SAVE
-				</button>
-			</div>
-		</form>
+		<div class="bg-gray-700 text-white p-4">
+			<a
+				href="/gopt/views/issues/new"
+				class="text-gray-300 hover:bg-gray-700 hover:text-white rounded-md px-3 py-2 text-sm font-medium"
+			>
+				Create Issue
+			</a>
+		</div>
+		<div>
+			<table class="shadow-lg bg-white border-collapse" id="issue-list">
+				<tr>
+					<th class="bg-blue-100 border text-left px-8 py-4">Item</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Name</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">State</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Assagnee</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Created By</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Created</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Updated</th>
+					<th class="bg-blue-100 border text-left px-8 py-4">Project</th>
+				</tr>
+				for _,elem :=range issues {
+					<tr class="hover:bg-gray-50">
+						<td class="border px-8 py-4">
+							<a
+								href="#"
+								hx-get={ "/gopt/views/issues/" + elem.ItemKey }
+								hx-target="#content-body"
+								hx-push-url="true"
+								class="text-blue-600"
+							>
+								{ 
+            elem.ItemKey }
+							</a>
+						</td>
+						<td class="border px-8 py-4">{ elem.Name }</td>
+						<td class="border px-8 py-4">{ elem.State }</td>
+						<td class="border px-8 py-4">{ elem.AssignedTo }</td>
+						<td class="border px-8 py-4">{ elem.CreatedBy }</td>
+						<td class="border px-8 py-4">{ elem.Created }</td>
+						<td class="border px-8 py-4">{ elem.Updated }</td>
+						<td class="border px-8 py-4">
+							<a
+								href="#"
+								hx-get={ "/gopt/views/projects/" + elem.ParentKey }
+								hx-target="#content-body"
+								hx-push-url="true"
+								class="text-blue-600"
+							>
+								{ 
+            elem.ParentKey }
+							</a>
+						</td>
+					</tr>
+				}
+			</table>
+		</div>
 	</div>
-	<div id="issue-add-error-pane">
-		@IssueAddError("")
-	</div>
-}
-
-templ IssueAddError(message string) {
-	<label id="error-mess:wageage" class="block mb-2 text-sm font-medium text-rose-900">{ message }</label>
 }

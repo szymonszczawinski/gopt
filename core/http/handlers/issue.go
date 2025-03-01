@@ -12,6 +12,7 @@ import (
 
 type IIssueRepo interface {
 	GetIssue(key string) coreapi.Result[issue.Issue]
+	GetIssues() coreapi.Result[[]issue.IssueListElement]
 }
 type issueHandler struct {
 	repo IIssueRepo
@@ -24,8 +25,8 @@ func NewIssueHandler(repo IIssueRepo) *issueHandler {
 	return &instance
 }
 
-func (handler *issueHandler) ConfigureRoutes(routes Routes) {
-	issuesRoute := routes.Views().Group("/issues")
+func (handler *issueHandler) ConfigureRoutes(path string, routes Routes) {
+	issuesRoute := routes.Views().Group(path)
 	// pagesProjects.Use(auth.SessionAuth)
 
 	issuesRoute.GET("/", handler.listIssues)
@@ -67,4 +68,15 @@ func (h issueHandler) addIssue(c *gin.Context) {
 
 func (h issueHandler) listIssues(c *gin.Context) {
 	slog.Info("ISSUE ALL")
+	result := h.repo.GetIssues()
+	if !result.Sucess() {
+		slog.Error("get issue list", "err", result.Error().Error())
+		return
+	}
+	isHxRequest := c.GetHeader("HX-Request")
+	if isHxRequest == "true" {
+		view_issue.Issues(true, result.Data()).Render(c.Request.Context(), c.Writer)
+	} else {
+		view_issue.Issues(false, result.Data()).Render(c.Request.Context(), c.Writer)
+	}
 }
