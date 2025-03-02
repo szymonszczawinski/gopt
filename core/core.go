@@ -2,6 +2,7 @@ package core
 
 import (
 	"context"
+	"gopt/core/cache"
 	"gopt/core/config"
 	"gopt/core/domain/auth"
 	"gopt/core/domain/project"
@@ -52,7 +53,6 @@ func startComponents(sm coreapi.IServiceManager, eg *errgroup.Group, ctx context
 	slog.Info("Starting MESSENGER SERVICE")
 	messengerService := messenger.NewMessengerService(eg, ctx)
 	sm.StartComponent(coreapi.ComponentTypeMessenger, messengerService)
-
 	slog.Info("Starting DATABASE")
 	databaseConnection := postgres.NewPostgresSqlDatabase(eg, ctx)
 	sm.StartComponent(coreapi.ComponentTypeSqlDatabase, databaseConnection)
@@ -69,8 +69,12 @@ func startComponents(sm coreapi.IServiceManager, eg *errgroup.Group, ctx context
 	authRepository := repo_auth.NewAuthRepository(eg, ctx, databaseConnection)
 	// sm.StartComponent(iservice.ComponentTypeAuthRepository, authRepository)
 
+	slog.Info("Starting and init CACHE")
+	cache := cache.NewCache(projectRepository)
+	cache.InitCache()
+
 	slog.Info("Starting PROJECT SERVICE")
-	projectService := project.NewProjectService(eg, ctx, projectRepository)
+	projectService := project.NewProjectService(eg, ctx, projectRepository, cache)
 	sm.StartComponent(coreapi.ComponentTypeProjectService, projectService)
 
 	slog.Info("Starting AUTH SERVICE")
@@ -80,7 +84,7 @@ func startComponents(sm coreapi.IServiceManager, eg *errgroup.Group, ctx context
 	homeHandler := handlers.NewHomeHandler()
 	projectHandler := handlers.NewProjectHandler(projectService, projectRepository)
 	authHandler := handlers.NewAuthHandler(authService)
-	issueHandler := handlers.NewIssueHandler(issueRepository)
+	issueHandler := handlers.NewIssueHandler(issueRepository, *cache)
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {
