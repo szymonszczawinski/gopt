@@ -58,3 +58,8 @@ func (tt TimeTracked) GetLastUpdateTime() time.Time {
 func (tt *TimeTracked) SetLastUpdateTime(lastUpdated time.Time) {
 	tt.updated = lastUpdated
 }
+
+func GetIssueTypes() []IssueType {
+	issueTypes := []IssueType{IssueTypeRequirement, IssueTypeBug, IssueTypeTask}
+	return issueTypes
+}

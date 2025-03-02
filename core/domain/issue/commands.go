@@ -1,14 +1,17 @@
 package issue
 
-import "errors"
+import (
+	"errors"
+	"gopt/core/domain/common"
+)
 
 type CreateIssue struct {
-	IssueType  string `json:"issue_type"`
-	Name       string `json:"name"`
-	ProjectKey string `json:"project_key"`
+	IssueType  common.IssueType `json:"issue_type"`
+	Name       string           `json:"name"`
+	ProjectKey string           `json:"project_key"`
 }
 
-func NewCreateIssue(issueType, name, projectKey string) (CreateIssue, error) {
+func NewCreateIssue(issueType common.IssueType, name, projectKey string) (CreateIssue, error) {
 	command := CreateIssue{
 		IssueType:  issueType,
 		Name:       name,

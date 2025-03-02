@@ -18,16 +18,22 @@ type IProjectRepository interface {
 	StoreProject(project Project) coreapi.Result[Project]
 	UpdateProject(project Project) coreapi.Result[Project]
 }
+type (
+	IProjectCache interface {
+		AddProject(p ProjectListElement)
+	}
+	projectService struct {
+		ctx        context.Context
+		eg         *errgroup.Group
+		repository IProjectRepository
+		cache      IProjectCache
+	}
+)
 
-type projectService struct {
-	ctx        context.Context
-	eg         *errgroup.Group
-	repository IProjectRepository
-}
-
-func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository) *projectService {
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository, cache IProjectCache) *projectService {
 	instance := new(projectService)
 	instance.repository = repository
+	instance.cache = cache
 	instance.ctx = ctx
 	instance.eg = eg
 	return instance
@@ -74,7 +80,13 @@ func (service projectService) CreateProject(command CreateProject) coreapi.Resul
 		slog.Info("Could not create Project", "err", resultProject.Error())
 		return coreapi.NewResult(ProjectDetails{}, resultProject.Error())
 	}
-	return coreapi.NewResult(NewProjectDetails(resultProject.Data()), nil)
+	p := resultProject.Data()
+	service.cache.AddProject(ProjectListElement{
+		ProjectKey: p.projectKey,
+		Name:       p.name,
+		Id:         p.Id,
+	})
+	return coreapi.NewResult(NewProjectDetails(p), nil)
 }
 
 func (service *projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {

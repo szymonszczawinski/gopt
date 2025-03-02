@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"gopt/core/domain/common"
 	"gopt/core/domain/issue"
+	"gopt/core/domain/project"
 	"gopt/coreapi"
 	"log/slog"
 
@@ -14,13 +16,19 @@ type IIssueRepo interface {
 	GetIssue(key string) coreapi.Result[issue.Issue]
 	GetIssues() coreapi.Result[[]issue.IssueListElement]
 }
+type IIssueCache interface {
+	GetIssueTypes() []common.IssueType
+	GetAvailabeProjects() []project.ProjectListElement
+}
 type issueHandler struct {
-	repo IIssueRepo
+	repo  IIssueRepo
+	cache IIssueCache
 }
 
-func NewIssueHandler(repo IIssueRepo) *issueHandler {
+func NewIssueHandler(repo IIssueRepo, cache IIssueCache) *issueHandler {
 	instance := issueHandler{
-		repo: repo,
+		cache: cache,
+		repo:  repo,
 	}
 	return &instance
 }
@@ -57,12 +65,14 @@ func (h issueHandler) issueDetails(c *gin.Context) {
 
 func (h issueHandler) newIssue(c *gin.Context) {
 	slog.Info("NEW ISSUE")
-	view_issue.NewIssue().Render(c.Request.Context(), c.Writer)
+	issueTypes := h.cache.GetIssueTypes()
+	availableProjects := h.cache.GetAvailabeProjects()
+	view_issue.NewIssue(issueTypes, availableProjects).Render(c.Request.Context(), c.Writer)
 }
 
 func (h issueHandler) addIssue(c *gin.Context) {
 	slog.Info("ADD ISSUE")
-	command, err := issue.NewCreateIssue(c.PostForm("project-key"), c.PostForm("issue-name"), c.PostForm("issue-type"))
+	command, err := issue.NewCreateIssue(common.IssueType(c.PostForm("issue-type")), c.PostForm("issue-name"), c.PostForm("project-key"))
 	slog.Info("received command", "cmd", command, "err", err)
 }
 
