@@ -63,6 +63,13 @@ templ NewIssueForm(issueTypes []common.IssueType, availableProjects []project.Pr
       <!--   class="w-80 block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2" value="" /> -->
     </div>
     <div>
+      <label for="issue-summary" class="block mb-2 text-sm font-medium text-gray-900 mx-2 my-2">
+        Summary
+      </label>
+      <input type="text" name="issue-summary" id="issue-summary"
+        class="block p-2 text-gray-900 border border-gray-300 rounded-lg mx-2 my-2 w-80" value="" />
+    </div>
+    <div>
       <button type="submit"
         class="py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200 mx-2 my-2">
         SAVE

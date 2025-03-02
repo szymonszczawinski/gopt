@@ -8,9 +8,11 @@ type RelationType string
 
 const (
 	RelationTypeCauses     RelationType = "Causes"
-	RelationTypeIsCausedBy RelationType = "IsCausedBy"
-	RelationTypeIsChildOf  RelationType = "IsChildOf"
-	RelationTypeIsParentOf RelationType = "IsParentOf"
+	RelationTypeIsCausedBy RelationType = "Is caused by"
+	RelationTypeIsChildOf  RelationType = "Is child of"
+	RelationTypeIsParentOf RelationType = "Is parent of"
+	RelationTypeIsFixedBy  RelationType = "Is fixed by"
+	RelationTypeFixes      RelationType = "Fixes"
 )
 
 const (
@@ -62,4 +64,13 @@ func (tt *TimeTracked) SetLastUpdateTime(lastUpdated time.Time) {
 func GetIssueTypes() []IssueType {
 	issueTypes := []IssueType{IssueTypeRequirement, IssueTypeBug, IssueTypeTask}
 	return issueTypes
+}
+
+func GetRelationTypes() []RelationType {
+	relationTypes := []RelationType{
+		RelationTypeCauses, RelationTypeIsCausedBy,
+		RelationTypeIsParentOf, RelationTypeIsChildOf,
+		RelationTypeIsFixedBy, RelationTypeFixes,
+	}
+	return relationTypes
 }

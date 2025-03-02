@@ -9,13 +9,15 @@ type CreateIssue struct {
 	IssueType  common.IssueType `json:"issue_type"`
 	Name       string           `json:"name"`
 	ProjectKey string           `json:"project_key"`
+	Summary    string           `json:"issue_summary"`
 }
 
-func NewCreateIssue(issueType common.IssueType, name, projectKey string) (CreateIssue, error) {
+func NewCreateIssue(issueType common.IssueType, name, projectKey, summary string) (CreateIssue, error) {
 	command := CreateIssue{
 		IssueType:  issueType,
 		Name:       name,
 		ProjectKey: projectKey,
+		Summary:    summary,
 	}
 
 	return command, command.validate()

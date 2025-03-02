@@ -72,7 +72,12 @@ func (h issueHandler) newIssue(c *gin.Context) {
 
 func (h issueHandler) addIssue(c *gin.Context) {
 	slog.Info("ADD ISSUE")
-	command, err := issue.NewCreateIssue(common.IssueType(c.PostForm("issue-type")), c.PostForm("issue-name"), c.PostForm("project-key"))
+	command, err := issue.NewCreateIssue(
+		common.IssueType(c.PostForm("issue-type")),
+		c.PostForm("issue-name"),
+		c.PostForm("project-key"),
+		c.PostForm("issue-summary"),
+	)
 	slog.Info("received command", "cmd", command, "err", err)
 }
 
