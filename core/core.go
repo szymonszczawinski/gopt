@@ -74,7 +74,7 @@ func startComponents(sm coreapi.IServiceManager, eg *errgroup.Group, ctx context
 	cache.InitCache()
 
 	slog.Info("Starting PROJECT SERVICE")
-	projectService := project.NewProjectService(eg, ctx, projectRepository, cache)
+	projectService := project.NewProjectService(eg, ctx, projectRepository, &cache)
 	sm.StartComponent(coreapi.ComponentTypeProjectService, projectService)
 
 	slog.Info("Starting AUTH SERVICE")
@@ -84,7 +84,7 @@ func startComponents(sm coreapi.IServiceManager, eg *errgroup.Group, ctx context
 	homeHandler := handlers.NewHomeHandler()
 	projectHandler := handlers.NewProjectHandler(projectService, projectRepository)
 	authHandler := handlers.NewAuthHandler(authService)
-	issueHandler := handlers.NewIssueHandler(issueRepository, *cache)
+	issueHandler := handlers.NewIssueHandler(issueRepository, cache)
 
 	httpPort, err := strconv.Atoi(os.Getenv("HTTP_PORT"))
 	if err != nil {

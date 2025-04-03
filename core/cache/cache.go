@@ -17,8 +17,8 @@ type Cache struct {
 	availableProjects map[string]project.ProjectListElement
 }
 
-func NewCache(projectRepo IProjectQueryRepository) *Cache {
-	return &Cache{
+func NewCache(projectRepo IProjectQueryRepository) Cache {
+	return Cache{
 		projectRepo:       projectRepo,
 		availableProjects: map[string]project.ProjectListElement{},
 	}
