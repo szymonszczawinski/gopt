@@ -30,16 +30,17 @@ type (
 	}
 )
 
-func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository, cache IProjectCache) *projectService {
-	instance := new(projectService)
-	instance.repository = repository
-	instance.cache = cache
-	instance.ctx = ctx
-	instance.eg = eg
+func NewProjectService(eg *errgroup.Group, ctx context.Context, repository IProjectRepository, cache IProjectCache) projectService {
+	instance := projectService{
+		repository: repository,
+		cache:      cache,
+		ctx:        ctx,
+		eg:         eg,
+	}
 	return instance
 }
 
-func (service *projectService) StartComponent() {
+func (service projectService) StartComponent() {
 }
 
 // func (service projectService) GetProjects() coreapi.Result[[]ProjectListElement] {
@@ -89,7 +90,7 @@ func (service projectService) CreateProject(command CreateProject) coreapi.Resul
 	return coreapi.NewResult(NewProjectDetails(p), nil)
 }
 
-func (service *projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {
+func (service projectService) CloseProject(projectId string) coreapi.Result[ProjectDetails] {
 	// TODO: to implement
 	return coreapi.NewResult(ProjectDetails{}, nil)
 }

@@ -17,16 +17,16 @@ type authenticationService struct {
 	repository IAuthRepository
 }
 
-func NewAuthenticationService(eg *errgroup.Group, ctx context.Context, repository IAuthRepository) *authenticationService {
+func NewAuthenticationService(eg *errgroup.Group, ctx context.Context, repository IAuthRepository) authenticationService {
 	instance := authenticationService{
 		ctx:        ctx,
 		eg:         eg,
 		repository: repository,
 	}
-	return &instance
+	return instance
 }
 
-func (service *authenticationService) StartComponent() {
+func (service authenticationService) StartComponent() {
 }
 
 func (service authenticationService) Login(username, pass string) coreapi.Result[AuthCredentials] {

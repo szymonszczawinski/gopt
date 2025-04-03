@@ -9,12 +9,12 @@ import (
 
 type homeHandler struct{}
 
-func NewHomeHandler() *homeHandler {
+func NewHomeHandler() homeHandler {
 	instance := homeHandler{}
-	return &instance
+	return instance
 }
 
-func (handler *homeHandler) ConfigureRoutes(path string, routes Routes) {
+func (handler homeHandler) ConfigureRoutes(path string, routes Routes) {
 	routes.Root().GET("/", handler.homePage)
 	routes.Root().GET("/error", handler.errorPage)
 }

@@ -28,29 +28,30 @@ type messengerService struct {
 	handlers map[coreapi.Topic][]IMessengerHandler
 }
 
-func NewMessengerService(eg *errgroup.Group, ctx context.Context) coreapi.IMessenger {
+func NewMessengerService(eg *errgroup.Group, ctx context.Context) messengerService {
 	slog.Info("New Messenger Service")
-	messenger := new(messengerService)
-	messenger.ctx = ctx
-	messenger.looper = coreapi.NeqJobQueue("messengerService", eg)
-	messenger.handlers = map[coreapi.Topic][]IMessengerHandler{}
+	messenger := messengerService{
+		ctx:      ctx,
+		looper:   coreapi.NeqJobQueue("messengerService", eg),
+		handlers: map[coreapi.Topic][]IMessengerHandler{},
+	}
 	sm, _ := service.GetServiceManager()
 	sm.RegisterComponent(IMMESSENGER_HANDLER_REGISTRY, messenger)
 	return messenger
 }
 
-func (s *messengerService) StartComponent() {
+func (s messengerService) StartComponent() {
 	slog.Info("Starting", "component", coreapi.ComponentTypeMessenger)
 	s.looper.Start(s.ctx)
 }
 
-func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener) {
+func (s messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener coreapi.PublishListener) {
 	slog.Info("Publish on", "topic", t)
 	go func() {
 		slog.Info("Publish::GO:: ", "handlers", s.handlers)
-		handlers, ok := s.handlers[t]
+		topicHandlers, ok := s.handlers[t]
 		if ok {
-			for _, handler := range handlers {
+			for _, handler := range topicHandlers {
 				handler.OnPublish(t, m, listener)
 			}
 		} else {
@@ -59,21 +60,22 @@ func (s *messengerService) Publish(t coreapi.Topic, m coreapi.Message, listener 
 	}()
 }
 
-func (s *messengerService) Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
+func (s messengerService) Subscribe(t coreapi.Topic, listener coreapi.SubscribeListener) {
 	slog.Info("Subscribe on", "topic", t)
 }
 
-func (s *messengerService) AddHandler(t coreapi.Topic, handler IMessengerHandler) {
+func (s messengerService) AddHandler(t coreapi.Topic, handler IMessengerHandler) {
 	slog.Info("AddHandler")
-	handlers, ok := s.handlers[t]
+	topicHandlers, ok := s.handlers[t]
 	if ok {
-		handlers = append(handlers, handler)
+		topicHandlers = append(topicHandlers, handler)
+		s.handlers[t] = topicHandlers
 	} else {
 		s.handlers[t] = []IMessengerHandler{handler}
 	}
-	slog.Info("andler added for", "topic", t, " added")
+	slog.Info("handler added for", "topic", t, "handler", handler)
 }
 
-func (s *messengerService) RemoveHandler(handler IMessengerHandler) {
+func (s messengerService) RemoveHandler(handler IMessengerHandler) {
 	slog.Info("RemoveHandler")
 }

@@ -109,7 +109,7 @@ func configureMainRoutes(router *gin.Engine) *handlers.Routes {
 	viewsRoute := rootRoute.Group("/views")
 
 	// apiRoute.Use(auth.SessionAuth)
-	viewsRoute.Use(handlers.SessionAuth)
+	//	viewsRoute.Use(handlers.SessionAuth)
 	routes := handlers.NewRoutes(rootRoute, viewsRoute, apiRoute)
 	return routes
 }

@@ -9,8 +9,8 @@ type issueService struct {
 	repo IIssueRepo
 }
 
-func NewIssueService(repo IIssueRepo) *issueService {
-	return &issueService{
+func NewIssueService(repo IIssueRepo) issueService {
+	return issueService{
 		repo: repo,
 	}
 }

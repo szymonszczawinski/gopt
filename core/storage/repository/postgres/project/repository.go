@@ -63,17 +63,17 @@ type projectRepositoryPostgres struct {
 	ctx context.Context
 }
 
-func NewProjectRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) *projectRepositoryPostgres {
+func NewProjectRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) projectRepositoryPostgres {
 	instance := projectRepositoryPostgres{
 		lockDb: &sync.RWMutex{},
 		db:     db,
 		eg:     eg,
 		ctx:    ctx,
 	}
-	return &instance
+	return instance
 }
 
-func (repo *projectRepositoryPostgres) StartComponent() {
+func (repo projectRepositoryPostgres) StartComponent() {
 }
 
 func (repo projectRepositoryPostgres) GetProjects() coreapi.Result[[]project.ProjectListElement] {

@@ -25,15 +25,15 @@ type issueHandler struct {
 	cache IIssueCache
 }
 
-func NewIssueHandler(repo IIssueRepo, cache IIssueCache) *issueHandler {
+func NewIssueHandler(repo IIssueRepo, cache IIssueCache) issueHandler {
 	instance := issueHandler{
 		cache: cache,
 		repo:  repo,
 	}
-	return &instance
+	return instance
 }
 
-func (handler *issueHandler) ConfigureRoutes(path string, routes Routes) {
+func (handler issueHandler) ConfigureRoutes(path string, routes Routes) {
 	issuesRoute := routes.Views().Group(path)
 	// pagesProjects.Use(auth.SessionAuth)
 

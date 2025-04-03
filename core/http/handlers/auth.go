@@ -39,14 +39,14 @@ type authHandler struct {
 	authService IAuthService
 }
 
-func NewAuthHandler(authService IAuthService) *authHandler {
+func NewAuthHandler(authService IAuthService) authHandler {
 	instance := authHandler{
 		authService: authService,
 	}
-	return &instance
+	return instance
 }
 
-func (handler *authHandler) ConfigureRoutes(path string, routes Routes) {
+func (handler authHandler) ConfigureRoutes(path string, routes Routes) {
 	routes.Root().GET("login", handler.login)
 	routes.Root().POST("login", handler.loginSubmit)
 	routes.Root().GET("logout", handler.logout)

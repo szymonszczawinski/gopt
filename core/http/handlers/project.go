@@ -29,15 +29,15 @@ type projectHandler struct {
 	readRepo       IProjectQueryRepository
 }
 
-func NewProjectHandler(projectService IProjectService, readRepo IProjectQueryRepository) *projectHandler {
+func NewProjectHandler(projectService IProjectService, readRepo IProjectQueryRepository) projectHandler {
 	instance := projectHandler{
 		projectService: projectService,
 		readRepo:       readRepo,
 	}
-	return &instance
+	return instance
 }
 
-func (handler *projectHandler) ConfigureRoutes(path string, routes Routes) {
+func (handler projectHandler) ConfigureRoutes(path string, routes Routes) {
 	projectsRoute := routes.Views().Group(path)
 	// pagesProjects.Use(auth.SessionAuth)
 

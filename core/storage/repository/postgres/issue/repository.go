@@ -48,17 +48,17 @@ type issueRepositoryPostgres struct {
 	ctx context.Context
 }
 
-func NewIssueRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) *issueRepositoryPostgres {
+func NewIssueRepositoryPostgres(eg *errgroup.Group, ctx context.Context, db postgres.IPostgresDatabase) issueRepositoryPostgres {
 	instance := issueRepositoryPostgres{
 		lockDb: &sync.RWMutex{},
 		db:     db,
 		eg:     eg,
 		ctx:    ctx,
 	}
-	return &instance
+	return instance
 }
 
-func (repo *issueRepositoryPostgres) StartComponent() {
+func (repo issueRepositoryPostgres) StartComponent() {
 }
 
 func (repo issueRepositoryPostgres) GetIssues() coreapi.Result[[]issue.IssueListElement] {
