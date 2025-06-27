@@ -13,8 +13,8 @@ There will be different  types of relations between Items on the same level, or 
 HTML/HTMX/TEMPL frontend.
 
 ## Run
-process TEMPL templates with templ generate
-create postgres database
-have DB_URL env variable, eg.: DB_URL=postgresql://postgres:postgres@localhost:5432/gopt
-run app with -initdb true parameter
+- process TEMPL templates with templ generate
+- create postgres database
+- have DB_URL env variable, eg.: DB_URL=postgresql://postgres:postgres@localhost:5432/gopt
+- run app with -initdb true parameter
 
