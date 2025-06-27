@@ -11,7 +11,7 @@
 #BUILD APP
 ############################################################################
 
-FROM golang:1.23.0-alpine3.20 as build-stage
+FROM golang:1.24.4-alpine3.22 as build-stage
 WORKDIR /app
 COPY . .
 RUN go mod download

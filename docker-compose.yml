@@ -1,0 +1,14 @@
+services:
+  gopt:
+    image: gopt-v1
+    # network_mode: host
+    ports:
+        - 8081:8081
+    environment:
+        # - DB_URL=postgresql://postgres:postgres@172.18.0.1:5432/gopt
+        # - DB_URL=postgresql://postgres:postgres@localhost:5432/gopt
+        - DB_URL=postgresql://postgres:postgres@172.18.0.1:5432/gopt
+    extra_hosts:
+      # - "host.docker.internal:host-gateway"
+      - "host.docker.internal:127.0.0.1"
+      # - "host.docker.internal:172.18.0.1"
